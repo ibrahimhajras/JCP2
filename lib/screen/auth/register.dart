@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/screen/auth/otppage.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
@@ -48,9 +49,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String phoneHint = "79xxxxxxxxx",
       passHint = "**********",
-      passHint2 = "**********",
-      fNameHint = "اسم الاول",
-      lNameHint = "اسم العائلة";
+      passConfirmHint = "**********";
+
+  String fNameHint = "اسم الاول";
+  String lNameHint = "اسم العائلة";
 
   String image = "assets/images/eye-hide.png";
   String image1 = "assets/images/eye-hide.png";
@@ -61,8 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
     String otp = '';
 
     for (int i = 0; i < 6; i++) {
-      otp +=
-          _random.nextInt(10).toString(); // Generates a digit between 0 and 9
+      otp += _random.nextInt(10).toString();
     }
 
     return otp;
@@ -112,7 +113,15 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء إرسال OTP: $e');
+      showConfirmationDialog(
+        context: context,
+        message: 'حدث خطأ أثناء إرسال OTP: $e',
+        confirmText: 'حسناً',
+        onConfirm: () {
+          // يمكن تركه فارغاً لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء في هذه الحالة
+      );
     }
   }
 
@@ -142,23 +151,45 @@ class _RegisterPageState extends State<RegisterPage> {
                           phone.text.isEmpty ||
                           password.text.isEmpty ||
                           city.isEmpty) {
-                        AppDialogs.showErrorDialog(
-                            context, 'يرجى تعبئة جميع الحقول.');
+                        showConfirmationDialog(
+                          context: context,
+                          message: 'يرجى تعبئة جميع الحقول',
+                          confirmText: 'حسناً',
+                          onConfirm: () {
+                            // يمكن تركه فارغاً لأنه مجرد رسالة معلوماتية
+                          },
+                          cancelText: '', // لا حاجة لزر إلغاء في هذه الحالة
+                        );
                         return;
                       }
                       if (phone.text.length != 9 ||
                           !phone.text.startsWith('7')) {
-                        AppDialogs.showErrorDialog(context,
-                            'يجب أن يكون رقم الهاتف مكونًا من 9 أرقام ويبدأ بالرقم 7.');
+                        showConfirmationDialog(
+                          context: context,
+                          message:
+                              'يجب أن يكون رقم الهاتف مكونًا من 9 أرقام ويبدأ بالرقم 7',
+                          confirmText: 'حسناً',
+                          onConfirm: () {
+                            // لا حاجة لفعل شيء بعد الضغط على حسناً
+                          },
+                          cancelText: '', // لا حاجة لزر إلغاء
+                        );
                         return;
                       }
 
                       if (password.text != confirmPassword.text) {
-                        AppDialogs.showErrorDialog(context,
-                            'كلمة المرور وتأكيد كلمة المرور غير متطابقتين. يرجى التأكد من تطابقهما.');
+                        showConfirmationDialog(
+                          context: context,
+                          message:
+                              'كلمة المرور وتأكيد كلمة المرور غير متطابقتين. يرجى التأكد من تطابقهما',
+                          confirmText: 'حسناً',
+                          onConfirm: () {
+                            // لا حاجة لفعل شيء بعد الضغط على حسناً
+                          },
+                          cancelText: '', // لا حاجة لزر إلغاء
+                        );
                         return;
                       }
-
                       sendOtp(fname.text, lname.text, phone.text, password.text,
                           city);
                     },
@@ -224,30 +255,35 @@ class _RegisterPageState extends State<RegisterPage> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: buildTextField(fname, "إسم الاول", fNameHint),
+                child: buildTextField(fname, "إسم الاول", fNameHint, (newHint) {
+                  setState(() {
+                    fNameHint = newHint;
+                  });
+                }),
               ),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: buildTextField(lname, "إسم العائلة", lNameHint),
+                child:
+                    buildTextField(lname, "إسم العائلة", lNameHint, (newHint) {
+                  setState(() {
+                    lNameHint = newHint;
+                  });
+                }),
               ),
             ),
           ],
         ),
-        // Phone field
         buildPhoneField(),
-        // City field
         buildCityField(),
-        // Password fields
-        buildPasswordField(password, "كلمة المرور", passHint, ob, image, (val) {
+        buildPasswordField(password, "كلمة المرور", passHint, ob, (val) {
           setState(() {
             ob = val;
           });
         }),
         buildPasswordField(
-            confirmPassword, "تأكيد كلمة المرور", passHint2, ob1, image1,
-            (val) {
+            confirmPassword, "تأكيد كلمة المرور", passConfirmHint, ob1, (val) {
           setState(() {
             ob1 = val;
           });
@@ -257,51 +293,61 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget buildTextField(
-      TextEditingController controller, String labelText, String hintText) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 6.5),
-          child: CustomText(
-            text: labelText,
-            size: 18,
-          ),
-        ),
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          shadowColor: Colors.black,
-          color: grey,
-          child: TextFormField(
-            controller: controller,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hintText,
+    TextEditingController controller,
+    String labelText,
+    String initialHintText,
+    Function(String) updateHint,
+  ) {
+    String hintText = initialHintText;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 6.5),
+              child: CustomText(
+                text: labelText,
+                size: 18,
+              ),
             ),
-            onTap: () {
-              setState(() {
-                hintText = "";
-              });
-            },
-            onChanged: (value) {
-              if (value.isEmpty) {
-                setState(() {
-                  hintText = labelText;
-                });
-              }
-            },
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w100,
-              fontSize: 16,
-              fontFamily: "Tajawal",
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              shadowColor: Colors.black,
+              color: grey,
+              child: TextFormField(
+                controller: controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: hintText,
+                ),
+                onTap: () {
+                  setState(() {
+                    updateHint("");
+                  });
+                },
+                onChanged: (value) {
+                  setState(() {
+                    if (value.isEmpty) {
+                      updateHint(labelText);
+                    }
+                  });
+                },
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w100,
+                  fontSize: 16,
+                  fontFamily: "Tajawal",
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -437,74 +483,70 @@ class _RegisterPageState extends State<RegisterPage> {
     String labelText,
     String hintText,
     bool obscureText,
-    String iconImage,
     Function(bool) toggleVisibility,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 6.5),
-            child: CustomText(
-              text: labelText,
-              size: 18,
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 6.5),
+              child: CustomText(
+                text: labelText,
+                size: 18,
+              ),
             ),
-          ),
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            color: grey,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: TextFormField(
-                controller: controller,
-                textAlign: TextAlign.end,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: hintText,
-                  icon: GestureDetector(
-                    onTap: () {
-                      toggleVisibility(!obscureText);
-                    },
-                    child: Image.asset(
-                      iconImage,
-                      width: 32,
-                      height: 32,
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              shadowColor: Colors.black,
+              color: grey,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: TextFormField(
+                  controller: controller,
+                  textAlign: TextAlign.end,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: hintText,
+                    icon: GestureDetector(
+                      onTap: () {
+                        toggleVisibility(!obscureText); // تغيير حالة الإخفاء
+                      },
+                      child: Icon(
+                        obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
-                ),
-                onTap: () {
-                  setState(() {
-                    hintText = "";
-                  });
-                },
-                onTapOutside: (event) {
-                  setState(() {
-                    hintText = "**********";
-                  });
-                },
-                onChanged: (value) {
-                  if (value.isEmpty) {
+                  onTap: () {
                     setState(() {
-                      hintText = "**********";
+                      hintText = ""; // إخفاء النص الوهمي عند النقر
                     });
-                  }
-                },
-                obscureText: obscureText,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  fontFamily: "Tajawal",
+                  },
+                  onChanged: (value) {
+                    if (value.isEmpty) {
+                      setState(() {
+                        hintText =
+                            "**********"; // إعادة النص الوهمي إذا كان الحقل فارغًا
+                      });
+                    }
+                  },
+                  obscureText: obscureText, // لإخفاء النص عند الكتابة
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    fontFamily: "Tajawal",
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 

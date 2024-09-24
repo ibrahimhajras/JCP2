@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> saveUserPreferences(String userId, String name, String password,
-      String type, String city , DateTime time) async {
+      String type, String city, DateTime time) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setBool('rememberMe', rememberMe);
@@ -61,7 +62,6 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('type', type);
     await prefs.setString('city', city);
     await prefs.setString('time', time.toIso8601String());
-
   }
 
   @override
@@ -406,14 +406,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> loginUser(BuildContext context, String phone, String password) async {
+  Future<void> loginUser(
+      BuildContext context, String phone, String password) async {
     if (phone.isEmpty || password.isEmpty) {
-      AppDialogs.showErrorDialog(context, 'يرجى إدخال رقم الهاتف وكلمة المرور.');
+      showConfirmationDialog(
+        context: context,
+        message: 'يرجى إدخال رقم الهاتف وكلمة المرور.',
+        confirmText: 'حسناً',
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
       return;
     }
 
-    final url = 'https://jordancarpart.com/Api/login.php?phone=' + phone + '&password=' + password;
-    final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
+    final url = 'https://jordancarpart.com/Api/login.php?phone=' +
+        phone +
+        '&password=' +
+        password;
+    final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
 
     setState(() {
       isLoading = true;
@@ -428,7 +441,8 @@ class _LoginPageState extends State<LoginPage> {
         final responseData = json.decode(response.body);
 
         if (responseData is List<dynamic>) {
-          if (responseData.isNotEmpty && responseData[0] is Map<String, dynamic>) {
+          if (responseData.isNotEmpty &&
+              responseData[0] is Map<String, dynamic>) {
             UserModel user = UserModel.fromJson(responseData[0]);
 
             profileProvider.setuser_id(user.userId);
@@ -447,8 +461,7 @@ class _LoginPageState extends State<LoginPage> {
                   profileProvider.getpassword(),
                   profileProvider.gettype(),
                   profileProvider.getcity(),
-                  profileProvider.getcreatedAt()
-              );
+                  profileProvider.getcreatedAt());
               print(profileProvider.getuser_id());
               print(profileProvider.getcreatedAt());
 
@@ -457,19 +470,57 @@ class _LoginPageState extends State<LoginPage> {
                 MaterialPageRoute(builder: (context) => HomePage()),
               );
             } else {
-              AppDialogs.showErrorDialog(context, 'رقم الهاتف أو كلمة المرور غير صحيحة.');
+              showConfirmationDialog(
+                context: context,
+                message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+                confirmText: 'حسناً',
+                onConfirm: () {
+                  // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+                },
+                cancelText: '', // لا حاجة لزر إلغاء
+              );
             }
           } else {
-            AppDialogs.showErrorDialog(context, 'حدث خطأ في استلام البيانات. يرجى المحاولة مرة أخرى.');
+            showConfirmationDialog(
+              context: context,
+              message: 'حدث خطأ في استلام البيانات. يرجى المحاولة مرة أخرى.',
+              confirmText: 'حسناً',
+              onConfirm: () {
+                // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+              },
+              cancelText: '', // لا حاجة لزر إلغاء
+            );
           }
         } else {
-          AppDialogs.showErrorDialog(context, 'رقم الهاتف أو كلمة المرور غير صحيحة.');
+          showConfirmationDialog(
+            context: context,
+            message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+            confirmText: 'حسناً',
+            onConfirm: () {
+              // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+            },
+            cancelText: '', // لا حاجة لزر إلغاء
+          );
         }
       } else {
-        AppDialogs.showErrorDialog(context, 'رقم الهاتف أو كلمة المرور غير صحيحة.');
+        showConfirmationDialog(
+          context: context,
+          message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+          confirmText: 'حسناً',
+          onConfirm: () {
+            // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+          },
+          cancelText: '', // لا حاجة لزر إلغاء
+        );
       }
     } catch (e) {
-      AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء الاتصال بالخادم: $e');
+      showConfirmationDialog(
+        context: context,
+        message: 'حدث خطأ أثناء الاتصال بالخادم: $e',
+        confirmText: 'حسناً',
+        onConfirm: () {},
+        cancelText: '',
+      );
     } finally {
       setState(() {
         isLoading = false;

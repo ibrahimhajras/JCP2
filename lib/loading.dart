@@ -84,7 +84,7 @@ class _LoadingPageState extends State<LoadingPage>
             gradient: LinearGradient(
               begin: Alignment.bottomRight,
               end: Alignment.topLeft,
-              colors: [primary3],
+              colors: [primary3, primary3, primary3],
             ),
             image: DecorationImage(
               image: AssetImage("assets/images/card.png"),

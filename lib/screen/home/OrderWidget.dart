@@ -29,11 +29,11 @@ class _OrderWidgetState extends State<OrderWidget> {
   Future<void> fetchOrdersForUser(BuildContext context, String userId) async {
     final url = Uri.parse('https://jordancarpart.com/Api/getordersofuser.php');
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final fetchProvider = Provider.of<OrderFetchProvider>(context, listen: false);
+    final fetchProvider =
+        Provider.of<OrderFetchProvider>(context, listen: false);
 
     try {
       fetchProvider.setState(FetchState.loading);
-
       final response = await http.post(
         url,
         headers: {
@@ -49,25 +49,24 @@ class _OrderWidgetState extends State<OrderWidget> {
               .map((order) => OrderModel.fromJson(order))
               .toList();
           orderProvider.setOrders(orders);
-
-          if (mounted) {  // Check if still mounted before calling setState
+          if (mounted) {
             fetchProvider.setState(FetchState.loaded);
           }
           print('Orders updated successfully: ${orders.length} orders');
         } else {
-          if (mounted) {  // Check if still mounted before calling setState
+          if (mounted) {
             fetchProvider.setState(FetchState.error);
           }
           print('Failed to load orders. Response: ${responseData['message']}');
         }
       } else {
-        if (mounted) {  // Check if still mounted before calling setState
+        if (mounted) {
           fetchProvider.setState(FetchState.error);
         }
         print('Failed to load orders. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      if (mounted) {  // Check if still mounted before calling setState
+      if (mounted) {
         fetchProvider.setState(FetchState.error);
       }
       print('Error fetching orders: $e');
@@ -81,10 +80,10 @@ class _OrderWidgetState extends State<OrderWidget> {
   }
 
   Future<void> _initializeData() async {
-    await _checkForNotifications(); // Wait for the notification check to complete
-    await Future.delayed(Duration.zero);  // Wait until the next frame
+    await _checkForNotifications();
+    await Future.delayed(Duration.zero);
     final user = Provider.of<ProfileProvider>(context, listen: false);
-    await fetchOrdersForUser(context, user.user_id);  // Fetch orders for the user
+    await fetchOrdersForUser(context, user.user_id);
   }
 
   Future<void> _checkForNotifications() async {
@@ -92,20 +91,19 @@ class _OrderWidgetState extends State<OrderWidget> {
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
-    if (mounted) {  // Ensure the widget is still in the widget tree
+    if (mounted) {
       setState(() {
         check2 = hasUnread;
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +116,7 @@ class _OrderWidgetState extends State<OrderWidget> {
           Container(
             height: size.height * 0.7,
             child: FutureBuilder(
-              future: _ordersFuture,  // This will now have a value
+              future: _ordersFuture, // This will now have a value
               builder: (context, snapshot) {
                 if (fetchProvider.state == FetchState.loading) {
                   return Center(child: RotatingImagePage());
@@ -130,7 +128,8 @@ class _OrderWidgetState extends State<OrderWidget> {
                       return ListView.builder(
                         itemCount: orderProvider.orders.length,
                         itemBuilder: (context, index) {
-                          OrderModel order = orderProvider.orders[index];
+                          OrderModel order = orderProvider
+                              .orders[orderProvider.orders.length - 1 - index];
                           return OrderViewWidget(order: order);
                         },
                       );

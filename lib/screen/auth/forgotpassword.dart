@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/style/custom_text.dart';
 import 'package:http/http.dart' as http;
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
@@ -206,17 +207,35 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => OtpPageForgwe(phone: phone,),
+            builder: (context) => OtpPageForgwe(
+              phone: phone,
+            ),
           ),
         );
       } else {
-        AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء إرسال OTP.');
+        showConfirmationDialog(
+          context: context,
+          message: 'حدث خطأ أثناء إرسال OTP.',
+          confirmText: 'حسناً',
+          onConfirm: () {
+            // يمكن تركه فارغاً لأنه مجرد رسالة معلوماتية
+          },
+          cancelText: '', // لا حاجة لزر إلغاء
+        );
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء إرسال OTP: $e');
+      showConfirmationDialog(
+        context: context,
+        message: 'حدث خطأ أثناء إرسال OTP: $e',
+        confirmText: 'حسناً',
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 }

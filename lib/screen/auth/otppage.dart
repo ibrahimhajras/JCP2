@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/style/colors.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:http/http.dart' as http;
@@ -101,13 +102,29 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
       if (response.statusCode == 200) {
         print("تم إرسال OTP بنجاح.");
       } else {
-        AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء إرسال OTP.');
+        showConfirmationDialog(
+          context: context,
+          message: 'حدث خطأ أثناء إرسال OTP.',
+          confirmText: 'حسناً',
+          onConfirm: () {
+            // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+          },
+          cancelText: '', // لا حاجة لزر إلغاء
+        );
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء إرسال OTP: $e');
+      showConfirmationDialog(
+        context: context,
+        message: 'حدث خطأ أثناء إرسال OTP: $e',
+        confirmText: 'حسناً',
+        onConfirm: () {
+          // يمكن تركه فارغاً
+        },
+        cancelText: '',
+      );
     }
   }
 
@@ -330,7 +347,15 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context, "الرمز الذي أدخلته غير صحيح.");
+      showConfirmationDialog(
+        context: context,
+        message: "الرمز الذي أدخلته غير صحيح.",
+        confirmText: "حسناً",
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 

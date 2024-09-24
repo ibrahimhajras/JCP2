@@ -118,8 +118,13 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Widget _buildNotificationCard(
       Map<String, dynamic> notification, int index, Size size) {
+    RegExp regExp = RegExp(r"\d+");
+    String message = notification['message'] ?? " ";
+    Iterable<Match> matches = regExp.allMatches(message);
+    String number = matches.isNotEmpty ? matches.first.group(0) ?? "" : "";
+
     return Card(
-      color: grey,
+      color: white,
       margin: EdgeInsets.symmetric(
         vertical: size.height * 0.01,
         horizontal: size.width * 0.04,
@@ -134,19 +139,36 @@ class _NotificationPageState extends State<NotificationPage> {
           horizontal: size.width * 0.04,
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    notification['message'] ?? " ",
-                    style: TextStyle(
-                      fontSize: size.height * 0.02,
-                      fontWeight: FontWeight.bold,
-                    ),
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: RichText(
+                  textAlign: TextAlign.right,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "تم تأكيد طلب رقم ",
+                        style: TextStyle(
+                          fontSize: size.height * 0.02,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: number, // عرض الرقم
+                        style: TextStyle(
+                          fontSize: size.height * 0.02,
+                          fontWeight: FontWeight.bold,
+                          color: notification['type'] == "تأكيد"
+                              ? Colors.green
+                              : Colors.orange,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
             SizedBox(width: size.width * 0.04),
@@ -170,5 +192,26 @@ class _NotificationPageState extends State<NotificationPage> {
         ),
       ),
     );
+  }
+
+  List<TextSpan> _buildMessageWithColoredNumbers(List<String> messageParts,
+      List<String> numbers, Color numberColor, double fontSize) {
+    List<TextSpan> spans = [];
+    for (int i = 0; i < messageParts.length; i++) {
+      // أضف الجزء النصي
+      spans.add(TextSpan(text: messageParts[i]));
+      // أضف الرقم بلون مختلف إذا كان موجوداً
+      if (i < numbers.length) {
+        spans.add(TextSpan(
+          text: numbers[i],
+          style: TextStyle(
+            color: numberColor, // اللون المخصص للأرقام بناءً على نوع الإشعار
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+          ),
+        ));
+      }
+    }
+    return spans;
   }
 }

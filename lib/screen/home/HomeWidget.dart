@@ -7,6 +7,7 @@ import 'package:jcp/helper/snack_bar.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/screen/Drawer/PricingRequestPage.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -581,7 +582,6 @@ class _HomeWidgetState extends State<HomeWidget> {
           controller: controller,
           textAlign: TextAlign.end,
           maxLength: 30,
-          // تحديد الحد الأقصى لعدد الأحرف بـ 30 حرفًا
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: grey, width: 2),
@@ -599,18 +599,12 @@ class _HomeWidgetState extends State<HomeWidget> {
               color: words,
               fontSize: size.width * 0.04,
             ),
-            counterText: controller.text.isNotEmpty
-                ? null // سيظهر العداد عند بدء الكتابة
-                : '', // لن يظهر العداد عندما يكون الحقل فارغاً
+            counterText: '', // إزالة العداد
           ),
           style: TextStyle(
             color: Colors.black,
             fontSize: size.width * 0.04,
           ),
-          onChanged: (text) {
-            // تحديث الواجهة عند تغيير النص لتطبيق الشرط أعلاه
-            (context as Element).markNeedsBuild();
-          },
         ),
       ),
     );
@@ -655,17 +649,26 @@ class _HomeWidgetState extends State<HomeWidget> {
             });
             widget.run(true);
           } else {
-            showSnack(context, "الرجاء ادخال رقم الشصي و القطعة الاولى");
+            showConfirmationDialog(
+              context: context,
+              message: "الرجاء إدخال رقم الشصي والقطعة الأولى",
+              confirmText: "حسناً",
+              onConfirm: () {
+                // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
+              },
+              cancelText: '', // لا حاجة لزر إلغاء
+            );
           }
         },
-        height: size.height * 0.07,
-        minWidth: size.width * 0.9,
+        height: 50, // نفس ارتفاع الزر الثاني
+        minWidth: size.width * 0.9, // نفس عرض الزر الثاني
         color: Color.fromRGBO(195, 29, 29, 1),
         child: CustomText(
           text: "إرسال",
           color: white,
-          size: size.width * 0.045,
+          size: 16, // نفس حجم النص في الزر الثاني
         ),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
@@ -805,10 +808,26 @@ class _HomeWidgetState extends State<HomeWidget> {
           },
         );
       } else {
-        showSnack(context, "فشل في إرسال الطلب: ${response.reasonPhrase}");
+        showConfirmationDialog(
+          context: context,
+          message: "فشل في إرسال الطلب: ${response.reasonPhrase}",
+          confirmText: "حسناً",
+          onConfirm: () {
+            // يمكنك تركه فارغاً أو تنفيذ أي إجراء عند النقر على "حسناً"
+          },
+          cancelText: '', // لا حاجة لزر إلغاء
+        );
       }
     } catch (e) {
-      showSnack(context, "حدث خطأ في الاتصال بالإنترنت");
+      showConfirmationDialog(
+        context: context,
+        message: "حدث خطأ في الاتصال بالإنترنت",
+        confirmText: "حسناً",
+        onConfirm: () {
+          // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 }

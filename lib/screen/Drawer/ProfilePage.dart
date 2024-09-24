@@ -87,6 +87,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     Future<void> updateUserCity(int userId, String city) async {
+      print(userId);
+      print(city);
       final url = Uri.parse(
           'https://jordancarpart.com/Api/updateuser.php?user_id=$userId&city=$city');
       try {
@@ -403,7 +405,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                   child: Container(
                                     width: size.width * 0.9,
-                                    // نفس العرض كما كان
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
                                       color: Color.fromRGBO(255, 255, 255, 1),

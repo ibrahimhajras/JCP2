@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:jcp/screen/home/homeuser.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../helper/snack_bar.dart';
@@ -589,10 +590,26 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
           },
         );
       } else {
-        showSnack(context, "فشل في إرسال الطلب. حاول مرة أخرى.");
+        showConfirmationDialog(
+          context: context,
+          message: "فشل في إرسال الطلب. حاول مرة أخرى.",
+          confirmText: "حسناً",
+          onConfirm: () {
+            // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
+          },
+          cancelText: '', // لا حاجة لزر إلغاء
+        );
       }
     } else {
-      showSnack(context, "الرجاء ادخال رقم الشصي و القطعة");
+      showConfirmationDialog(
+        context: context,
+        message: "الرجاء إدخال رقم الشصي والقطعة",
+        confirmText: "حسناً",
+        onConfirm: () {
+          // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 }

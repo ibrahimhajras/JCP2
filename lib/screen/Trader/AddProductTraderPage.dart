@@ -342,7 +342,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('يرجى ملء جميع الحقول المطلوبة للسعر والكمية والعلامة التجارية والكفالة.'),
+              content: Text(
+                  'يرجى ملء جميع الحقول المطلوبة للسعر والكمية والعلامة التجارية والكفالة.'),
               backgroundColor: Colors.red,
             ),
           );
@@ -412,6 +413,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       });
     }
   }
+
   Widget buildHeader(Size size) {
     return Container(
       height: size.height * 0.2,
@@ -494,15 +496,18 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               ),
             ),
             SizedBox(height: sizeFactor * 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                buildCheckboxColumn("مستعمل", 4, sizeFactor),
-                buildCheckboxColumn("بلد المنشأ", 3, sizeFactor),
-                buildCheckboxColumn("تجاري 2", 2, sizeFactor),
-                buildCheckboxColumn("تجاري", 1, sizeFactor),
-                buildCheckboxColumn("شركة", 0, sizeFactor),
-              ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  buildCheckboxColumn("مستعمل", 4, sizeFactor),
+                  buildCheckboxColumn("بلد المنشأ", 3, sizeFactor),
+                  buildCheckboxColumn("تجاري 2", 2, sizeFactor),
+                  buildCheckboxColumn("تجاري", 1, sizeFactor),
+                  buildCheckboxColumn("شركة", 0, sizeFactor),
+                ],
+              ),
             ),
             SizedBox(height: sizeFactor * 10),
             if (showInfoBox.isNotEmpty)
@@ -725,7 +730,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(sizeFactor * 10)),
             shadowColor: Colors.black,
-            color: white,
+            color: Colors.white70, // اللون نفسه المستخدم في التصميم السابق
             child: TextFormField(
               textAlign: TextAlign.center,
               controller: controller,
@@ -765,7 +770,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(sizeFactor * 10),
               ),
-              color: white,
+              color: Colors.white70, // اللون نفسه المستخدم في التصميم السابق
               child: DropdownButtonFormField<String>(
                 padding: EdgeInsets.only(right: sizeFactor * 5),
                 alignment: Alignment.center,

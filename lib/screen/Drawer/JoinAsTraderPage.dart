@@ -29,8 +29,9 @@ class _TraderPageState extends State<TraderPage> {
   bool isChecked1 = false;
   bool isChecked2 = false;
   bool isLoading = false; // State to handle loading
-
+  String nameHint = "الأسم الأول مع العائلة"; // hint الخاص بالاسم
   String phoneHint = "79xxxxxxxxx";
+
   List<String> list = [
     "عمَان",
     "اربد",
@@ -310,7 +311,7 @@ class _TraderPageState extends State<TraderPage> {
               controller: name,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: "الأسم الأول مع العائلة",
+                hintText: nameHint, // عرض الـ hint هنا
               ),
               style: TextStyle(
                 color: Colors.black,
@@ -318,6 +319,19 @@ class _TraderPageState extends State<TraderPage> {
                 fontSize: 16,
                 fontFamily: "Tajawal",
               ),
+              onTap: () {
+                setState(() {
+                  nameHint = ""; // إخفاء الـ hint عند النقر
+                });
+              },
+              onChanged: (text) {
+                setState(() {
+                  if (text.isEmpty) {
+                    nameHint =
+                        "الأسم الأول مع العائلة"; // إعادة عرض الـ hint إذا كان الحقل فارغاً
+                  }
+                });
+              },
             ),
           ),
         ],

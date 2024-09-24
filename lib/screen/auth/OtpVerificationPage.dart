@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/auth/ResetPasswordPage.dart';
 import 'package:jcp/style/colors.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:http/http.dart' as http;
@@ -217,7 +218,15 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context, "الرمز الذي أدخلته غير صحيح.");
+      showConfirmationDialog(
+        context: context,
+        message: "الرمز الذي أدخلته غير صحيح.",
+        confirmText: "حسناً",
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 

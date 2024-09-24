@@ -47,7 +47,7 @@ class _ContactPageState extends State<ContactPage> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(contactData), // Send the dynamic data
       );
-
+      print(response.body.toString());
       if (response.statusCode == 200) {
         print("Comment added successfully");
         showModalBottomSheet(
@@ -274,7 +274,7 @@ class _ContactPageState extends State<ContactPage> {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 35),
-                    child:  CustomButton(
+                    child: CustomButton(
                       text: "ارسل",
                       onPressed: () async {
                         final comment = CommentModel(

@@ -28,9 +28,6 @@ class OrderDetailsPage_Green extends StatelessWidget {
               _buildSectionTitle("المركبة"),
               _buildOrderDetails(size),
               SizedBox(height: size.height * 0.01),
-              _buildSectionTitle("رقم الشاصي"),
-              _buildOrderDetails2(size),
-              SizedBox(height: size.height * 0.01),
               ..._buildSelectedItemsList(context),
               SizedBox(height: size.height * 0.04),
               Row(
@@ -183,52 +180,62 @@ class OrderDetailsPage_Green extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    item['itemType'] ?? 'N/A',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                ),
                 Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        item['itemName'] ?? 'N/A',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Card(
-                      color: green,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          item["price"] ?? 'N/A',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.info_outline,
-                        color: green,
-                      ),
-                      onPressed: () => _showItemDetails(context, item),
-                    ),
-                  ],
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                        width: 80,
+                        height: 70,
+                        child: Align(
+                          child: CustomText(
+                            text: item['itemName'] ?? 'N/A',
+                            size: 15,
+                            weight: FontWeight.bold,
+                          ),
+                        )),
+                    Column(
+                      children: [
+                        SizedBox(
+                          width: 120,
+                          child: CustomText(
+                            text: item['itemType'] ?? 'N/A',
+                            size: 15,
+                            weight: FontWeight.bold,
+                          ),
+                        ),
+                        Card(
+                          color: green,
+                          child: SizedBox(
+                            width: 80,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CustomText(
+                                text: item["price"] ?? 'N/A',
+                                color: Colors.white,
+                                size: 15,
+                                weight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.info_outline,
+                          color: green,
+                        ),
+                        onPressed: () => _showItemDetails(context, item),
+                      ),
+                    )
+                  ],
                 ),
-                SizedBox(
-                  height: 8,
-                ),
-                Divider(
-                  height: 2,
-                )
+                SizedBox(height: 8),
+                Divider(height: 2),
               ],
             ),
           );
@@ -244,136 +251,198 @@ class OrderDetailsPage_Green extends StatelessWidget {
   void _showItemDetails(BuildContext context, Map<String, dynamic> item) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Item Details'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'العلامه التجاري: ${item["itemType"] ?? 'N/A'}',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return Dialog(
+              backgroundColor: Colors.white,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.width * 0.7,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 7,
+                    color: words,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  color: Color.fromRGBO(255, 255, 255, 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "${item['itemType']}",
+                            color: words,
+                          ),
+                          CustomText(
+                            text: " : العلامة التجارية",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "${item['price']}",
+                            color: words,
+                          ),
+                          CustomText(
+                            text: " : السعر",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomText(
+                                text: "شهر",
+                                color: words,
+                              ),
+                              SizedBox(width: 2),
+                              CustomText(
+                                text: "${item['itemWarranty'] ?? 'N/A'}",
+                                color: words,
+                              ),
+                            ],
+                          ),
+                          CustomText(
+                            text: " : مدة الكفالة",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: item['itemNote']?.isEmpty ?? true
+                                ? "لا يوجد"
+                                : item['itemNote'],
+                            color: words,
+                          ),
+                          CustomText(
+                            text: " : الملاحظات",
+                          ),
+                        ],
+                      ),
+                      if (item['itemImg'] != null && item['itemImg'].isNotEmpty)
+                        _buildImageFromBase64(item['itemImg'], context)
+                      else
+                        CustomText(
+                          text: "لا يوجد صورة",
+                          color: words,
+                        ),
+                    ],
+                  ),
+                ),
               ),
-              SizedBox(height: 8),
-              Text(
-                'مده الكفاله : ${item["itemWarranty"] ?? 'N/A'}شهر',
-                style: TextStyle(fontSize: 15),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'الملاحضات: ${item["itemNote"] ?? 'N/A'}',
-                style: TextStyle(fontSize: 15),
-              ),
-              SizedBox(height: 8),
-              Text("الصوره:"),
-              item["itemImg"] != null && item["itemImg"].isNotEmpty
-                  ? _buildImageFromBase64(item["itemImg"])
-                  : Text('No image available'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildImageFromBase64(String base64String) {
+  Widget _buildImageFromBase64(String base64String, BuildContext context) {
     try {
-      final decodedBytes = base64Decode(base64String);
-      return Image.memory(
-        Uint8List.fromList(decodedBytes),
-        height: 100, // Adjust height as needed
-        width: double.infinity,
-        fit: BoxFit.cover,
-      );
+      if (base64String.isNotEmpty) {
+        if (base64String.contains(',')) {
+          base64String = base64String.split(',').last;
+        }
+        print('Base64 String Length: ${base64String.length}');
+        Uint8List decodedBytes = base64Decode(base64String);
+        print('Decoded Bytes Length: ${decodedBytes.length}');
+        return Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Card(
+              elevation: 10,
+              shadowColor: Colors.black,
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Image.memory(
+                    decodedBytes,
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      print('Error in Image.memory: $error');
+                      return Text("لا يوجد صورة");
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      } else {
+        print('Base64 String is empty');
+        return Text('لا يوجد صورة');
+      }
     } catch (e) {
-      return Text('Error loading image');
+      print('Error decoding image: $e');
+      return Text('لا يوجد صورة');
     }
   }
 
   Widget _buildOrderDetails(Size size) {
+    if (orderData.isEmpty || orderData["header"] == null) return Container();
     final header = orderData["header"];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        width: double.infinity,
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-                child: Text(header["Fueltype"].toString(),
-                    textAlign: TextAlign.center)),
-            Expanded(
-                child: Text(header["Enginecategory"].toString(),
-                    textAlign: TextAlign.center)),
-            Expanded(
-                child: Text(header["Enginetype"].toString(),
-                    textAlign: TextAlign.center)),
-            Expanded(
-                child: Text(header["Engineyear"].toString(),
-                    textAlign: TextAlign.center)),
-            Expanded(
-                child: Text(header["Enginesize"].toString(),
-                    textAlign: TextAlign.center)),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildOrderDetails2(Size size) {
-    final header = orderData["header"];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        width: double.infinity,
-        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          // Spacing evenly between items
-          crossAxisAlignment: CrossAxisAlignment.center,
-          // Align vertically centered
-          children: [
-            Expanded(
-                child: Text(header["bodyid"].toString(),
-                    textAlign: TextAlign.center)),
-          ],
-        ),
-      ),
+          width: double.infinity,
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomText(
+                    text: header["Enginetype"].toString() +
+                        "  " +
+                        header["Enginecategory"].toString() +
+                        "  " +
+                        header["Fueltype"].toString() +
+                        " " +
+                        header["Engineyear"].toString() +
+                        "  " +
+                        header["Enginesize"].toString(),
+                  ),
+                ],
+              ),
+              CustomText(
+                text: header["bodyid"].toString(),
+                color: black,
+                letters: true,
+              )
+            ],
+          )),
     );
   }
 }

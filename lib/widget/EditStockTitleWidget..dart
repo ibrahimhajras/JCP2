@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jcp/style/colors.dart';
 
 import '../../style/custom_text.dart';
 
@@ -22,7 +23,7 @@ class EditStockTitleWidget extends StatelessWidget {
           ),
         ),
         Container(
-          width: size.width * 0.17,
+          width: size.width * 0.16,
           height: 40,
           child: Center(
             child: CustomText(
@@ -32,7 +33,7 @@ class EditStockTitleWidget extends StatelessWidget {
           ),
         ),
         Container(
-          width: size.width * 0.17,
+          width: size.width * 0.18,
           height: 40,
           child: Center(
             child: CustomText(
@@ -42,7 +43,7 @@ class EditStockTitleWidget extends StatelessWidget {
           ),
         ),
         Container(
-          width: size.width * 0.17,
+          width: size.width * 0.18,
           height: 40,
           child: Center(
             child: CustomText(
@@ -52,8 +53,15 @@ class EditStockTitleWidget extends StatelessWidget {
           ),
         ),
         Container(
-          width: size.width * 0.3,
+          width: size.width * 0.2,
           height: 40,
+          child: Center(
+            child: CustomText(
+              color: white,
+              text: "الكمية",
+              weight: FontWeight.w900,
+            ),
+          ),
         ),
       ],
     );

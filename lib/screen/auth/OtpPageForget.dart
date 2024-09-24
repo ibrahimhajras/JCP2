@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/auth/ResetPasswordPage.dart';
 import 'package:jcp/style/colors.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import '../../style/custom_text.dart';
@@ -8,7 +9,6 @@ import '../../widget/Inallpage/dialogs.dart';
 
 class OtpPageForgwe extends StatefulWidget {
   final String phone;
-
 
   const OtpPageForgwe({
     Key? key,
@@ -21,7 +21,7 @@ class OtpPageForgwe extends StatefulWidget {
 
 class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
   List<TextEditingController> otpControllers =
-  List.generate(6, (index) => TextEditingController());
+      List.generate(6, (index) => TextEditingController());
   bool isLoading = false;
 
   @override
@@ -151,14 +151,14 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
                 child: isLoading
                     ? CircularProgressIndicator(color: Colors.white)
                     : Text(
-                  "تحقق",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: size.width * 0.045,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Tajawal",
-                  ),
-                ),
+                        "تحقق",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: size.width * 0.045,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Tajawal",
+                        ),
+                      ),
                 padding: EdgeInsets.symmetric(
                     vertical: size.height * 0.015,
                     horizontal: size.width * 0.12),
@@ -182,7 +182,7 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
     });
 
     String enteredOtp =
-    otpControllers.map((controller) => controller.text).join();
+        otpControllers.map((controller) => controller.text).join();
 
     final prefs = await SharedPreferences.getInstance();
     String? otpFromPrefs = prefs.getString('otp');
@@ -192,7 +192,11 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
 
     if (otpFromPrefs == enteredOtp) {
       print("OTP صحيح");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ResetPasswordPage(phone: widget.phone),));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResetPasswordPage(phone: widget.phone),
+          ));
 
       setState(() {
         isLoading = false;
@@ -201,7 +205,15 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context,"الرمز الذي أدخلته غير صحيح.");
+      showConfirmationDialog(
+        context: context,
+        message: "الرمز الذي أدخلته غير صحيح.",
+        confirmText: "حسناً",
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 

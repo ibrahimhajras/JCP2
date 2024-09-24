@@ -12,7 +12,8 @@ class CountdownProvider with ChangeNotifier {
     _updateCountdown(); // تحديث النص لأول مرة
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       final now = DateTime.now();
-      final remainingTime = lastOrderTime.add(countdownDuration).difference(now);
+      final remainingTime =
+          lastOrderTime.add(countdownDuration).difference(now);
 
       if (remainingTime.isNegative) {
         _timer.cancel();

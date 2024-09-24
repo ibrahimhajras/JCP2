@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/provider/ProfileProvider.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
@@ -179,6 +181,7 @@ class _StockViewPageState extends State<StockViewPage> {
   ];
 
   bool hide = false;
+  bool _isDialogShown = false;
 
   Future<List<Map<String, dynamic>>> fetchProducts(String userId) async {
     final url = Uri.parse(
@@ -218,7 +221,9 @@ class _StockViewPageState extends State<StockViewPage> {
     final response = await http.post(
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
       body: json.encode({
         "product_id": product_id,
@@ -233,26 +238,24 @@ class _StockViewPageState extends State<StockViewPage> {
         isEditing = false;
       });
     } else {
-      // Handle error
       print('Failed to update the product');
     }
   }
 
   void deleteProduct(String product_id, String checkboxItem) async {
-    final url = Uri.parse('https://jordancarpart.com/Api/deleteProduct2.php');
-    final response = await http.post(
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/deleteProduct.php?product_id=$product_id&details_id=$checkboxItem');
+    final response = await http.get(
       url,
       headers: {
         'Content-Type': 'application/json',
       },
-      body: json.encode({
-        "product_id": product_id,
-        "details_id": checkboxItem,
-      }),
     );
-
+    print(response.body);
     if (response.statusCode == 200) {
-      setState(() {});
+      setState(() {
+        Navigator.of(context).pop();
+      });
     } else {}
   }
 
@@ -274,8 +277,7 @@ class _StockViewPageState extends State<StockViewPage> {
                       children: [
                         _buildDropdownRow(),
                         _buildSearchField(size),
-                        _buildProductList(size,
-                            user.user_id),
+                        _buildProductList(size, user.user_id),
                       ],
                     ),
                   ),
@@ -306,11 +308,12 @@ class _StockViewPageState extends State<StockViewPage> {
         children: [
           Padding(
             padding: EdgeInsets.only(
-              top: size.height * 0.09,
+              top: size.height * 0.075,
               left: 10,
               right: 10,
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
                   onTap: () {
@@ -327,22 +330,25 @@ class _StockViewPageState extends State<StockViewPage> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 25.0),
-                      child: Center(
-                        child: CustomText(
-                          text: "كامل المخزن",
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          size: 22,
-                          weight: FontWeight.w900,
-                        ),
-                      ),
+                SizedBox(width: size.width * 0.26),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CustomText(
+                      text: "كامل المخزن",
+                      color: Color.fromRGBO(255, 255, 255, 1),
+                      size: 22,
+                      weight: FontWeight.w900,
                     ),
-                  ),
+                    SizedBox(height: 5),
+                    CustomText(
+                      text: user.name,
+                      color: Color.fromRGBO(255, 255, 255, 1),
+                      size: 18,
+                    ),
+                  ],
                 ),
+                Spacer(), // هذا لإبقاء النص في الوسط والمحافظة على التنسيق
               ],
             ),
           ),
@@ -350,6 +356,7 @@ class _StockViewPageState extends State<StockViewPage> {
       ),
     );
   }
+
   Widget _buildDropdownRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10),
@@ -374,98 +381,101 @@ class _StockViewPageState extends State<StockViewPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        color: Colors.white, // Adjust color as needed
-        child: DropdownButtonFormField<String>(
-          padding: EdgeInsets.only(right: 5),
-          alignment: Alignment.center,
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.keyboard_arrow_down_rounded),
-            border: InputBorder.none,
-          ),
-          items: items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: Colors.black, // Adjust color as needed
-                  fontSize: 14,
-                ),
-              ),
-            );
-          }).toList(),
-          value: items[0],
-          // Set the current value
-          isExpanded: true,
-          menuMaxHeight: 200,
-          onChanged: onChanged,
-          borderRadius: BorderRadius.circular(10),
-          elevation: 10,
-          style: TextStyle(color: Colors.black), // Adjust color as needed
-        ),
-      ),
-    );
-  }
-  Widget _buildSearchField(Size size) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 10),
-      child: Container(
-        width: size.width * 0.805,
-        decoration: BoxDecoration(
-          color: grey,
-          border: Border.all(
-            color: words,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: TextField(
-            controller: search,
-            textAlignVertical: TextAlignVertical.center,
-            textAlign: TextAlign.center,
+        color: Colors.white70, // Adjust color as needed
+        child: Directionality(
+          textDirection: TextDirection.rtl, // تعيين الاتجاه إلى اليمين
+          child: DropdownButtonFormField<String>(
             decoration: InputDecoration(
-              border: InputBorder.none,
-              prefixIcon: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    hide ? Container() : Icon(Icons.search),
-                    CustomText(
-                      text: search.text.isEmpty ? "" : search.text,
-                    ),
-                  ],
+              border: InputBorder.none, // إزالة الـborder
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16), // ضبط الهوامش
+            ),
+            items: items.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: Colors.black, // Adjust color as needed
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-              hintText: "",
+              );
+            }).toList(),
+            value: items[0],
+            isExpanded: true,
+            menuMaxHeight: 200,
+            onChanged: onChanged,
+            borderRadius: BorderRadius.circular(10),
+            elevation: 10,
+            style: TextStyle(color: Colors.black), // Adjust color as needed
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Colors.black, // Adjust color as needed
             ),
-            onTap: () {
-              setState(() {
-                search.text = "";
-                hide = true;
-                TraderInfoPage.isEnabled = true;
-              });
-            },
-            onChanged: (value) {
-              setState(() {});
-            },
-            onTapOutside: (event) {
-              setState(() {
-                TraderInfoPage.isEnabled = false;
-              });
-            },
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w100,
-              fontSize: 16,
-              fontFamily: "Tajawal",
-            ),
+            iconSize: 24, // تحديد حجم السهم
+            iconEnabledColor: Colors.black, // لون السهم
+            alignment: Alignment.centerRight, // محاذاة العناصر لليمين
+            dropdownColor: Colors.white,
           ),
         ),
       ),
     );
   }
 
+  Widget _buildSearchField(Size size) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 10),
+      child: Container(
+        width: size.width * 0.805,
+        decoration: BoxDecoration(
+          color: Color(0xFFE0E0E0), // لون رمادي مشابه للـ Dropdown
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.grey, // ضبط لون الحدود
+            width: 1,
+          ),
+        ),
+        child: TextField(
+          controller: search,
+          textAlignVertical: TextAlignVertical.center,
+          textAlign: TextAlign.center,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            prefixIcon: hide
+                ? null
+                : Icon(
+                    Icons.search,
+                    color: Colors.black, // لون الأيقونة
+                  ),
+            hintText: "بحث", // إضافة النص التوضيحي (placeholder)
+          ),
+          onTap: () {
+            setState(() {
+              search.text = "";
+              hide = true;
+              TraderInfoPage.isEnabled = true;
+            });
+          },
+          onChanged: (value) {
+            setState(() {});
+          },
+          onTapOutside: (event) {
+            setState(() {
+              TraderInfoPage.isEnabled = false;
+            });
+          },
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w100,
+            fontSize: 14,
+            fontFamily: "Tajawal",
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildProductList(Size size, String userId) {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -473,104 +483,70 @@ class _StockViewPageState extends State<StockViewPage> {
       builder: (BuildContext context,
           AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: RotatingImagePage());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(child: Text('No products found'));
         } else {
           final list = snapshot.data!;
-          bool hasZeroAmount = false;
-
-          for (var product in list) {
-            for (var item in product['checkboxData']) {
-              if (item['amount'] == 0) {
-                hasZeroAmount = true;
-                break;
-              }
-            }
-          }
-          if (hasZeroAmount) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('تنبيه'),
-                    content: Text('لديك كمية لقطعة قد نفذت'),
-                    actions: [
-                      TextButton(
-                        child: Text('موافق'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            });
-          }
-          print("Fetched products: ${list.length}");
-          print("Products data: ${list}");
-
-          List<Map<String, dynamic>> filteredList = list;
-
-          if (title4.isNotEmpty) {
+          List<Map<String, dynamic>> filteredList = List.from(list);
+          bool isFilterApplied = false;
+          if (search.text.isNotEmpty && search.text != 'بحث') {
             filteredList = filteredList.where((product) {
-              print(
-                  "Checking NameCar: ${product['NameCar']} against filter title4: $title4");
-              return product['NameCar'] == title4;
+              return product['name'] != null &&
+                  product['name']
+                      .toString()
+                      .toLowerCase()
+                      .contains(search.text.toLowerCase());
             }).toList();
+            isFilterApplied = true; // الفلتر تم تطبيقه
           }
-
-          if (title1.isNotEmpty) {
+          if (title.isNotEmpty && title != 'اختر المركبة') {
             filteredList = filteredList.where((product) {
-              print(
-                  "Checking Category: ${product['Category']} against filter title1: $title1");
-              return product['Category'] == title1;
-            }).toList();
-          }
-
-          final fromYear = int.tryParse(title2);
-          final toYear = int.tryParse(title3);
-          if (fromYear != null && toYear != null) {
-            filteredList = filteredList.where((product) {
-              final productFromYear =
-              int.tryParse(product['engineSize']?.toString() ?? '');
-              final productToYear =
-              int.tryParse(product['fuelType']?.toString() ?? '');
-              print(
-                  "Checking engineSize: $productFromYear and fuelType: $productToYear against range $fromYear to $toYear");
-              return productFromYear != null &&
-                  productToYear != null &&
-                  productFromYear >= fromYear &&
-                  productToYear <= toYear;
-            }).toList();
-          }
-
-          if (title.isNotEmpty) {
-            filteredList = filteredList.where((product) {
-              print(
-                  "Checking fromYear: ${product['fromYear']} against filter title6: $title");
               return product['fromYear'] == title;
             }).toList();
+            isFilterApplied = true; // الفلتر تم تطبيقه
+          }
+          if (title1.isNotEmpty && title1 != 'اختر الفئة') {
+            filteredList = filteredList.where((product) {
+              return product['Category'] == title1;
+            }).toList();
+            isFilterApplied = true;
           }
 
-          if (title5.isNotEmpty) {
-            filteredList = filteredList.where((product) {
-              print("Checking checkboxData for name: $title5");
-              return product['checkboxData']?.any((checkboxItem) {
-                print("Checking checkboxItem name: ${checkboxItem['name']}");
-                return checkboxItem['name'] == title5;
-              }) ?? false;
+          if (title5.isNotEmpty && title5 != 'حالة القطعة') {
+            filteredList = filteredList.expand<Map<String, dynamic>>((product) {
+              if (product['checkboxData'] != null &&
+                  product['checkboxData'].isNotEmpty) {
+                var checkboxData = (product['checkboxData'] as List<dynamic>)
+                    .cast<Map<String, dynamic>>();
+
+                var filteredCheckboxData = checkboxData.where((checkboxItem) {
+                  return checkboxItem['name'] == title5;
+                }).toList();
+
+                if (filteredCheckboxData.isNotEmpty) {
+                  return [
+                    {
+                      ...product,
+                      'checkboxData': filteredCheckboxData,
+                    }
+                  ];
+                }
+              }
+              return [];
+            }).toList();
+          } else {
+            filteredList = filteredList.map<Map<String, dynamic>>((product) {
+              return {
+                ...product,
+                'checkboxData': product['checkboxData'] ?? [],
+              };
             }).toList();
           }
+          _checkAndShowOutOfStockDialog(filteredList);
 
-
-
-          print("Filtered products: ${filteredList.length}");
-          print("Filtered data: ${filteredList}");
           return Column(
             children: [
               SizedBox(height: 10),
@@ -580,114 +556,119 @@ class _StockViewPageState extends State<StockViewPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: filteredList.expand<Widget>((product) {
                       return product['checkboxData']
-                          ?.map<Widget>((checkboxItem) {
-                        final TextEditingController priceController =
-                        TextEditingController(
-                            text: checkboxItem['price'].toString());
-                        final TextEditingController amountController =
-                        TextEditingController(
-                            text: checkboxItem['amount'].toString());
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 15),
-                              child: Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    child: Row(
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            _showDetailsDialog(
-                                                context: context,
-                                                product: product,
-                                                checkboxItem: checkboxItem);
-                                          },
-                                          child: Image.asset(
-                                            'assets/images/iconinfo.png',
-                                            width: 24.0,
-                                            height: 24.0,
+                              ?.map<Widget>((checkboxItem) {
+                            final TextEditingController priceController =
+                                TextEditingController(
+                                    text: checkboxItem['price'].toString());
+                            final TextEditingController amountController =
+                                TextEditingController(
+                                    text: checkboxItem['amount'].toString());
+
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        child: Row(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                _showDetailsDialog(
+                                                    context: context,
+                                                    product: product,
+                                                    checkboxItem: checkboxItem);
+                                              },
+                                              child: Image.asset(
+                                                'assets/images/iconinfo.png',
+                                                width: 24.0,
+                                                height: 24.0,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: size.width * 0.02,
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                _showEditProductDialog(
+                                                    context,
+                                                    product,
+                                                    checkboxItem,
+                                                    priceController,
+                                                    amountController);
+                                              },
+                                              child: Image.asset(
+                                                'assets/images/05.png',
+                                                width: 24.0,
+                                                height: 24.0,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        width: size.width * 0.17,
+                                        height: 40,
+                                        child: Center(
+                                          child: CustomText(
+                                            text: "${checkboxItem['name']}",
+                                            size: 15,
+                                            color: black,
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: size.width * 0.02,
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            _showEditProductDialog(
-                                                context,
-                                                product,
-                                                checkboxItem,
-                                                priceController,
-                                                amountController);
-                                          },
-                                          child: Image.asset(
-                                            'assets/images/05.png',
-                                            width: 24.0,
-                                            height: 24.0,
+                                      ),
+                                      Container(
+                                        width: size.width * 0.17,
+                                        height: 40,
+                                        child: Center(
+                                          child: CustomText(
+                                            text:
+                                                "${double.parse(checkboxItem['price']).toInt()}",
+                                            size: 15,
+                                            color: black,
                                           ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    width: size.width * 0.17,
-                                    height: 40,
-                                    child: Center(
-                                      child: CustomText(
-                                        text: "${checkboxItem['name']}",
-                                        weight: FontWeight.w900,
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: size.width * 0.17,
-                                    height: 40,
-                                    child: Center(
-                                      child: CustomText(
-                                        text: "${double.parse(checkboxItem['price']).toInt()}", // تحويل String إلى double ثم إلى int
-                                        weight: FontWeight.w900,
+                                      Container(
+                                        width: size.width * 0.17,
+                                        height: 40,
+                                        child: Center(
+                                          child: CustomText(
+                                            text: "${checkboxItem['amount']}",
+                                            size: 15,
+                                            color: black,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: size.width * 0.17,
-                                    height: 40,
-                                    child: Center(
-                                      child: CustomText(
-                                        text: "${checkboxItem['amount']}",
-                                        weight: FontWeight.w900,
+                                      Container(
+                                        width: size.width * 0.17,
+                                        child: Center(
+                                          child: CustomText(
+                                            text: product['name'],
+                                            size: 15,
+                                            color: black,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                  Container(
-                                    width: size.width * 0.17,
-                                    height: 40,
-                                    child: Center(
-                                      child: CustomText(
-                                        text: product['name'],
-                                        weight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Divider(
-                              height: 5,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        );
-                      })?.toList() ??
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  height: 5,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                              ],
+                            );
+                          })?.toList() ??
                           [];
                     }).toList(),
                   ),
@@ -699,6 +680,45 @@ class _StockViewPageState extends State<StockViewPage> {
       },
     );
   }
+
+  void _checkAndShowOutOfStockDialog(List<Map<String, dynamic>> filteredList) {
+    if (_isDialogShown) return; // Prevent multiple dialogs
+
+    Set<String> outOfStockProductNames = {};
+
+    for (var product in filteredList) {
+      if (product['checkboxData'] != null &&
+          product['checkboxData'].isNotEmpty) {
+        for (var checkboxItem in product['checkboxData']) {
+          int amount = int.tryParse(checkboxItem['amount'].toString()) ?? 0;
+          if (amount == -1) {
+            outOfStockProductNames.add(product['name']);
+            break; // No need to check other items for this product
+          }
+        }
+      }
+    }
+
+    if (outOfStockProductNames.isNotEmpty) {
+      _isDialogShown = true; // Set to true to prevent future dialogs
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showOutOfStockDialog(outOfStockProductNames);
+      });
+    }
+  }
+
+  void _showOutOfStockDialog(Set<String> outOfStockProductNames) {
+    showConfirmationDialog(
+      context: context,
+      message:
+          'القطعة التالية انتهت كميتها، يرجى تحديثها:\n${outOfStockProductNames.join(', ')}',
+      confirmText: 'حسناً',
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
   void _showDetailsDialog({
     required BuildContext context,
     required Map<String, dynamic> product,
@@ -779,7 +799,6 @@ class _StockViewPageState extends State<StockViewPage> {
                               SizedBox(width: 2),
                               CustomText(
                                 text: "${checkboxItem['warranty']}",
-                                // Display warranty
                                 color: words,
                               ),
                             ],
@@ -841,14 +860,14 @@ class _StockViewPageState extends State<StockViewPage> {
         SizedBox(width: 10),
         decodedImage != null
             ? Image.memory(
-          decodedImage,
-          width: 100,
-          height: 100,
-        )
+                decodedImage,
+                width: 100,
+                height: 100,
+              )
             : Text(
-          'لا يوجد صورة',
-          style: TextStyle(fontSize: 16),
-        ),
+                'لا يوجد صورة',
+                style: TextStyle(fontSize: 16),
+              ),
       ],
     );
   }
@@ -874,9 +893,10 @@ class _StockViewPageState extends State<StockViewPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 15),
-                Text("تعديل تفاصيل القطعة",
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  "تعديل تفاصيل القطعة",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 SizedBox(height: 20),
                 TextField(
                   controller: priceController,
@@ -901,7 +921,27 @@ class _StockViewPageState extends State<StockViewPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // تنفيذ العملية هنا
+                        // استدعاء showConfirmationDialog لتأكيد التعديلات
+                        showConfirmationDialog(
+                          context: context,
+                          message: 'هل تريد تأكيد التعديلات على هذه القطعة؟',
+                          confirmText: 'تأكيد',
+                          onConfirm: () {
+                            String newPrice = priceController.text;
+                            String newAmount = amountController.text;
+                            saveChanges(
+                              product['id'].toString(),
+                              checkboxItem,
+                              newPrice,
+                              newAmount,
+                            );
+                            Navigator.of(context).pop();
+                          },
+                          cancelText: 'إلغاء',
+                          onCancel: () {
+                            Navigator.of(context).pop();
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromRGBO(195, 29, 29, 1),
@@ -909,10 +949,25 @@ class _StockViewPageState extends State<StockViewPage> {
                       ),
                       child: Text('تأكيد'),
                     ),
-
                     ElevatedButton(
                       onPressed: () {
-                        _showDeleteConfirmationDialog(context);
+                        // استدعاء showConfirmationDialog لتأكيد الحذف
+                        showConfirmationDialog(
+                          context: context,
+                          message: 'هل أنت متأكد من أنك تريد حذف هذه القطعة؟',
+                          confirmText: 'حذف',
+                          cancelText: 'إلغاء',
+                          onConfirm: () {
+                            _showDeleteConfirmationDialog(
+                                context,
+                                product['id'].toString(),
+                                checkboxItem['id'].toString());
+                            Navigator.of(context).pop();
+                          },
+                          onCancel: () {
+                            Navigator.of(context).pop();
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromRGBO(195, 29, 29, 1),
@@ -920,7 +975,6 @@ class _StockViewPageState extends State<StockViewPage> {
                       ),
                       child: Text('حذف'),
                     ),
-
                   ],
                 ),
               ],
@@ -930,46 +984,22 @@ class _StockViewPageState extends State<StockViewPage> {
       },
     );
   }
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    showDialog(
+
+  void _showDeleteConfirmationDialog(
+      BuildContext context, String productId, String checkboxItemId) {
+    showConfirmationDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Text('هل أنت متأكد من أنك تريد حذف هذا العنصر؟'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'إلغاء',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(195, 29, 29, 1),
-                foregroundColor: Colors.white,
-              ),
-              child: Text('تأكيد الحذف'),
-            ),
-          ],
-        );
+      message: 'هل أنت متأكد من أنك تريد حذف هذا العنصر؟',
+      confirmText: 'تأكيد الحذف',
+      cancelText: 'إلغاء',
+      onConfirm: () {
+        // استدعاء دالة الحذف مع تمرير معرّف المنتج ومعرّف العنصر
+        deleteProduct(productId, checkboxItemId);
+        Navigator.of(context).pop(); // إغلاق الـDialog بعد الحذف
+      },
+      onCancel: () {
+        Navigator.of(context).pop(); // إغلاق الـDialog عند الضغط على إلغاء
       },
     );
   }
-
-
-
-
-
-
-
-
-
-
-
 }

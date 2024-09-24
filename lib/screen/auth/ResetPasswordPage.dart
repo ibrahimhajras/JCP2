@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/widget/Inallpage/dialogs.dart';
+import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 
@@ -136,7 +137,15 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   Future<void> _resetPassword() async {
     if (passwordController.text.isEmpty) {
-      AppDialogs.showErrorDialog(context, 'يرجى إدخال كلمة المرور.');
+      showConfirmationDialog(
+        context: context,
+        message: 'يرجى إدخال كلمة المرور.',
+        confirmText: 'حسناً',
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
       return;
     }
 
@@ -164,12 +173,68 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       if (response.statusCode == 200) {
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
+          builder: (_) => Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             backgroundColor: Colors.white,
-            title: Text('نجاح'),
-            content: Text('تم إعادة تعيين كلمة المرور بنجاح.'),
+            child: Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // العنوان
+                  Text(
+                    'نجاح',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Tajawal',
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // المحتوى
+                  Text(
+                    'تم إعادة تعيين كلمة المرور بنجاح.',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Tajawal',
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  // زر التأكيد
+                  MaterialButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // إغلاق الـ Dialog
+                    },
+                    color: Color.fromRGBO(
+                        195, 29, 29, 1), // اللون الأحمر المستخدم في التصميم
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'حسناً',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: 'Tajawal',
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                  ),
+                ],
+              ),
+            ),
           ),
         ).then((_) {
+          // بعد إغلاق الـ Dialog، الانتقال إلى صفحة تسجيل الدخول
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),
@@ -177,14 +242,29 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           );
         });
       } else {
-        AppDialogs.showErrorDialog(
-            context, 'حدث خطأ أثناء إعادة تعيين كلمة المرور.');
+        showConfirmationDialog(
+          context: context,
+          message: 'حدث خطأ أثناء إعادة تعيين كلمة المرور.',
+          confirmText: 'حسناً',
+          onConfirm: () {
+            // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+          },
+          cancelText: '', // لا حاجة لزر إلغاء
+        );
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      AppDialogs.showErrorDialog(context, 'حدث خطأ أثناء الاتصال بالخادم: $e');
+      showConfirmationDialog(
+        context: context,
+        message: 'حدث خطأ أثناء الاتصال بالخادم: $e',
+        confirmText: 'حسناً',
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
+      );
     }
   }
 }
