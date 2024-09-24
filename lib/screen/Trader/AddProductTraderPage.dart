@@ -202,16 +202,21 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             style: MSHCheckboxStyle.stroke,
             onChanged: (bool value) {
               setState(() {
-                if (!value && checkboxCompleted[index]) {
-                  checkboxStates[index] = false;
-                  showInfoBox = "";
+                if (value) {
+                  for (int i = 0; i < checkboxStates.length; i++) {
+                    if (i != index && checkboxStates[i]) {
+                      checkboxCompleted[i] = true;
+                    }
+                  }
+                  checkboxStates[index] = true;
+                  checkboxCompleted[index] = false;
+                  showInfoBox = index.toString();
                 } else {
-                  checkboxStates[index] = value;
-                  if (!value) {
+                  checkboxStates[index] = false;
+                  checkboxCompleted[index] = false;
+
+                  if (showInfoBox == index.toString()) {
                     showInfoBox = "";
-                  } else {
-                    showInfoBox = "";
-                    checkboxCompleted[index] = true;
                   }
                 }
               });
@@ -240,7 +245,11 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             padding: EdgeInsets.all(sizeFactor * 8.0),
             child: IconButton(
               icon: Image.asset(
-                'assets/images/11.png',
+                checkboxStates[index]
+                    ? checkboxCompleted[index]
+                        ? 'assets/images/addgreen.png'
+                        : 'assets/images/addred.png'
+                    : 'assets/images/original.png',
                 width: sizeFactor * 40,
               ),
               onPressed: () {
@@ -330,13 +339,11 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       if (checkboxStates[i]) {
         if (priceControllers[i].text.isEmpty ||
             amountControllers[i].text.isEmpty ||
-            warrantyControllers[i].text.isEmpty || // تحقق من تعبئة الكفالة
             markControllers[i].text.isEmpty || // تحقق من تعبئة العلامة التجارية
             double.tryParse(priceControllers[i].text) == null ||
             double.tryParse(priceControllers[i].text)! <= 0 ||
             double.tryParse(amountControllers[i].text) == null ||
             double.tryParse(amountControllers[i].text)! <= 0) {
-          // إظهار رسالة خطأ إذا كانت الحقول غير مكتملة
           setState(() {
             isLoading = false;
           });
@@ -369,8 +376,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         });
       }
     }
-
-    // تحقق مما إذا كانت checkboxData فارغة قبل الإرسال
     if (data['checkboxData'].isEmpty) {
       setState(() {
         isLoading = false;
@@ -572,17 +577,26 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                     flex: 1,
                     child: Column(
                       children: [
-                        CustomText(text: "الكفالة", size: sizeFactor * 16),
+                        CustomText(
+                            text: "الكفالة ${checkboxLabels[index]}",
+                            size: sizeFactor * 16),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: sizeFactor * 10,
                               vertical: sizeFactor * 5),
                           child: TextFormField(
                             controller: warrantyControllers[index],
+                            textDirection: TextDirection
+                                .rtl, // Set text direction to RTL (Right to Left)
+                            textAlign:
+                                TextAlign.right, // Align text to the right
                             decoration: InputDecoration(
-                              labelText: 'بالأشهر',
+                              labelText: 'بالأشهر', // Arabic label for "months"
                               border: OutlineInputBorder(),
                             ),
+                            style: TextStyle(
+                                fontFamily:
+                                    'Tajawal'), // Optional: Set an Arabic-friendly font
                           ),
                         ),
                       ],
@@ -601,11 +615,19 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                               vertical: sizeFactor * 5),
                           child: TextFormField(
                             controller: markControllers[index],
+                            textDirection: TextDirection
+                                .rtl, // Set text direction to RTL (Right to Left)
+                            textAlign:
+                                TextAlign.right, // Align text to the right
                             decoration: InputDecoration(
-                              labelText: 'مثال:',
-                              hintText: 'العلامة التجارية',
+                              labelText: 'مثال:', // Arabic label for "Example:"
+                              hintText:
+                                  'العلامة التجارية', // Arabic hint text for "Brand"
                               border: OutlineInputBorder(),
                             ),
+                            style: TextStyle(
+                                fontFamily:
+                                    'Tajawal'), // Optional: Arabic-friendly font
                           ),
                         ),
                       ],
@@ -629,7 +651,10 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 child: TextFormField(
                   controller: noteControllers[index],
                   maxLines: 3,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.right,
                   decoration: InputDecoration(
+                    hintText: 'أدخل ملاحظة',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -654,8 +679,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                           TextButton(
                             onPressed: () async {
                               Navigator.pop(context);
-                              await _getImage(ImageSource.camera,
-                                  index); // استخدم الفهرس لتحديد الصورة
+                              await _getImage(ImageSource.camera, index);
                             },
                             child: Icon(
                               Icons.photo_camera,
@@ -666,8 +690,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                           TextButton(
                             onPressed: () async {
                               Navigator.pop(context);
-                              await _getImage(ImageSource.gallery,
-                                  index); // استخدم الفهرس لتحديد الصورة
+                              await _getImage(ImageSource.gallery, index);
                             },
                             child: Icon(
                               Icons.image,
