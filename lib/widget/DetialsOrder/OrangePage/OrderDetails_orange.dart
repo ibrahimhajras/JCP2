@@ -434,91 +434,104 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   }
 
   Widget buildTextField(String hintText, int rowIndex, int fieldIndex) {
+    // تحقق مما إذا كان الحقل "غ.م"
+    bool isForbidden = hintText == 'غ.م';
+
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (selectedFieldsPerRow[rowIndex] == fieldIndex) {
-            // إذا تم إلغاء تحديد الحقل الحالي
-            selectedFieldsPerRow[rowIndex] = null;
-          } else {
-            // إذا تم تحديد حقل جديد
-            selectedFieldsPerRow[rowIndex] = fieldIndex;
-          }
-        });
-      },
-      onLongPress: () {
-        final selectedOrderItem = widget.orderItems[rowIndex];
-        String selectedPriceType;
-        switch (fieldIndex) {
-          case 0:
-            selectedPriceType = 'commercialPrice';
-            break;
-          case 1:
-            selectedPriceType = 'agencyprice';
-            break;
-          case 2:
-            selectedPriceType = 'commercial2price';
-            break;
-          default:
-            selectedPriceType = 'agencyprice';
-        }
+      onTap: isForbidden
+          ? null
+          : () {
+              setState(() {
+                if (selectedFieldsPerRow[rowIndex] == fieldIndex) {
+                  selectedFieldsPerRow[rowIndex] = null;
+                } else {
+                  selectedFieldsPerRow[rowIndex] = fieldIndex;
+                }
+              });
+            },
+      onLongPress: isForbidden
+          ? null
+          : () {
+              final selectedOrderItem = widget.orderItems[rowIndex];
+              String selectedPriceType;
+              switch (fieldIndex) {
+                case 0:
+                  selectedPriceType = 'commercialPrice';
+                  break;
+                case 1:
+                  selectedPriceType = 'agencyprice';
+                  break;
+                case 2:
+                  selectedPriceType = 'commercial2price';
+                  break;
+                default:
+                  selectedPriceType = 'agencyprice';
+              }
 
-        try {
-          // معالجة البيانات لعرض التفاصيل
-          double itemPrice = double.tryParse(
-                  selectedOrderItem[selectedPriceType]?.toString().trim() ??
-                      '0') ??
-              0;
-          int parsedItemPrice = itemPrice.toInt();
+              try {
+                // معالجة البيانات لعرض التفاصيل
+                double itemPrice = double.tryParse(
+                        selectedOrderItem[selectedPriceType]
+                                ?.toString()
+                                .trim() ??
+                            '0') ??
+                    0;
+                int parsedItemPrice = itemPrice.toInt();
 
-          String warrantyString = selectedOrderItem[
-                      selectedPriceType.replaceFirst('price', 'warranty')]
-                  ?.toString()
-                  .trim() ??
-              '0';
-          int warranty = int.tryParse(warrantyString) ?? 0;
+                String warrantyString = selectedOrderItem[
+                            selectedPriceType.replaceFirst('price', 'warranty')]
+                        ?.toString()
+                        .trim() ??
+                    '0';
+                int warranty = int.tryParse(warrantyString) ?? 0;
 
-          String note =
-              selectedOrderItem[selectedPriceType.replaceFirst('price', 'Note')]
-                      ?.toString()
-                      .trim() ??
-                  'لا توجد ملاحظات';
+                String note = selectedOrderItem[
+                            selectedPriceType.replaceFirst('price', 'Note')]
+                        ?.toString()
+                        .trim() ??
+                    'لا توجد ملاحظات';
 
-          String imageUrl =
-              selectedOrderItem[selectedPriceType.replaceFirst('price', 'Img')]
-                      ?.toString()
-                      .trim() ??
-                  '';
+                String imageUrl = selectedOrderItem[
+                            selectedPriceType.replaceFirst('price', 'Img')]
+                        ?.toString()
+                        .trim() ??
+                    '';
 
-          String mark = selectedOrderItem['mark']?.toString().trim() ?? 'غ.م';
+                String mark =
+                    selectedOrderItem['mark']?.toString().trim() ?? 'غ.م';
 
-          _showDetailsDialog(
-            itemPrice: parsedItemPrice,
-            warranty: warranty,
-            note: note,
-            imageUrl: imageUrl,
-            mark: mark,
-          );
-        } catch (e) {
-          showConfirmationDialog(
-            context: context,
-            message: 'حدث خطأ أثناء معالجة البيانات.',
-            confirmText: 'موافق',
-            onConfirm: () {},
-          );
-        }
-      },
+                _showDetailsDialog(
+                  itemPrice: parsedItemPrice,
+                  warranty: warranty,
+                  note: note,
+                  imageUrl: imageUrl,
+                  mark: mark,
+                );
+              } catch (e) {
+                showConfirmationDialog(
+                  context: context,
+                  message: 'حدث خطأ أثناء معالجة البيانات.',
+                  confirmText: 'موافق',
+                  onConfirm: () {},
+                );
+              }
+            },
       child: SizedBox(
         width: 61.1,
         height: 44.71,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey,
+            color: isForbidden
+                ? Colors.white // لون الحقل عندما يكون ممنوعًا
+                : (selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color:
-                  selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey,
+              color: isForbidden
+                  ? Colors.white // لون الحدود عندما يكون ممنوعًا
+                  : (selectedFieldsPerRow[rowIndex] == fieldIndex
+                      ? green
+                      : grey),
               width: 1.0,
             ),
           ),
@@ -528,9 +541,11 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: selectedFieldsPerRow[rowIndex] == fieldIndex
-                  ? Colors.white
-                  : Colors.black26,
+              color: isForbidden
+                  ? Colors.black26 // لون النص عندما يكون ممنوعًا
+                  : (selectedFieldsPerRow[rowIndex] == fieldIndex
+                      ? Colors.white
+                      : Colors.black26),
             ),
           ),
         ),

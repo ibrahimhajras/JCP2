@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +13,6 @@ import '../../provider/ProfileProvider.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
 import '../../widget/Inallpage/NotificationIcon.dart';
-import 'package:jcp/provider/OrderFetchProvider.dart';
 
 class OrderWidget extends StatefulWidget {
   const OrderWidget({super.key});
@@ -24,16 +24,21 @@ class OrderWidget extends StatefulWidget {
 class _OrderWidgetState extends State<OrderWidget> {
   bool check = true;
   bool check2 = false;
-  late Future<void> _ordersFuture = Future.value();
 
-  Future<void> fetchOrdersForUser(BuildContext context, String userId) async {
+  Stream<List<OrderModel>> orderStream(
+      BuildContext context, String userId) async* {
+    while (true) {
+      final orders = await fetchOrdersForUser(context, userId);
+      yield orders;
+      await Future.delayed(Duration(seconds: 10));
+    }
+  }
+
+  // Method to fetch orders for a specific user
+  Future<List<OrderModel>> fetchOrdersForUser(
+      BuildContext context, String userId) async {
     final url = Uri.parse('https://jordancarpart.com/Api/getordersofuser.php');
-    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final fetchProvider =
-        Provider.of<OrderFetchProvider>(context, listen: false);
-
     try {
-      fetchProvider.setState(FetchState.loading);
       final response = await http.post(
         url,
         headers: {
@@ -48,91 +53,48 @@ class _OrderWidgetState extends State<OrderWidget> {
           List<OrderModel> orders = (responseData['data'] as List<dynamic>)
               .map((order) => OrderModel.fromJson(order))
               .toList();
-          orderProvider.setOrders(orders);
-          if (mounted) {
-            fetchProvider.setState(FetchState.loaded);
-          }
-          print('Orders updated successfully: ${orders.length} orders');
+          return orders;
         } else {
-          if (mounted) {
-            fetchProvider.setState(FetchState.error);
-          }
           print('Failed to load orders. Response: ${responseData['message']}');
+          return [];
         }
       } else {
-        if (mounted) {
-          fetchProvider.setState(FetchState.error);
-        }
         print('Failed to load orders. Status code: ${response.statusCode}');
+        return [];
       }
     } catch (e) {
-      if (mounted) {
-        fetchProvider.setState(FetchState.error);
-      }
       print('Error fetching orders: $e');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _ordersFuture = _initializeData();
-  }
-
-  Future<void> _initializeData() async {
-    await _checkForNotifications();
-    await Future.delayed(Duration.zero);
-    final user = Provider.of<ProfileProvider>(context, listen: false);
-    await fetchOrdersForUser(context, user.user_id);
-  }
-
-  Future<void> _checkForNotifications() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> notifications = prefs.getStringList('notifications') ?? [];
-
-    List<Map<String, dynamic>> notificationList =
-        notifications.map((notification) {
-      return jsonDecode(notification) as Map<String, dynamic>;
-    }).toList();
-
-    bool hasUnread =
-        notificationList.any((notification) => notification['isRead'] == false);
-
-    if (mounted) {
-      setState(() {
-        check2 = hasUnread;
-      });
+      return [];
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final fetchProvider = Provider.of<OrderFetchProvider>(context);
+    final user = Provider.of<ProfileProvider>(context);
+
     return Container(
       child: Column(
         children: [
           _buildHeader(size),
           Container(
             height: size.height * 0.7,
-            child: FutureBuilder(
-              future: _ordersFuture, // This will now have a value
+            child: StreamBuilder<List<OrderModel>>(
+              stream: orderStream(context, user.user_id),
               builder: (context, snapshot) {
-                if (fetchProvider.state == FetchState.loading) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: RotatingImagePage());
-                } else if (fetchProvider.state == FetchState.error) {
+                } else if (snapshot.hasError ||
+                    !snapshot.hasData ||
+                    snapshot.data!.isEmpty) {
                   return Center(child: Text('لا يوجد طلبات'));
                 } else {
-                  return Consumer<OrderProvider>(
-                    builder: (context, orderProvider, child) {
-                      return ListView.builder(
-                        itemCount: orderProvider.orders.length,
-                        itemBuilder: (context, index) {
-                          OrderModel order = orderProvider
-                              .orders[orderProvider.orders.length - 1 - index];
-                          return OrderViewWidget(order: order);
-                        },
-                      );
+                  final orders = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      OrderModel order = orders[orders.length - 1 - index];
+                      return OrderViewWidget(order: order);
                     },
                   );
                 }
@@ -177,5 +139,24 @@ class _OrderWidgetState extends State<OrderWidget> {
         Scaffold.of(context).openEndDrawer();
       },
     );
+  }
+
+  Future<void> _checkForNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> notifications = prefs.getStringList('notifications') ?? [];
+
+    List<Map<String, dynamic>> notificationList =
+        notifications.map((notification) {
+      return jsonDecode(notification) as Map<String, dynamic>;
+    }).toList();
+
+    bool hasUnread =
+        notificationList.any((notification) => notification['isRead'] == false);
+
+    if (mounted) {
+      setState(() {
+        check2 = hasUnread;
+      });
+    }
   }
 }

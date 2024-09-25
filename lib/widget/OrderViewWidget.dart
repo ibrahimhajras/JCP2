@@ -355,9 +355,11 @@ class OrderViewWidget extends StatelessWidget {
       ),
     );
   }
+
   Future<Map<String, dynamic>> fetchPrivateOrderDetails(String orderId) async {
     // تكوين رابط الطلب مع المعايير
-    final url = Uri.parse('https://jordancarpart.com/Api/getacceptedprivateorder.php?order_id=$orderId');
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/getacceptedprivateorder.php?order_id=$orderId');
 
     try {
       // استخدام GET بدلاً من POST
@@ -378,7 +380,7 @@ class OrderViewWidget extends StatelessWidget {
         if (responseData.containsKey('data') &&
             (responseData['data'] as List).isNotEmpty) {
           Map<String, dynamic> orderDetails =
-          responseData['data'][0]; // Extract the first element from 'data'
+              responseData['data'][0]; // Extract the first element from 'data'
 
           return {
             'orderDetails': orderDetails, // Return the order details
@@ -431,7 +433,8 @@ class OrderViewWidget extends StatelessWidget {
     }
   }
 
-  Future<Map<String, dynamic>> fetchOrderItemsOrange(String orderId, int flag) async {
+  Future<Map<String, dynamic>> fetchOrderItemsOrange(
+      String orderId, int flag) async {
     final url = Uri.parse(
         'https://jordancarpart.com/Api/getorderacept.php?order_id=$orderId&flag=$flag');
 
@@ -466,8 +469,11 @@ class OrderViewWidget extends StatelessWidget {
       throw e;
     }
   }
-  Future<Map<String, dynamic>> fetchOrderItemsOrangePrivate(String orderId) async {
-    final url = Uri.parse('https://jordancarpart.com/Api/getacceptedprivateorder.php?order_id=$orderId');
+
+  Future<Map<String, dynamic>> fetchOrderItemsOrangePrivate(
+      String orderId) async {
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/getacceptedprivateorder.php?order_id=$orderId');
 
     try {
       final response = await http.get(
@@ -492,15 +498,18 @@ class OrderViewWidget extends StatelessWidget {
           throw Exception('Invalid response format: missing "data" key');
         }
       } else {
-        throw Exception('Failed to fetch order details. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching order details: $e');
       throw e;
     }
   }
+
   Future<Map<String, dynamic>> fetchOrderItemsFromUser(String orderId) async {
-    final url = Uri.parse('https://jordancarpart.com/Api/getacceptedorderfromuser.php?order_id=$orderId');
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/getacceptedorderfromuser.php?order_id=$orderId');
 
     try {
       print('URL being sent: $url');
@@ -519,22 +528,24 @@ class OrderViewWidget extends StatelessWidget {
 
         print('Response Data: $responseData');
 
-        if (responseData.containsKey('hdr') && responseData.containsKey('items')) {
+        if (responseData.containsKey('hdr') &&
+            responseData.containsKey('items')) {
           return {
-            'header': responseData['hdr'][0],  // Assuming there's only one header
-            'items': responseData['items'],  // List of items
+            'header': responseData['hdr']
+                [0], // Assuming there's only one header
+            'items': responseData['items'], // List of items
           };
         } else {
-          throw Exception('Invalid response format: missing "hdr" or "items" keys');
+          throw Exception(
+              'Invalid response format: missing "hdr" or "items" keys');
         }
       } else {
-        throw Exception('Failed to fetch order details. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching order details: $e');
       throw e;
     }
   }
-
-
 }

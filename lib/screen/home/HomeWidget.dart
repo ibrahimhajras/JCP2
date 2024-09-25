@@ -1,5 +1,3 @@
-// ignore_for_file: null_check_always_fails
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -51,6 +49,45 @@ class _HomeWidgetState extends State<HomeWidget> {
   String? errorMessage;
   int? orderAllowed;
 
+  Stream<Map<String, dynamic>> limitationStream(String userId) async* {
+    while (true) {
+      final data = await getOrderLimitation(userId);
+      yield data;
+      await Future.delayed(Duration(seconds: 5));
+    }
+  }
+
+  Future<Map<String, dynamic>> getOrderLimitation(String userId) async {
+    final String url =
+        'https://jordancarpart.com/Api/getlimitationoforder.php?user_id=$userId&time=${Uri.encodeComponent(DateTime.now().toIso8601String())}';
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Access-Control-Allow-Headers': 'Authorization',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    print(DateTime.now().toIso8601String());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data['time_difference_gt_24hrs']) {
+        print('Time difference is greater than 24 hours.');
+      }
+
+      if (data['limit_of_order'] == 0) {
+        print('No order limit.');
+      }
+
+      return data;
+    } else {
+      throw Exception('Failed to load limitation');
+    }
+  }
+
   Future<void> _fetchOrdersForUser(BuildContext context) async {
     final url = Uri.parse('https://jordancarpart.com/Api/getordersofuser.php');
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
@@ -99,13 +136,30 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
+  Stream<Map<String, dynamic>>? _limitationStream;
+  String? userId;
+
   @override
   void initState() {
     super.initState();
     _checkForNotifications();
     _fetchData();
     _loadOrderAllowed();
-    _fetchOrdersForUser(context);
+    _initializeStream();
+  }
+
+  Future<void> _initializeStream() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getString('userId');
+
+    if (userId != null) {
+      setState(() {
+        _limitationStream = limitationStream(userId!);
+      });
+      _fetchOrdersForUser(context);
+    } else {
+      print('User ID not found in SharedPreferences');
+    }
   }
 
   Future<void> _loadOrderAllowed() async {
@@ -118,54 +172,20 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Future<void> _fetchData() async {
     try {
-      final data = await getOrderLimitation();
-      setState(() {
-        apiData = data;
-        isLoading = false;
-      });
+      if (userId != null) {
+        final data = await getOrderLimitation(userId!); // Pass userId here
+        setState(() {
+          apiData = data;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('User ID is null');
+      }
     } catch (e) {
       setState(() {
         errorMessage = e.toString();
         isLoading = false;
       });
-    }
-  }
-
-  Future<Map<String, dynamic>> getOrderLimitation() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');
-
-    if (userId == null) {
-      throw Exception('User ID not found in SharedPreferences');
-    }
-
-    final String url =
-        'https://jordancarpart.com/Api/getlimitationoforder.php?user_id=$userId&time=${Uri.encodeComponent(DateTime.now().toIso8601String())}';
-
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Access-Control-Allow-Headers': 'Authorization',
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-
-    print(DateTime.now().toIso8601String());
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['time_difference_gt_24hrs']) {
-        print('Time difference is greater than 24 hours.');
-      }
-
-      if (data['limit_of_order'] == 0) {
-        print('No order limit.');
-      }
-
-      return data;
-    } else {
-      throw Exception('Failed to load limitation');
     }
   }
 
@@ -180,17 +200,32 @@ class _HomeWidgetState extends State<HomeWidget> {
           child: Column(
             children: [
               _buildHeader(size),
-              if (isLoading)
-                SizedBox(
-                  height: size.height * 0.5,
-                  child: Center(
-                    child: RotatingImagePage(),
-                  ),
-                )
-              else if (errorMessage != null)
-                Center(child: Text('Error: $errorMessage'))
-              else if (apiData != null)
-                _buildContentBasedOnApiData(size, user)
+              // Use StreamBuilder here
+              _limitationStream != null
+                  ? StreamBuilder<Map<String, dynamic>>(
+                      stream: _limitationStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return SizedBox(
+                            height: size.height * 0.5,
+                            child: Center(
+                              child: RotatingImagePage(),
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData) {
+                          return Center(child: Text('لا يوجد بيانات'));
+                        } else {
+                          final apiData = snapshot.data!;
+                          return _buildContentBasedOnApiData(
+                              size, user, apiData);
+                        }
+                      },
+                    )
+                  : SizedBox(), // Or any placeholder when stream is not initialized
             ],
           ),
         ),
@@ -198,16 +233,13 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Future<int?> getOrderAllowed() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('isOrderAllowed') ?? 0;
-  }
-
-  Widget _buildContentBasedOnApiData(Size size, ProfileProvider user) {
-    final timeDifferenceGt24hrs = apiData!['time_difference_gt_24hrs'];
-    final limitOfOrder = apiData!['limit_of_order'];
+  Widget _buildContentBasedOnApiData(
+      Size size, ProfileProvider user, Map<String, dynamic> apiData) {
+    final timeDifferenceGt24hrs = apiData['time_difference_gt_24hrs'];
+    final limitOfOrder = apiData['limit_of_order'];
     saveLimitOfOrder(limitOfOrder);
     print(timeDifferenceGt24hrs);
+
     if (timeDifferenceGt24hrs) {
       return _buildFormFields(context, size, user);
     } else {
