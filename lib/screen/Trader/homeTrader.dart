@@ -13,7 +13,6 @@ import 'package:jcp/screen/Trader/TraderOrderWidget.dart';
 import 'package:jcp/screen/Trader/TraderProfilePage.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/screen/home/homeuser.dart';
-import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../style/colors.dart';

@@ -516,10 +516,12 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       showConfirmationDialog(
         context: context,
-        message: 'حدث خطأ أثناء الاتصال بالخادم: $e',
+        message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
         confirmText: 'حسناً',
-        onConfirm: () {},
-        cancelText: '',
+        onConfirm: () {
+          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
+        },
+        cancelText: '', // لا حاجة لزر إلغاء
       );
     } finally {
       setState(() {

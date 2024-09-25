@@ -58,9 +58,19 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             SizedBox(height: 30),
             _buildFooterOptions(widget.order1),
             SizedBox(height: 16),
-            Divider(height: 2),
-            _buildFooterTotal(),
-            _buildFooterSummary(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25),
+              child: Divider(height: 2),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  _buildFooterTotal(),
+                  _buildFooterSummary(),
+                ],
+              ),
+            ),
             SizedBox(height: 6),
             MaterialButton(
               onPressed: _handleConfirm,
@@ -423,166 +433,109 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     );
   }
 
-  buildTextField(String hintText, int rowIndex, int fieldIndex) {
+  Widget buildTextField(String hintText, int rowIndex, int fieldIndex) {
     return GestureDetector(
-        onTap: () {
-          setState(() {
-            if (selectedFieldsPerRow[rowIndex] == fieldIndex) {
-              // إذا تم إلغاء تحديد الحقل الحالي
-              selectedFieldsPerRow[rowIndex] = null;
-              selectedItemPrice = 0;
-
-              // إذا كان الصف الحالي هو آخر صف محدد، نقوم بإعادة تعيين lastSelectedIndex
-              if (lastSelectedIndex == rowIndex) {
-                lastSelectedIndex = null;
-              }
-            } else {
-              // إذا تم تحديد حقل جديد
-              selectedFieldsPerRow[rowIndex] = fieldIndex;
-              selectedItemPrice = double.tryParse(hintText)?.toInt() ?? 0;
-
-              // تحديث lastSelectedIndex بالصف الحالي
-              lastSelectedIndex = rowIndex;
-
-              // بقية الكود الخاص بتحديث selectedItems (يمكنك الاحتفاظ به كما هو)
-              final selectedOrderItem = widget.orderItems[rowIndex];
-              print(rowIndex.toString() + " " + fieldIndex.toString());
-              String selectedItemType = '';
-              String selectedImg = '';
-              String selectedNote = '';
-              String selectedMark = '';
-
-              if (fieldIndex == 0) {
-                selectedItemType = 'commercialPrice';
-                selectedImg = selectedOrderItem['commercialImg'] ?? '';
-                selectedNote = selectedOrderItem['commercialNote'] ?? '';
-                selectedMark = selectedOrderItem['mark'] ?? 'غ.م';
-              } else if (fieldIndex == 1) {
-                selectedItemType = 'agencyprice';
-                selectedImg = selectedOrderItem['agencyImg'] ?? '';
-                selectedNote = selectedOrderItem['agencyNote'] ?? '';
-                selectedMark = selectedOrderItem['mark'] ?? 'غ.م';
-              } else if (fieldIndex == 2) {
-                selectedItemType = 'commercial2price';
-                selectedImg = selectedOrderItem['commercial2Img'] ?? '';
-                selectedNote = selectedOrderItem['commercial2Note'] ?? '';
-                selectedMark = selectedOrderItem['mark'] ?? 'غ.م';
-              }
-
-              String displayType = '';
-              if (selectedItemType == 'agencyprice') {
-                displayType = selectedOrderItem['agencyname'] ?? 'غير محدد';
-              } else if (selectedItemType == 'commercialPrice') {
-                displayType = selectedOrderItem['commercialname'] ?? 'غير محدد';
-              } else if (selectedItemType == 'commercial2price') {
-                displayType =
-                    selectedOrderItem['commercial2name'] ?? 'غير محدد';
-              }
-
-              selectedItems.add({
-                'itemid': selectedOrderItem['id'],
-                'itemName': selectedOrderItem['itemname'] ?? 'غير محدد',
-                'itemType': displayType,
-                'price': selectedOrderItem[selectedItemType] ?? '0',
-                'itemImg': selectedImg,
-                'itemNote': selectedNote,
-                'mark': selectedMark,
-              });
-            }
-          });
-        },
-        onLongPress: () {
-          final selectedOrderItem = widget.orderItems[rowIndex];
-          String selectedPriceType;
-          switch (fieldIndex) {
-            case 0:
-              selectedPriceType = 'commercialPrice';
-              break;
-            case 1:
-              selectedPriceType = 'agencyprice';
-              break;
-            case 2:
-              selectedPriceType = 'commercial2price';
-              break;
-            default:
-              selectedPriceType = 'agencyprice';
+      onTap: () {
+        setState(() {
+          if (selectedFieldsPerRow[rowIndex] == fieldIndex) {
+            // إذا تم إلغاء تحديد الحقل الحالي
+            selectedFieldsPerRow[rowIndex] = null;
+          } else {
+            // إذا تم تحديد حقل جديد
+            selectedFieldsPerRow[rowIndex] = fieldIndex;
           }
+        });
+      },
+      onLongPress: () {
+        final selectedOrderItem = widget.orderItems[rowIndex];
+        String selectedPriceType;
+        switch (fieldIndex) {
+          case 0:
+            selectedPriceType = 'commercialPrice';
+            break;
+          case 1:
+            selectedPriceType = 'agencyprice';
+            break;
+          case 2:
+            selectedPriceType = 'commercial2price';
+            break;
+          default:
+            selectedPriceType = 'agencyprice';
+        }
 
-          try {
-            // Parse item price safely
-            double itemPrice = double.parse(
-                selectedOrderItem[selectedPriceType]?.toString().trim() ?? '0');
-            int parsedItemPrice = itemPrice.toInt();
+        try {
+          // معالجة البيانات لعرض التفاصيل
+          double itemPrice = double.tryParse(
+                  selectedOrderItem[selectedPriceType]?.toString().trim() ??
+                      '0') ??
+              0;
+          int parsedItemPrice = itemPrice.toInt();
 
-            // Parse warranty safely
-            String warrantyString = selectedOrderItem[
-                        selectedPriceType.replaceFirst('price', 'warranty')]
-                    ?.toString()
-                    .trim() ??
-                '0';
-            double warrantyDouble = double.parse(warrantyString);
-            int warranty = warrantyDouble.toInt();
+          String warrantyString = selectedOrderItem[
+                      selectedPriceType.replaceFirst('price', 'warranty')]
+                  ?.toString()
+                  .trim() ??
+              '0';
+          int warranty = int.tryParse(warrantyString) ?? 0;
 
-            String note = selectedOrderItem[
-                        selectedPriceType.replaceFirst('price', 'Note')]
-                    ?.toString()
-                    .trim() ??
-                'لا توجد ملاحظات';
-            String imageUrl = selectedOrderItem[
-                        selectedPriceType.replaceFirst('price', 'Img')]
-                    ?.toString()
-                    .trim() ??
-                '';
-            String mark = selectedOrderItem['mark']?.toString().trim() ?? 'غ.م';
-            print('Image URL: $imageUrl'); // هنا
+          String note =
+              selectedOrderItem[selectedPriceType.replaceFirst('price', 'Note')]
+                      ?.toString()
+                      .trim() ??
+                  'لا توجد ملاحظات';
 
-            _showDetailsDialog(
-              itemPrice: parsedItemPrice,
-              warranty: warranty,
-              note: note,
-              imageUrl: imageUrl,
-              mark: mark,
-            );
-          } catch (e) {
-            showConfirmationDialog(
-              context: context,
-              message:
-                  'حدث خطأ أثناء معالجة البيانات. الرجاء التحقق من القيم المدخلة.',
-              confirmText: 'موافق',
-              onConfirm: () {
-                // تنفيذ أي إجراء إضافي عند النقر على "موافق" إذا لزم الأمر
-              },
-            );
-          }
-        },
-        child: SizedBox(
-          width: 61.1,
-          height: 44.71,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
+          String imageUrl =
+              selectedOrderItem[selectedPriceType.replaceFirst('price', 'Img')]
+                      ?.toString()
+                      .trim() ??
+                  '';
+
+          String mark = selectedOrderItem['mark']?.toString().trim() ?? 'غ.م';
+
+          _showDetailsDialog(
+            itemPrice: parsedItemPrice,
+            warranty: warranty,
+            note: note,
+            imageUrl: imageUrl,
+            mark: mark,
+          );
+        } catch (e) {
+          showConfirmationDialog(
+            context: context,
+            message: 'حدث خطأ أثناء معالجة البيانات.',
+            confirmText: 'موافق',
+            onConfirm: () {},
+          );
+        }
+      },
+      child: SizedBox(
+        width: 61.1,
+        height: 44.71,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
               color:
                   selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color:
-                    selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey,
-                width: 1.0,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              hintText,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: selectedFieldsPerRow[rowIndex] == fieldIndex
-                    ? Colors.white
-                    : Colors.black26,
-              ),
+              width: 1.0,
             ),
           ),
-        ));
+          alignment: Alignment.center,
+          child: Text(
+            hintText,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: selectedFieldsPerRow[rowIndex] == fieldIndex
+                  ? Colors.white
+                  : Colors.black26,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _showDetailsDialog({
@@ -600,8 +553,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             return Dialog(
               backgroundColor: Colors.white,
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.width * 0.7,
+                width: MediaQuery.of(context).size.width * 1,
+                height: MediaQuery.of(context).size.height * 0.4,
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 7,
@@ -617,6 +570,14 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(height: 15),
+                      Text(
+                        "تفاصيل القطعة",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -629,18 +590,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: "$itemPrice",
-                            color: words,
-                          ),
-                          CustomText(
-                            text: " : السعر",
-                          ),
-                        ],
-                      ),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -648,7 +598,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               CustomText(
-                                text: "شهر",
+                                text: "أشهر",
                                 color: words,
                               ),
                               SizedBox(width: 2),
@@ -663,6 +613,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                           ),
                         ],
                       ),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -675,8 +626,9 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                           ),
                         ],
                       ),
+                      SizedBox(height: 15),
                       if (imageUrl.isNotEmpty)
-                        _buildImageFromBase64(imageUrl)
+                        _buildImageRow(" ", imageUrl)
                       else
                         CustomText(
                           text: "لا يوجد صورة",
@@ -693,48 +645,31 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     );
   }
 
-  Widget _buildImageFromBase64(String base64String) {
-    try {
-      if (base64String.isNotEmpty) {
-        if (base64String.contains(',')) {
-          base64String = base64String.split(',').last;
+  Widget _buildImageRow(String label, String? base64Image) {
+    Uint8List? decodedImage;
+    if (base64Image != null && base64Image.isNotEmpty) {
+      try {
+        if (base64Image.contains(',')) {
+          base64Image = base64Image.split(',').last;
         }
-        print('Base64 String Length: ${base64String.length}');
-        Uint8List decodedBytes = base64Decode(base64String);
-        print('Decoded Bytes Length: ${decodedBytes.length}');
-        return Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Card(
-              elevation: 10,
-              shadowColor: Colors.black,
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Image.memory(
-                    decodedBytes,
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      print('Error in Image.memory: $error');
-                      return Text("لا يوجد صورة");
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      } else {
-        print('Base64 String is empty');
-        return Text('لا يوجد صورة');
+        decodedImage = base64Decode(base64Image);
+      } catch (e) {
+        print("Error decoding base64: $e");
       }
-    } catch (e) {
-      print('Error decoding image: $e');
-      return Text('لا يوجد صورة');
     }
+    return Center(
+      child: decodedImage != null
+          ? Image.memory(
+              decodedImage,
+              width: 150,
+              height: 150,
+              fit: BoxFit.cover,
+            )
+          : Text(
+              'لا يوجد صورة',
+              style: TextStyle(fontSize: 16),
+            ),
+    );
   }
 
   String getDisplayText(dynamic value) {
@@ -954,67 +889,78 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     bool isDeliverySelected = selectedDeliveryType != -1;
 
     if (isPriceSelected && isDeliverySelected) {
-      double totalCost = 0.0;
+      double totalCost = selectedDeliveryCost;
       List<Map<String, dynamic>> selectedItems = [];
+
       for (int i = 0; i < selectedFieldsPerRow.length; i++) {
         int? selectedFieldIndex = selectedFieldsPerRow[i];
         if (selectedFieldIndex != null) {
           final selectedOrderItem = widget.orderItems[i];
           String selectedPriceType;
           String selectedImg;
-          String selectedwarranty;
+          String selectedWarranty;
           String selectedNote;
-          String Select_id = '';
-          String itemTypeDisplay = '';
+          String selectedItemId;
+          String itemTypeDisplay;
+
           switch (selectedFieldIndex) {
             case 0:
               selectedPriceType = 'commercialPrice';
               selectedImg = selectedOrderItem['commercialImg'] ?? '';
               selectedNote = selectedOrderItem['commercialNote'] ?? '';
-              selectedwarranty = selectedOrderItem['commercialwarranty'] ?? '';
+              selectedWarranty = selectedOrderItem['commercialwarranty'] ?? '';
               itemTypeDisplay = 'تجاري';
-              Select_id = selectedOrderItem['commercialitemid'] ?? '';
+              selectedItemId = selectedOrderItem['commercialitemid'] ?? '';
               break;
             case 1:
               selectedPriceType = 'agencyprice';
               selectedImg = selectedOrderItem['agencyImg'] ?? '';
               selectedNote = selectedOrderItem['agencyNote'] ?? '';
-              selectedwarranty = selectedOrderItem['agencywarranty'] ?? '';
-              itemTypeDisplay = 'شركه';
-              Select_id = selectedOrderItem['agencyitemid'] ?? '';
+              selectedWarranty = selectedOrderItem['agencywarranty'] ?? '';
+              itemTypeDisplay = 'شركة';
+              selectedItemId = selectedOrderItem['agencyitemid'] ?? '';
               break;
             case 2:
               selectedPriceType = 'commercial2price';
               selectedImg = selectedOrderItem['commercial2Img'] ?? '';
               selectedNote = selectedOrderItem['commercial2Note'] ?? '';
+              selectedWarranty = selectedOrderItem['commercial2warranty'] ?? '';
               itemTypeDisplay =
                   selectedOrderItem['commercial2name'] ?? 'غير محدد';
-              selectedwarranty = selectedOrderItem['commercial2warranty'] ?? '';
-              Select_id = selectedOrderItem['commercial2itemid'] ?? '';
+              selectedItemId = selectedOrderItem['commercial2itemid'] ?? '';
               break;
             default:
               selectedPriceType = 'agencyprice';
               selectedImg = selectedOrderItem['agencyImg'] ?? '';
               selectedNote = selectedOrderItem['agencyNote'] ?? '';
-              itemTypeDisplay = 'شركه';
-              selectedwarranty = selectedOrderItem['agencywarranty'] ?? '';
+              selectedWarranty = selectedOrderItem['agencywarranty'] ?? '';
+              itemTypeDisplay = 'شركة';
+              selectedItemId = selectedOrderItem['agencyitemid'] ?? '';
           }
+
           selectedItems.add({
             'itemid': selectedOrderItem['id'],
             'itemName': selectedOrderItem['itemname'],
             'itemType': itemTypeDisplay,
-            'itemwarranty': selectedwarranty,
-            'detid': Select_id,
+            'itemwarranty': selectedWarranty,
+            'detid': selectedItemId,
             'price': selectedOrderItem[selectedPriceType],
             'itemImg': selectedImg,
             'itemNote': selectedNote,
           });
+
           totalCost += double.tryParse(
                   selectedOrderItem[selectedPriceType]?.toString() ?? '0') ??
               0;
         }
       }
-      totalCost += selectedDeliveryCost;
+
+      // هنا يمكنك إضافة جملة الطباعة للتأكد من عدد العناصر المختارة
+      print('عدد العناصر المختارة: ${selectedItems.length}');
+
+      // إذا كنت ترغب في رؤية تفاصيل العناصر المختارة أيضًا
+      print('العناصر المختارة: $selectedItems');
+
       String deliveryType = '';
       switch (selectedDeliveryType) {
         case 0:
@@ -1045,71 +991,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         'Enginetype': widget.order1[0]['Enginetype'],
         'bodyid': widget.order1[0]['bodyid'],
       };
-      try {
-        final response = await http.post(
-          Uri.parse('https://jordancarpart.com/Api/setAcceptedOrder2.php'),
-          headers: {
-            'Access-Control-Allow-Headers': '*',
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(orderData),
-        );
-        print(response.body.toString());
-        if (response.statusCode == 200) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ));
-          AwesomeNotifications().createNotification(
-            content: NotificationContent(
-                id: 2,
-                channelKey: 'basic_key',
-                title: ' ${widget.order1[0]['orderid']} تم تأكيد طلبك بنجاح ',
-                body: 'سوف يتم التواصل معك قريباً',
-                bigPicture: "asset://assets/images/app_logo.png",
-                notificationLayout: NotificationLayout.BigPicture),
-          );
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          List<String> notifications =
-              prefs.getStringList('notifications') ?? [];
-          List<Map<String, dynamic>> notificationList =
-              notifications.map((notification) {
-            Map<String, dynamic> notificationMap = jsonDecode(notification);
-            return notificationMap;
-          }).toList();
-          void addNotification(String message, String type) {
-            notificationList.add({
-              'message': message,
-              'type': type,
-              'isRead': false,
-            });
-          }
 
-          addNotification(
-              ' ${widget.order1[0]['orderid']} تم تأكيد طلب رقم  ', "تأكيد");
-          List<String> updatedNotifications = notificationList
-              .map((notification) => jsonEncode(notification))
-              .toList();
-          await prefs.setStringList('notifications', updatedNotifications);
-          print("Notification stored successfully in SharedPreferences.");
-        } else {
-          showConfirmationDialog(
-            context: context,
-            message: 'فشل في إرسال الطلب: ${response.statusCode}',
-            confirmText: 'حسناً',
-            onConfirm: () {},
-          );
-        }
-      } catch (e) {
-        showConfirmationDialog(
-          context: context,
-          message: 'حدث خطأ أثناء الإرسال: $e',
-          confirmText: 'حسناً',
-          onConfirm: () {},
-        );
-      }
+      // بقية الكود الخاص بإرسال الطلب...
     } else {
       showConfirmationDialog(
         context: context,

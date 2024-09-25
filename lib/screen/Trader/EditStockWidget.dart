@@ -437,10 +437,10 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       child: Container(
         width: size.width * 0.805,
         decoration: BoxDecoration(
-          color: Color(0xFFE0E0E0), // لون رمادي مشابه للـ Dropdown
+          color: Color(0xFFE0E0E0),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.grey, // ضبط لون الحدود
+            color: Colors.grey,
             width: 1,
           ),
         ),
@@ -455,9 +455,8 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                 ? null
                 : Icon(
                     Icons.search,
-                    color: Colors.black, // لون الأيقونة
+                    color: Colors.black,
                   ),
-            hintText: "بحث", // إضافة النص التوضيحي (placeholder)
           ),
           onTap: () {
             setState(() {
@@ -763,106 +762,112 @@ class _EditStockWidgetState extends State<EditStockWidget> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Container(
-                width: MediaQuery.of(context).size.width * 1,
-                height: MediaQuery.of(context).size.height * 0.4,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 7,
-                    color: words,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  color: Color.fromRGBO(255, 255, 255, 1),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 15),
-                      Text(
-                        "تفاصيل القطعة",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    width: constraints.maxWidth * 0.9, // ضبط عرض مناسب
+                    height: constraints.maxHeight * 0.5, // ضبط ارتفاع مناسب
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 7,
+                        color: words,
                       ),
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: checkboxItem['mark'] ?? "غير محدد",
-                            color: words,
-                          ),
-                          CustomText(
-                            text: " : العلامة التجارية",
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: product['fromYear'] ?? "غير محدد",
-                            color: words,
-                          ),
-                          CustomText(
-                            text: " : نوع السيارة",
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromRGBO(255, 255, 255, 1),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 15),
+                            Text(
+                              "تفاصيل القطعة",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  text: checkboxItem['mark'] ?? "غير محدد",
+                                  color: words,
+                                ),
+                                CustomText(
+                                  text: " : العلامة التجارية",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  text: product['fromYear'] ?? "غير محدد",
+                                  color: words,
+                                ),
+                                CustomText(
+                                  text: " : نوع السيارة",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CustomText(
+                                      text: "شهر",
+                                      color: words,
+                                    ),
+                                    SizedBox(width: 2),
+                                    CustomText(
+                                      text: "${checkboxItem['warranty']}",
+                                      color: words,
+                                    ),
+                                  ],
+                                ),
+                                CustomText(
+                                  text: " : مدة الكفالة",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  text: checkboxItem['note'].isNotEmpty
+                                      ? checkboxItem['note']
+                                      : 'لا يوجد',
+                                  color: words,
+                                ),
+                                CustomText(
+                                  text: " : الملاحظات",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 25),
+                            if (checkboxItem['img'].isNotEmpty)
+                              _buildImageRow(" ", checkboxItem['img'])
+                            else
                               CustomText(
-                                text: "شهر",
+                                text: "لا يوجد صورة",
                                 color: words,
                               ),
-                              SizedBox(width: 2),
-                              CustomText(
-                                text: "${checkboxItem['warranty']}",
-                                color: words,
-                              ),
-                            ],
-                          ),
-                          CustomText(
-                            text: " : مدة الكفالة",
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: checkboxItem['note'].isNotEmpty
-                                ? checkboxItem['note']
-                                : 'لا يوجد',
-                            color: words,
-                          ),
-                          CustomText(
-                            text: " : الملاحظات",
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 15),
-                      if (checkboxItem['img'].isNotEmpty)
-                        _buildImageRow(" ", checkboxItem['img'])
-                      else
-                        CustomText(
-                          text: "لا يوجد صورة",
-                          color: words,
+                          ],
                         ),
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
+                  );
+                },
               ),
             );
           },
@@ -880,7 +885,9 @@ class _EditStockWidgetState extends State<EditStockWidget> {
         print("Error decoding base64: $e");
       }
     }
+    final size = MediaQuery.of(context).size;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           label,
@@ -888,16 +895,51 @@ class _EditStockWidgetState extends State<EditStockWidget> {
         ),
         SizedBox(width: 10),
         decodedImage != null
-            ? Image.memory(
-                decodedImage,
-                width: 100,
-                height: 100,
+            ? GestureDetector(
+                onTap: () {
+                  _showImageDialog(decodedImage!); // فقط تمرير الصورة غير null
+                },
+                child: Image.memory(
+                  decodedImage,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
               )
             : Text(
                 'لا يوجد صورة',
                 style: TextStyle(fontSize: 16),
               ),
       ],
+    );
+  }
+
+// دالة لعرض الصورة داخل Dialog
+  void _showImageDialog(Uint8List decodedImage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context)
+                  .pop(); // إغلاق الـDialog عند النقر على الصورة
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.all(10),
+              child: Image.memory(
+                decodedImage,
+                fit: BoxFit.contain, // لضمان ملائمة الصورة داخل الـDialog
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

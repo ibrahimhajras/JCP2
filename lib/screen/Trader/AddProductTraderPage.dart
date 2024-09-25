@@ -27,6 +27,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   final picker = ImagePicker();
   File? _imageFile;
   String? _base64Image;
+  String nameprodct = "";
   final List<String> checkboxLabels = [
     "شركة",
     "تجاري",
@@ -414,7 +415,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       print('حدث خطأ أثناء الإرسال: $error');
     } finally {
       setState(() {
-        isLoading = false; // إنهاء التحميل
+        isLoading = false;
       });
     }
   }
@@ -434,40 +435,35 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
           fit: BoxFit.cover,
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.only(
-                top: size.height * 0.05,
-                left: size.width * 0.03,
-                right: size.width * 0.03),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TraderInfoPage(),
-                      ),
-                    );
-                  },
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: white,
-                    size: size.width * 0.07,
-                  ),
-                ),
-              ],
+          Positioned(
+            child: Center(
+              child: CustomText(
+                text: "إضافة معلومات قطعة",
+                color: Colors.white,
+                size: size.height * 0.025,
+              ),
             ),
           ),
-          CustomText(
-            text: "إضافة معلومات قطعة",
-            color: Colors.white,
-            size: size.height * 0.025,
+          Positioned(
+            top: size.height * 0.09, // تعديل هذا القيمة لتتناسب مع النص
+            left: size.width * 0.03, // للسهم في اليسار
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TraderInfoPage(),
+                  ),
+                );
+              },
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: white,
+                size: size.width * 0.07,
+              ),
+            ),
           ),
         ],
       ),
@@ -684,7 +680,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                             child: Icon(
                               Icons.photo_camera,
                               size: 30,
-                              color: Colors.red,
+                              color: button,
                             ),
                           ),
                           TextButton(
@@ -695,7 +691,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                             child: Icon(
                               Icons.image,
                               size: 30,
-                              color: Colors.red,
+                              color: button,
                             ),
                           ),
                         ],
