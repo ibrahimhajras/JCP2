@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/style/colors.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -112,7 +113,7 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
               stream: ordersStreamData,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: RotatingImagePage());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('فشل في تحميل الطلبيات'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

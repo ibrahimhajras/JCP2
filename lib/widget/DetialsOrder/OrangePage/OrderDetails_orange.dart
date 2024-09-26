@@ -210,178 +210,196 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   }
 
   Widget _buildOrderItemsList() {
+    final size = MediaQuery.of(context).size; // الحصول على حجم الشاشة
+    final screenWidth = size.width;
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(
-                width: 40,
-                height: 40,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: CustomText(
-                    text: widget.orderItems[0]['commercial2name'] ?? '',
-                    color: white,
-                    weight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 80,
-                height: 40,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: CustomText(
-                    text: widget.orderItems[0]['commercial2name'] ?? '',
-                    color: black,
-                    weight: FontWeight.bold,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 80,
-                height: 40,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: CustomText(
-                    text: 'تجاري',
-                    color: black,
-                    weight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 80,
-                height: 40,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: CustomText(
-                    text: 'شركة',
-                    color: black,
-                    weight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              if (lastSelectedIndex != null &&
-                  selectedFieldsPerRow[lastSelectedIndex!] != null)
-                SizedBox(
-                  width: 120,
-                  height: 40,
+              SizedBox(width: screenWidth * 0.02),
+              Flexible(
+                flex: 1,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: screenWidth * 0.10,
                   child: Align(
                     alignment: Alignment.bottomCenter,
-                    child: IconButton(
-                      icon: Image.asset(
-                        'assets/images/iconinfo.png',
-                        width: 20,
-                      ),
-                      onPressed: () {
-                        final selectedOrderItem =
-                            widget.orderItems[lastSelectedIndex!];
-                        int? selectedFieldIndex =
-                            selectedFieldsPerRow[lastSelectedIndex!];
-
-                        if (selectedFieldIndex != null) {
-                          String selectedPriceType;
-                          switch (selectedFieldIndex) {
-                            case 0:
-                              selectedPriceType = 'commercialPrice';
-                              break;
-                            case 1:
-                              selectedPriceType = 'agencyprice';
-                              break;
-                            case 2:
-                              selectedPriceType = 'commercial2price';
-                              break;
-                            default:
-                              selectedPriceType = 'agencyprice';
-                          }
-
-                          try {
-                            String itemPriceString =
-                                selectedOrderItem[selectedPriceType]
-                                        ?.toString()
-                                        ?.trim() ??
-                                    '0';
-                            double itemPrice = double.parse(itemPriceString);
-                            int parsedItemPrice = itemPrice.toInt();
-
-                            String warrantyString = selectedOrderItem[
-                                        selectedPriceType.replaceFirst(
-                                            'price', 'warranty')]
-                                    ?.toString()
-                                    ?.trim() ??
-                                '0';
-                            double warrantyDouble =
-                                double.parse(warrantyString);
-                            int warranty = warrantyDouble.toInt();
-
-                            String note = selectedOrderItem[selectedPriceType
-                                        .replaceFirst('price', 'Note')]
-                                    ?.toString()
-                                    ?.trim() ??
-                                '';
-                            String mark =
-                                selectedOrderItem['mark']?.toString()?.trim() ??
-                                    '';
-                            String imageUrl = selectedOrderItem[
-                                        selectedPriceType.replaceFirst(
-                                            'price', 'Img')]
-                                    ?.toString()
-                                    ?.trim() ??
-                                '';
-
-                            _showDetailsDialog(
-                              itemPrice: parsedItemPrice,
-                              warranty: warranty,
-                              note: note,
-                              mark: mark,
-                              imageUrl: imageUrl,
-                            );
-                          } catch (e) {
-                            print('Error parsing values: $e');
-                            showConfirmationDialog(
-                              context: context,
-                              message:
-                                  'حدث خطأ أثناء معالجة البيانات. الرجاء التحقق من القيم المدخلة.',
-                              confirmText: 'موافق',
-                              onConfirm: () {
-                                // قم بأي إجراء إضافي هنا عند الضغط على "موافق"
-                              },
-                            );
-                          }
-                        } else {
-                          showConfirmationDialog(
-                            context: context,
-                            message: 'الرجاء تحديد السعر قبل عرض التفاصيل',
-                            confirmText: 'موافق',
-                            onConfirm: () {
-                              // أي إجراء إضافي إذا كان مطلوبًا عند النقر على "موافق"
-                            },
-                          );
-                        }
-                      },
+                    child: CustomText(
+                      text: widget.orderItems[0]['commercial2name'] ?? '',
+                      color: Colors.white,
+                      weight: FontWeight.bold,
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                )
-              else
-                SizedBox(
-                  width: 120,
-                  child: CustomText(
-                    text: 'تجاري',
-                    color: white,
-                    weight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: screenWidth * 0.01),
+              Flexible(
+                flex: 1,
+                child: SizedBox(
+                  width: double.infinity, // أخذ العرض الكامل
+                  height: screenWidth * 0.10,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: CustomText(
+                      text: widget.orderItems[0]['commercial2name'] ?? '',
+                      color: black,
+                      weight: FontWeight.bold,
+                    ),
                   ),
                 ),
+              ),
+              SizedBox(width: screenWidth * 0.03),
+              Flexible(
+                flex: 1,
+                child: SizedBox(
+                  width: double.infinity, // أخذ العرض الكامل
+                  height: screenWidth * 0.10,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: CustomText(
+                      text: 'تجاري',
+                      color: black,
+                      weight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: screenWidth * 0.03),
+              Flexible(
+                flex: 1,
+                child: SizedBox(
+                  width: double.infinity, // أخذ العرض الكامل
+                  height: screenWidth * 0.10,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: CustomText(
+                      text: 'شركة',
+                      color: black,
+                      weight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: screenWidth * 0.02),
+              Flexible(
+                flex: 2, // نفس flex في كلا الحالتين
+                child: SizedBox(
+                  height: screenWidth * 0.10, // نفس الارتفاع في كلا الحالتين
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: lastSelectedIndex != null &&
+                            selectedFieldsPerRow[lastSelectedIndex!] != null
+                        ? IconButton(
+                            icon: Image.asset(
+                              'assets/images/iconinfo.png',
+                              width: double.infinity, // عرض كامل
+                            ),
+                            onPressed: () {
+                              final selectedOrderItem =
+                                  widget.orderItems[lastSelectedIndex!];
+                              int? selectedFieldIndex =
+                                  selectedFieldsPerRow[lastSelectedIndex!];
+
+                              if (selectedFieldIndex != null) {
+                                String selectedPriceType;
+                                switch (selectedFieldIndex) {
+                                  case 0:
+                                    selectedPriceType = 'commercialPrice';
+                                    break;
+                                  case 1:
+                                    selectedPriceType = 'agencyprice';
+                                    break;
+                                  case 2:
+                                    selectedPriceType = 'commercial2price';
+                                    break;
+                                  default:
+                                    selectedPriceType = 'agencyprice';
+                                }
+
+                                try {
+                                  String itemPriceString =
+                                      selectedOrderItem[selectedPriceType]
+                                              ?.toString()
+                                              ?.trim() ??
+                                          '0';
+                                  double itemPrice =
+                                      double.parse(itemPriceString);
+                                  int parsedItemPrice = itemPrice.toInt();
+
+                                  String warrantyString = selectedOrderItem[
+                                              selectedPriceType.replaceFirst(
+                                                  'price', 'warranty')]
+                                          ?.toString()
+                                          ?.trim() ??
+                                      '0';
+                                  double warrantyDouble =
+                                      double.parse(warrantyString);
+                                  int warranty = warrantyDouble.toInt();
+
+                                  String note = selectedOrderItem[
+                                              selectedPriceType.replaceFirst(
+                                                  'price', 'Note')]
+                                          ?.toString()
+                                          ?.trim() ??
+                                      '';
+                                  String mark = selectedOrderItem['mark']
+                                          ?.toString()
+                                          ?.trim() ??
+                                      '';
+                                  String imageUrl = selectedOrderItem[
+                                              selectedPriceType.replaceFirst(
+                                                  'price', 'Img')]
+                                          ?.toString()
+                                          ?.trim() ??
+                                      '';
+
+                                  _showDetailsDialog(
+                                    itemPrice: parsedItemPrice,
+                                    warranty: warranty,
+                                    note: note,
+                                    mark: mark,
+                                    imageUrl: imageUrl,
+                                  );
+                                } catch (e) {
+                                  print('Error parsing values: $e');
+                                  showConfirmationDialog(
+                                    context: context,
+                                    message:
+                                        'حدث خطأ أثناء معالجة البيانات. الرجاء التحقق من القيم المدخلة.',
+                                    confirmText: 'موافق',
+                                    onConfirm: () {},
+                                  );
+                                }
+                              } else {
+                                showConfirmationDialog(
+                                  context: context,
+                                  message:
+                                      'الرجاء تحديد السعر قبل عرض التفاصيل',
+                                  confirmText: 'موافق',
+                                  onConfirm: () {},
+                                );
+                              }
+                            },
+                          )
+                        : CustomText(
+                            text: 'تجاري',
+                            color: Colors.white,
+                            weight: FontWeight.bold,
+                            textAlign: TextAlign.center,
+                          ),
+                  ),
+                ),
+              ),
+              SizedBox(width: screenWidth * 0.03),
             ],
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 0),
           child: ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -395,34 +413,57 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      width: 40,
+                    SizedBox(width: screenWidth * 0.02),
+                    Flexible(
+                      flex: 1,
                       child: IconButton(
                         icon: Image.asset(
                           'assets/images/02.png',
-                          width: 20,
-                          height: 20,
+                          width: double.infinity,
+                          height: screenWidth * 0.05,
                         ),
                         onPressed: () {
                           _confirmDeletion(index);
                         },
                       ),
                     ),
-                    buildTextField(
-                        getDisplayText(orderItem['commercial2price']),
-                        index,
-                        2),
-                    buildTextField(
-                        getDisplayText(orderItem['commercialPrice']), index, 0),
-                    buildTextField(
-                        getDisplayText(orderItem['agencyprice']), index, 1),
-                    SizedBox(
-                      width: 120,
-                      child: CustomText(
+                    SizedBox(width: screenWidth * 0.01),
+                    Flexible(
+                      flex: 1,
+                      child: buildTextField(
+                          getDisplayText(orderItem['commercial2price']),
+                          index,
+                          2),
+                    ),
+                    SizedBox(width: screenWidth * 0.03),
+                    Flexible(
+                      flex: 1,
+                      child: buildTextField(
+                          getDisplayText(orderItem['commercialPrice']),
+                          index,
+                          0),
+                    ),
+                    SizedBox(width: screenWidth * 0.03),
+                    Flexible(
+                      flex: 1,
+                      child: buildTextField(
+                          getDisplayText(orderItem['agencyprice']), index, 1),
+                    ),
+                    SizedBox(width: screenWidth * 0.02),
+                    Flexible(
+                      flex: 2,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: CustomText(
                           text: orderItemName,
                           color: black,
-                          weight: FontWeight.bold),
-                    )
+                          size: 14,
+                          weight: FontWeight.bold,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: screenWidth * 0.03),
                   ],
                 ),
               );
@@ -433,10 +474,119 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     );
   }
 
-  Widget buildTextField(String hintText, int rowIndex, int fieldIndex) {
-    // تحقق مما إذا كان الحقل "غ.م"
-    bool isForbidden = hintText == 'غ.م';
+  Widget _buildFooterOptions(List<dynamic> order) {
+    final size = MediaQuery.of(context).size; // الحصول على حجم الشاشة
+    final screenWidth = size.width;
 
+    // الحصول على القيم من الطلب
+    final deliveryshop = int.tryParse(order[0]['deliveryshop'].toString()) ?? 0;
+    final deliverynormal =
+        int.tryParse(order[0]['deliverynormal'].toString()) ?? 0;
+    final deliverynow = int.tryParse(order[0]['deliverynow'].toString()) ?? 0;
+
+    final deliverynormalCost =
+        double.tryParse(order[0]['deliverynormalcost'].toString()) ?? 0.0;
+    final deliverynowCost =
+        double.tryParse(order[0]['deliverynowcost'].toString()) ?? 0.0;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: screenWidth * 0.02),
+          Flexible(
+            flex: 1,
+            child: SizedBox(
+              height: screenWidth * 0.10,
+              child: Align(
+                alignment: Alignment.center,
+                child: CustomText(
+                  text: 'التوصيل',
+                  color: white,
+                  weight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: screenWidth * 0.01),
+          if (deliverynow == 1)
+            Flexible(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: buildOptionButton('فوري', 0, deliverynowCost),
+              ),
+            )
+          else
+            Flexible(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: buildFixedRedOptionButton('فوري'),
+              ),
+            ),
+          SizedBox(width: screenWidth * 0.03),
+          if (deliverynormal == 1)
+            Flexible(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: buildOptionButton('24 ساعة', 1, deliverynormalCost),
+              ),
+            )
+          else
+            Flexible(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: buildFixedRedOptionButton('24 ساعة'),
+              ),
+            ),
+          SizedBox(width: screenWidth * 0.03),
+          if (deliveryshop == 1)
+            Flexible(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: buildOptionButton('استلام من المحل', 2, 0.0),
+              ),
+            )
+          else
+            Flexible(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: buildFixedRedOptionButton('استلام من المحل'),
+              ),
+            ),
+          SizedBox(width: screenWidth * 0.02),
+          Flexible(
+            flex: 2,
+            child: SizedBox(
+              height: screenWidth * 0.10,
+              child: Align(
+                alignment: Alignment.center,
+                child: CustomText(
+                  text: 'التوصيل',
+                  color: black,
+                  weight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: screenWidth * 0.03),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTextField(String hintText, int rowIndex, int fieldIndex) {
+    bool isForbidden = hintText == 'غ.م';
+    final size = MediaQuery.of(context).size;
+    final screenWidth = size.width;
+    final screenHeight = size.height;
     return GestureDetector(
       onTap: isForbidden
           ? null
@@ -444,8 +594,12 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               setState(() {
                 if (selectedFieldsPerRow[rowIndex] == fieldIndex) {
                   selectedFieldsPerRow[rowIndex] = null;
+                  lastSelectedIndex =
+                      null; // إلغاء التحديد إذا تم النقر مرة أخرى
                 } else {
                   selectedFieldsPerRow[rowIndex] = fieldIndex;
+                  lastSelectedIndex =
+                      rowIndex; // تعيين الصف الحالي كآخر صف مختار
                 }
               });
             },
@@ -517,8 +671,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               }
             },
       child: SizedBox(
-        width: 61.1,
-        height: 44.71,
+        width: double.infinity,
+        height: screenHeight * 0.06, // على سبيل المثال، 5% من ارتفاع الشاشة
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
@@ -697,63 +851,6 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     } else {
       return number.toStringAsFixed(2);
     }
-  }
-
-  Widget _buildFooterOptions(List<dynamic> order) {
-    final deliveryshop = int.tryParse(order[0]['deliveryshop'].toString()) ?? 0;
-    final deliverynormal =
-        int.tryParse(order[0]['deliverynormal'].toString()) ?? 0;
-    final deliverynow = int.tryParse(order[0]['deliverynow'].toString()) ?? 0;
-
-    final deliverynormalCost =
-        double.tryParse(order[0]['deliverynormalcost'].toString()) ?? 0.0;
-    final deliverynowCost =
-        double.tryParse(order[0]['deliverynowcost'].toString()) ?? 0.0;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: CustomText(
-                text: 'التوصيل',
-                color: white,
-                weight: FontWeight.bold,
-              ),
-            ),
-          ),
-          if (deliverynow == 1)
-            buildOptionButton('فوري', 0, deliverynowCost)
-          else
-            buildFixedRedOptionButton('فوري'),
-          if (deliverynormal == 1)
-            buildOptionButton('24 ساعة', 1, deliverynormalCost)
-          else
-            buildFixedRedOptionButton('24 ساعة'),
-          if (deliveryshop == 1)
-            buildOptionButton('استلام م\n المحل', 2, 0.0)
-          else
-            buildFixedRedOptionButton('استلام م\n المحل'),
-          SizedBox(
-            width: 120,
-            height: 40,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: CustomText(
-                text: 'التوصيل',
-                color: black,
-                weight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildFooterTotal() {
@@ -1034,8 +1131,14 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         onConfirm: () {
           setState(() {
             widget.orderItems.removeAt(index);
-            if (widget.orderItems.isEmpty) {
-              selectedFieldsPerRow.clear();
+            selectedFieldsPerRow.removeAt(index); // تأكد من إزالة الحقل المقابل
+            if (lastSelectedIndex == index) {
+              lastSelectedIndex =
+                  null; // إعادة تعيين lastSelectedIndex إذا تم حذف الصف المختار
+            } else if (lastSelectedIndex != null &&
+                lastSelectedIndex! > index) {
+              lastSelectedIndex = lastSelectedIndex! -
+                  1; // تحديث المؤشر إذا كان بعد الصف المحذوف
             }
           });
         },
