@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -314,15 +313,7 @@ Future<void> updateOrderState(BuildContext context, int orderId) async {
           builder: (context) => HomePage(),
         ),
       );
-      AwesomeNotifications().createNotification(
-        content: NotificationContent(
-            id: 2,
-            channelKey: 'basic_key',
-            title: ' ${orderId}تم تأكيد طلبك بنجاح ',
-            body: 'سوف يتم التواصل معك قريباً',
-            bigPicture: "asset://assets/images/app_logo.png",
-            notificationLayout: NotificationLayout.BigPicture),
-      );
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String> notifications = prefs.getStringList('notifications') ?? [];
 

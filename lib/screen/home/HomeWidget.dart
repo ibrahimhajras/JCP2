@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../style/colors.dart';
 import '../../../style/custom_text.dart';
-import '../../model/NotificationService.dart';
 import '../../model/OrderModel.dart';
 import '../../provider/CountdownProvider.dart';
 import '../../provider/OrderProvider.dart';
@@ -93,7 +92,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final countdownProvider =
         Provider.of<CountdownProvider>(context, listen: false);
-    final NotificationService _notificationService = NotificationService();
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -111,8 +109,6 @@ class _HomeWidgetState extends State<HomeWidget> {
         },
         body: json.encode({'user_id': userId}),
       );
-      _notificationService.startNotificationCheck(userId);
-
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         if (responseData['success'] == true) {
