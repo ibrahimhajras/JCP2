@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:jcp/NotificationService.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/custom_text.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
@@ -622,7 +623,6 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               }
 
               try {
-                // معالجة البيانات لعرض التفاصيل
                 double itemPrice = double.tryParse(
                         selectedOrderItem[selectedPriceType]
                                 ?.toString()
@@ -638,17 +638,18 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                     '0';
                 int warranty = int.tryParse(warrantyString) ?? 0;
 
-                String note = selectedOrderItem[
-                            selectedPriceType.replaceFirst('price', 'Note')]
+                String note = selectedOrderItem[selectedPriceType.replaceFirst(
+                            'price'.toUpperCase(), 'Note')]
                         ?.toString()
                         .trim() ??
                     'لا توجد ملاحظات';
 
-                String imageUrl = selectedOrderItem[
-                            selectedPriceType.replaceFirst('price', 'Img')]
+                String imageUrl = selectedOrderItem[selectedPriceType
+                            .toLowerCase()
+                            .replaceFirst('price'.toUpperCase(), 'Img')]
                         ?.toString()
                         .trim() ??
-                    '';
+                    'لا توجد صورة';
 
                 String mark =
                     selectedOrderItem['mark']?.toString().trim() ?? 'غ.م';
@@ -720,13 +721,18 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           builder: (BuildContext context, setState) {
             return Dialog(
               backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Container(
-                width: MediaQuery.of(context).size.width * 1,
-                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width *
+                    0.9, // عرض مناسب للـ Dialog
+                height:
+                    MediaQuery.of(context).size.height * 0.5, // ارتفاع مناسب
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 7,
-                    color: words,
+                    color: words, // يجب أن تحدد متغير اللون 'words'
                   ),
                   borderRadius: BorderRadius.circular(10),
                   color: Color.fromRGBO(255, 255, 255, 1),
@@ -746,12 +752,13 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ),
                       ),
                       SizedBox(height: 20),
+                      // عرض العلامة التجارية
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CustomText(
                             text: "$mark",
-                            color: words,
+                            color: words, // يجب أن تحدد متغير اللون 'words'
                           ),
                           CustomText(
                             text: " : العلامة التجارية",
@@ -759,6 +766,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ],
                       ),
                       SizedBox(height: 10),
+                      // عرض مدة الكفالة
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -782,6 +790,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ],
                       ),
                       SizedBox(height: 10),
+                      // عرض الملاحظات
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -795,8 +804,9 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ],
                       ),
                       SizedBox(height: 15),
+                      // عرض الصورة
                       if (imageUrl.isNotEmpty)
-                        _buildImageRow(" ", imageUrl)
+                        _buildImageRowWithClick(" ", imageUrl)
                       else
                         CustomText(
                           text: "لا يوجد صورة",
@@ -813,30 +823,64 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     );
   }
 
-  Widget _buildImageRow(String label, String? base64Image) {
+// دالة لبناء الصورة مع القدرة على النقر عليها لفتحها في نافذة جديدة
+  Widget _buildImageRowWithClick(String label, String? base64Image) {
     Uint8List? decodedImage;
     if (base64Image != null && base64Image.isNotEmpty) {
       try {
         if (base64Image.contains(',')) {
-          base64Image = base64Image.split(',').last;
+          base64Image = base64Image
+              .split(',')
+              .last; // معالجة البيانات إذا كانت تحتوي على ','.
         }
         decodedImage = base64Decode(base64Image);
       } catch (e) {
         print("Error decoding base64: $e");
       }
     }
+
     return Center(
       child: decodedImage != null
-          ? Image.memory(
-              decodedImage,
-              width: 150,
-              height: 150,
-              fit: BoxFit.cover,
+          ? GestureDetector(
+              onTap: () {
+                _showImageDialog(decodedImage!); // فتح الصورة في نافذة جديدة
+              },
+              child: Image.memory(
+                decodedImage,
+                width: 150,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
             )
           : Text(
               'لا يوجد صورة',
               style: TextStyle(fontSize: 16),
             ),
+    );
+  }
+
+// دالة لعرض الصورة في نافذة جديدة عند النقر عليها
+  void _showImageDialog(Uint8List decodedImage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.black54, // لون خلفية شفاف
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context)
+                  .pop(); // إغلاق الـDialog عند النقر على الصورة
+            },
+            child: Container(
+              padding: EdgeInsets.all(10),
+              child: Image.memory(
+                decodedImage,
+                fit: BoxFit.contain, // لضمان عرض الصورة بالكامل
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -978,17 +1022,17 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         children: [
           MSHCheckbox(
             size: 40,
-            value: true, // دائمًا مفعل
+            value: true,
             colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-              checkedColor: Colors.red, // اللون الأحمر دائمًا
+              checkedColor: Colors.red,
             ),
             style: MSHCheckboxStyle.stroke,
-            onChanged: (selected) {}, // لا يوجد تأثير عند النقر
+            onChanged: (selected) {},
           ),
           SizedBox(height: 10),
           CustomText(
             text: label,
-            color: Colors.red, // جعل لون النص نفس لون الـ Checkbox
+            color: Colors.red,
           ),
         ],
       ),
@@ -1000,7 +1044,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     bool isDeliverySelected = selectedDeliveryType != -1;
 
     if (isPriceSelected && isDeliverySelected) {
-      double totalCost = selectedDeliveryCost;
+      double totalCost = 0.0;
       List<Map<String, dynamic>> selectedItems = [];
 
       for (int i = 0; i < selectedFieldsPerRow.length; i++) {
@@ -1011,8 +1055,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           String selectedImg;
           String selectedWarranty;
           String selectedNote;
-          String selectedItemId;
-          String itemTypeDisplay;
+          String selectedItemId = '';
+          String itemTypeDisplay = '';
 
           switch (selectedFieldIndex) {
             case 0:
@@ -1028,25 +1072,24 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               selectedImg = selectedOrderItem['agencyImg'] ?? '';
               selectedNote = selectedOrderItem['agencyNote'] ?? '';
               selectedWarranty = selectedOrderItem['agencywarranty'] ?? '';
-              itemTypeDisplay = 'شركة';
+              itemTypeDisplay = 'شركه';
               selectedItemId = selectedOrderItem['agencyitemid'] ?? '';
               break;
             case 2:
               selectedPriceType = 'commercial2price';
               selectedImg = selectedOrderItem['commercial2Img'] ?? '';
               selectedNote = selectedOrderItem['commercial2Note'] ?? '';
-              selectedWarranty = selectedOrderItem['commercial2warranty'] ?? '';
               itemTypeDisplay =
                   selectedOrderItem['commercial2name'] ?? 'غير محدد';
+              selectedWarranty = selectedOrderItem['commercial2warranty'] ?? '';
               selectedItemId = selectedOrderItem['commercial2itemid'] ?? '';
               break;
             default:
               selectedPriceType = 'agencyprice';
               selectedImg = selectedOrderItem['agencyImg'] ?? '';
               selectedNote = selectedOrderItem['agencyNote'] ?? '';
+              itemTypeDisplay = 'شركه';
               selectedWarranty = selectedOrderItem['agencywarranty'] ?? '';
-              itemTypeDisplay = 'شركة';
-              selectedItemId = selectedOrderItem['agencyitemid'] ?? '';
           }
 
           selectedItems.add({
@@ -1066,11 +1109,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         }
       }
 
-      // هنا يمكنك إضافة جملة الطباعة للتأكد من عدد العناصر المختارة
-      print('عدد العناصر المختارة: ${selectedItems.length}');
-
-      // إذا كنت ترغب في رؤية تفاصيل العناصر المختارة أيضًا
-      print('العناصر المختارة: $selectedItems');
+      totalCost += selectedDeliveryCost;
 
       String deliveryType = '';
       switch (selectedDeliveryType) {
@@ -1103,7 +1142,75 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         'bodyid': widget.order1[0]['bodyid'],
       };
 
-      // بقية الكود الخاص بإرسال الطلب...
+      // إرسال الطلب إلى الـ API
+      try {
+        final response = await http.post(
+          Uri.parse('https://jordancarpart.com/Api/setAcceptedOrder2.php'),
+          headers: {
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(orderData),
+        );
+
+        print(response.body.toString());
+
+        if (response.statusCode == 200) {
+          NotificationService().showNotification(
+            id: 0,
+            title: 'تم تأكيد طلبك بنجاح',
+            body:
+                'طلب رقم ${widget.order1[0]['orderid']} تم تأكيده بنجاح. سوف يتم التواصل معك قريباً.',
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ),
+          );
+
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          List<String> notifications =
+              prefs.getStringList('notifications') ?? [];
+          List<Map<String, dynamic>> notificationList =
+              notifications.map((notification) {
+            return jsonDecode(notification) as Map<String, dynamic>;
+          }).toList();
+
+          void addNotification(String message, String type) {
+            notificationList.add({
+              'message': message,
+              'type': type,
+              'isRead': false,
+            });
+          }
+
+          addNotification(
+              'تم تأكيد طلب رقم ${widget.order1[0]['orderid']}', "تأكيد");
+          List<String> updatedNotifications = notificationList
+              .map((notification) => jsonEncode(notification))
+              .toList();
+          await prefs.setStringList('notifications', updatedNotifications);
+
+          print("Notification stored successfully in SharedPreferences.");
+        } else {
+          showConfirmationDialog(
+            context: context,
+            message: 'فشل في إرسال الطلب: ${response.statusCode}',
+            confirmText: 'حسنًا',
+            onConfirm: () {},
+          );
+        }
+      } catch (e) {
+        showConfirmationDialog(
+          context: context,
+          message: 'حدث خطأ أثناء الإرسال: $e',
+          confirmText: 'حسنًا',
+          onConfirm: () {},
+        );
+      }
     } else {
       showConfirmationDialog(
         context: context,
@@ -1130,14 +1237,12 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         onConfirm: () {
           setState(() {
             widget.orderItems.removeAt(index);
-            selectedFieldsPerRow.removeAt(index); // تأكد من إزالة الحقل المقابل
+            selectedFieldsPerRow.removeAt(index);
             if (lastSelectedIndex == index) {
-              lastSelectedIndex =
-                  null; // إعادة تعيين lastSelectedIndex إذا تم حذف الصف المختار
+              lastSelectedIndex = null;
             } else if (lastSelectedIndex != null &&
                 lastSelectedIndex! > index) {
-              lastSelectedIndex = lastSelectedIndex! -
-                  1; // تحديث المؤشر إذا كان بعد الصف المحذوف
+              lastSelectedIndex = lastSelectedIndex! - 1;
             }
           });
         },

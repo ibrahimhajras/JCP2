@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/helper/snack_bar.dart';
@@ -7,6 +8,7 @@ import 'package:jcp/screen/Drawer/ProfilePage.dart';
 import 'package:provider/provider.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
+import 'package:http/http.dart' as http;
 
 class TraderProfilePage extends StatefulWidget {
   final JoinTraderModel trader;
@@ -697,11 +699,38 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
               ),
               check
                   ? GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          check = false;
+                      onTap: () async {
+                        if (select1.isEmpty && select.isEmpty && cars.isEmpty) {
                           showSnack(context, "لا يوجد تعديل");
-                        });
+                          return;
+                        }
+                        String phoneNumber = widget.trader.phone;
+                        List modifications1 = select1;
+                        List modifications2 = select;
+                        List modifications3 = cars;
+                        Map<String, dynamic> data = {
+                          "phone": phoneNumber,
+                          "modifications1": modifications1,
+                          "modifications2": modifications2,
+                          "modifications3": modifications3,
+                        };
+                        final response = await http.post(
+                          Uri.parse(
+                              'https://jordancarpart.com/Api/commingsoon.php'),
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: jsonEncode(data),
+                        );
+
+                        if (response.statusCode == 200) {
+                          showSnack(context, "تم حفظ التعديلات بنجاح");
+                          setState(() {
+                            check = false; // إخفاء حالة التعديل
+                          });
+                        } else {
+                          showSnack(context, "فشل في حفظ التعديلات");
+                        }
                       },
                       child: Padding(
                         padding:

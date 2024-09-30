@@ -8,7 +8,7 @@
 
 
     <application
-        android:label="قطع سيارات الاردنjhhbhbhbhhbhbh"
+        android:label="قطع سيارات الاردن"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -34,7 +34,7 @@ class OrderDetailsPage_Green extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
                     child: Text(
                       'التوصيل',
                       style:
@@ -73,12 +73,13 @@ class OrderDetailsPage_Green extends StatelessWidget {
                   ),
                 ],
               ),
-              Divider(
-                height: 2,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25),
+                child: Divider(height: 2),
               ),
               SizedBox(height: size.height * 0.04),
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -235,7 +236,10 @@ class OrderDetailsPage_Green extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8),
-                Divider(height: 2),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14),
+                  child: Divider(height: 2),
+                ),
               ],
             ),
           );
@@ -256,9 +260,12 @@ class OrderDetailsPage_Green extends StatelessWidget {
           builder: (BuildContext context, setState) {
             return Dialog(
               backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.width * 0.7,
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.5,
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 7,
@@ -274,6 +281,15 @@ class OrderDetailsPage_Green extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(height: 15),
+                      Text(
+                        "تفاصيل القطعة",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      // عرض العلامة التجارية
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -286,18 +302,8 @@ class OrderDetailsPage_Green extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: "${item['price']}",
-                            color: words,
-                          ),
-                          CustomText(
-                            text: " : السعر",
-                          ),
-                        ],
-                      ),
+                      SizedBox(height: 10),
+                      // عرض مدة الكفالة
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -305,7 +311,7 @@ class OrderDetailsPage_Green extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               CustomText(
-                                text: "شهر",
+                                text: "أشهر",
                                 color: words,
                               ),
                               SizedBox(width: 2),
@@ -320,6 +326,8 @@ class OrderDetailsPage_Green extends StatelessWidget {
                           ),
                         ],
                       ),
+                      SizedBox(height: 10),
+                      // عرض الملاحظات
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -334,8 +342,11 @@ class OrderDetailsPage_Green extends StatelessWidget {
                           ),
                         ],
                       ),
+                      SizedBox(height: 15),
+                      // عرض الصورة
                       if (item['itemImg'] != null && item['itemImg'].isNotEmpty)
-                        _buildImageFromBase64(item['itemImg'], context)
+                        _buildImageRowWithClick(
+                            "صورة المنتج", item['itemImg'], context)
                       else
                         CustomText(
                           text: "لا يوجد صورة",
@@ -352,48 +363,63 @@ class OrderDetailsPage_Green extends StatelessWidget {
     );
   }
 
-  Widget _buildImageFromBase64(String base64String, BuildContext context) {
-    try {
-      if (base64String.isNotEmpty) {
-        if (base64String.contains(',')) {
-          base64String = base64String.split(',').last;
+// دالة لعرض الصورة مع إمكانية النقر عليها
+  Widget _buildImageRowWithClick(
+      String label, String? base64Image, BuildContext context) {
+    Uint8List? decodedImage;
+    if (base64Image != null && base64Image.isNotEmpty) {
+      try {
+        if (base64Image.contains(',')) {
+          base64Image = base64Image.split(',').last;
         }
-        print('Base64 String Length: ${base64String.length}');
-        Uint8List decodedBytes = base64Decode(base64String);
-        print('Decoded Bytes Length: ${decodedBytes.length}');
-        return Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Card(
-              elevation: 10,
-              shadowColor: Colors.black,
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Image.memory(
-                    decodedBytes,
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      print('Error in Image.memory: $error');
-                      return Text("لا يوجد صورة");
-                    },
-                  ),
-                ),
+        decodedImage = base64Decode(base64Image);
+      } catch (e) {
+        print("Error decoding base64: $e");
+      }
+    }
+
+    return Center(
+      child: decodedImage != null
+          ? GestureDetector(
+              onTap: () {
+                _showImageDialog(
+                    decodedImage!, context); // فتح الصورة في نافذة جديدة
+              },
+              child: Image.memory(
+                decodedImage,
+                width: 150,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
+            )
+          : Text(
+              'لا يوجد صورة',
+              style: TextStyle(fontSize: 16),
+            ),
+    );
+  }
+
+  void _showImageDialog(Uint8List decodedImage, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.black54,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              padding: EdgeInsets.all(10),
+              child: Image.memory(
+                decodedImage,
+                fit: BoxFit.contain,
               ),
             ),
           ),
         );
-      } else {
-        print('Base64 String is empty');
-        return Text('لا يوجد صورة');
-      }
-    } catch (e) {
-      print('Error decoding image: $e');
-      return Text('لا يوجد صورة');
-    }
+      },
+    );
   }
 
   Widget _buildOrderDetails(Size size) {

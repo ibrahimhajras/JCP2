@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jcp/model/JoinTraderModel.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
+import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:jcp/screen/Trader/homeTrader.dart';
 import 'package:jcp/widget/Inallpage/CustomButton.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
@@ -27,6 +29,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   final picker = ImagePicker();
   File? _imageFile;
   String? _base64Image;
+
   String nameprodct = "";
   final List<String> checkboxLabels = [
     "شركة",
@@ -471,6 +474,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   }
 
   Widget buildForm(Size size, String user_id) {
+    final trader = Provider.of<ProfileTraderProvider>(context).trader;
+
     double sizeFactor = size.width * 0.0025;
     return Container(
       height: size.height * 0.79,
@@ -500,13 +505,18 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  buildCheckboxColumn("مستعمل", 4, sizeFactor),
-                  buildCheckboxColumn("بلد المنشأ", 3, sizeFactor),
-                  buildCheckboxColumn("تجاري 2", 2, sizeFactor),
-                  buildCheckboxColumn("تجاري", 1, sizeFactor),
-                  buildCheckboxColumn("شركة", 0, sizeFactor),
+                  if (trader != null && trader.master.contains("مستعمل"))
+                    buildCheckboxColumn("مستعمل", 4, sizeFactor),
+                  if (trader != null && trader.master.contains("بلد المنشأ"))
+                    buildCheckboxColumn("بلد المنشأ", 3, sizeFactor),
+                  if (trader != null && trader.master.contains("تجاري 2"))
+                    buildCheckboxColumn("تجاري 2", 2, sizeFactor),
+                  if (trader != null && trader.master.contains("تجاري"))
+                    buildCheckboxColumn("تجاري", 1, sizeFactor),
+                  if (trader != null && trader.master.contains("شركة"))
+                    buildCheckboxColumn("شركة", 0, sizeFactor),
                 ],
               ),
             ),

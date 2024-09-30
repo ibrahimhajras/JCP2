@@ -28,6 +28,13 @@ class _NotificationPageState extends State<NotificationPage> {
     List<String> storedNotifications =
         prefs.getStringList('notifications') ?? [];
 
+    if (storedNotifications.isNotEmpty) {
+      print(
+          "Loaded notifications from SharedPreferences: $storedNotifications");
+    } else {
+      print("No notifications found.");
+    }
+
     List<Map<String, dynamic>> updatedNotifications =
         storedNotifications.map((notification) {
       Map<String, dynamic> notificationMap =
@@ -39,11 +46,14 @@ class _NotificationPageState extends State<NotificationPage> {
       return notificationMap;
     }).toList();
 
+    // تحقق من محتويات الإشعارات بعد فك الترميز
+    print("Decoded notifications: $updatedNotifications");
+
     setState(() {
       notifications = updatedNotifications;
     });
 
-    // تحديث قائمة الإشعارات في SharedPreferences
+    // تحديث الإشعارات في SharedPreferences
     List<String> updatedNotificationsString = updatedNotifications
         .map((notification) => jsonEncode(notification))
         .toList();
@@ -122,6 +132,10 @@ class _NotificationPageState extends State<NotificationPage> {
     String message = notification['message'] ?? " ";
     Iterable<Match> matches = regExp.allMatches(message);
     String number = matches.isNotEmpty ? matches.first.group(0) ?? "" : "";
+    String messageWithoutNumber = message
+        .replaceFirst(number, '') // إزالة الرقم
+        .replaceAll(':', '') // إزالة علامة ":"
+        .trim(); // إزالة المسافات الزائدة
 
     return Card(
       color: white,
@@ -149,7 +163,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: "تم تأكيد طلب رقم ",
+                        text: "$messageWithoutNumber ",
                         style: TextStyle(
                           fontSize: size.height * 0.02,
                           fontWeight: FontWeight.bold,

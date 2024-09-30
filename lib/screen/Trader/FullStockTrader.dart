@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -22,12 +23,41 @@ class _StockViewPageState extends State<StockViewPage> {
   bool isEditing = false;
   TextEditingController priceController = TextEditingController();
   TextEditingController amountController = TextEditingController();
+  Timer? _debounce;
+
+  Future<List<Map<String, dynamic>>>? _productListFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    search.addListener(_onSearchChanged);
+  }
 
   @override
   void dispose() {
+    search.dispose();
     priceController.dispose();
     amountController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      setState(() {});
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_productListFuture == null) {
+      final user = Provider.of<ProfileProvider>(context, listen: false);
+      setState(() {
+        _productListFuture = fetchProducts(user.user_id);
+      });
+    }
   }
 
   String title = "",
@@ -37,7 +67,7 @@ class _StockViewPageState extends State<StockViewPage> {
       title4 = "",
       title5 = "";
 
-  List<String> list = [
+  List<String> listNmae = [
     'اختر المركبة',
     'تويوتا',
     'هوندا',
@@ -180,8 +210,8 @@ class _StockViewPageState extends State<StockViewPage> {
     "تجاري 2"
   ];
 
-  bool hide = false;
   bool _isDialogShown = false;
+  bool hide = false;
 
   Future<List<Map<String, dynamic>>> fetchProducts(String userId) async {
     final url = Uri.parse(
@@ -198,7 +228,6 @@ class _StockViewPageState extends State<StockViewPage> {
       final Map<String, dynamic> jsonResponse = json.decode(response.body);
       if (jsonResponse['success'] == true) {
         List<dynamic> data = jsonResponse['data'];
-        print(data);
         return data.cast<Map<String, dynamic>>();
       } else {
         ('لا يوجد قطع');
@@ -242,21 +271,40 @@ class _StockViewPageState extends State<StockViewPage> {
     }
   }
 
-  void deleteProduct(String product_id, String checkboxItem) async {
-    final url = Uri.parse(
-        'https://jordancarpart.com/Api/deleteProduct.php?product_id=$product_id&details_id=$checkboxItem');
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-    print(response.body);
-    if (response.statusCode == 200) {
-      setState(() {
-        Navigator.of(context).pop();
-      });
-    } else {}
+  Future<bool> _deleteProduct(String productId, String detailsId) async {
+    try {
+      final url = Uri.parse(
+          'https://jordancarpart.com/Api/deleteProduct.php?product_id=$productId&details_id=$detailsId');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        if (responseData['success'] == true) {
+          print('تم الحذف بنجاح');
+          if (mounted) {
+            setState(() {
+              final user = Provider.of<ProfileProvider>(context, listen: false);
+              _productListFuture = fetchProducts(user.user_id);
+            });
+          }
+
+          return true;
+        } else {
+          print('فشل الحذف: ${responseData['message']}');
+          return false;
+        }
+      } else {
+        print('فشل الحذف. الرمز: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('خطأ أثناء الحذف: $e');
+      return false;
+    }
   }
 
   @override
@@ -366,7 +414,7 @@ class _StockViewPageState extends State<StockViewPage> {
             children: [
               _buildDropdown(list5, (val) => setState(() => title5 = val!)),
               _buildDropdown(list1, (val) => setState(() => title1 = val!)),
-              _buildDropdown(list, (val) => setState(() => title = val!)),
+              _buildDropdown(listNmae, (val) => setState(() => title = val!)),
             ],
           ),
         ],
@@ -381,14 +429,13 @@ class _StockViewPageState extends State<StockViewPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        color: Colors.white70, // Adjust color as needed
+        color: Colors.white70,
         child: Directionality(
-          textDirection: TextDirection.rtl, // تعيين الاتجاه إلى اليمين
+          textDirection: TextDirection.rtl,
           child: DropdownButtonFormField<String>(
             decoration: InputDecoration(
-              border: InputBorder.none, // إزالة الـborder
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16), // ضبط الهوامش
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
             ),
             items: items.map((String value) {
               return DropdownMenuItem<String>(
@@ -396,7 +443,7 @@ class _StockViewPageState extends State<StockViewPage> {
                 child: Text(
                   value,
                   style: TextStyle(
-                    color: Colors.black, // Adjust color as needed
+                    color: Colors.black,
                     fontSize: 14,
                   ),
                 ),
@@ -408,14 +455,14 @@ class _StockViewPageState extends State<StockViewPage> {
             onChanged: onChanged,
             borderRadius: BorderRadius.circular(10),
             elevation: 10,
-            style: TextStyle(color: Colors.black), // Adjust color as needed
+            style: TextStyle(color: Colors.black),
             icon: Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: Colors.black, // Adjust color as needed
+              color: Colors.black,
             ),
-            iconSize: 24, // تحديد حجم السهم
-            iconEnabledColor: Colors.black, // لون السهم
-            alignment: Alignment.centerRight, // محاذاة العناصر لليمين
+            iconSize: 24,
+            iconEnabledColor: Colors.black,
+            alignment: Alignment.centerRight,
             dropdownColor: Colors.white,
           ),
         ),
@@ -429,48 +476,60 @@ class _StockViewPageState extends State<StockViewPage> {
       child: Container(
         width: size.width * 0.805,
         decoration: BoxDecoration(
-          color: Color(0xFFE0E0E0), // لون رمادي مشابه للـ Dropdown
+          color: const Color(0xFFE0E0E0),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.grey, // ضبط لون الحدود
+            color: Colors.grey,
             width: 1,
           ),
         ),
-        child: TextField(
-          controller: search,
-          textAlignVertical: TextAlignVertical.center,
-          textAlign: TextAlign.center,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 16),
-            prefixIcon: hide
-                ? null
-                : Icon(
-                    Icons.search,
-                    color: Colors.black, // لون الأيقونة
-                  ),
-            hintText: "بحث", // إضافة النص التوضيحي (placeholder)
-          ),
-          onTap: () {
-            setState(() {
-              search.text = "";
-              hide = true;
-              TraderInfoPage.isEnabled = true;
-            });
-          },
-          onChanged: (value) {
-            setState(() {});
-          },
-          onTapOutside: (event) {
-            setState(() {
-              TraderInfoPage.isEnabled = false;
-            });
-          },
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w100,
-            fontSize: 14,
-            fontFamily: "Tajawal",
+        child: Center(
+          child: TextField(
+            controller: search,
+            textAlignVertical: TextAlignVertical.center,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              prefixIcon: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    hide
+                        ? Container()
+                        : const Icon(
+                            Icons.search,
+                            color: Colors.black,
+                          ),
+                    CustomText(
+                      text: search.text.isEmpty ? "" : search.text,
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
+              ),
+              hintText: "",
+            ),
+            onTap: () {
+              setState(() {
+                search.text = "";
+                hide = true;
+                TraderInfoPage.isEnabled = true;
+              });
+            },
+            onChanged: (value) {
+              setState(() {});
+            },
+            onTapOutside: (event) {
+              setState(() {
+                TraderInfoPage.isEnabled = false;
+              });
+            },
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w100,
+              fontSize: 16,
+              fontFamily: "Tajawal",
+            ),
           ),
         ),
       ),
@@ -479,15 +538,15 @@ class _StockViewPageState extends State<StockViewPage> {
 
   Widget _buildProductList(Size size, String userId) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: fetchProducts(userId),
+      future: _productListFuture,
       builder: (BuildContext context,
           AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: RotatingImagePage());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(child: Text('خطأ: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No products found'));
+          return Center(child: Text('لا يوجد منتجات'));
         } else {
           final list = snapshot.data!;
           List<Map<String, dynamic>> filteredList = List.from(list);
@@ -514,7 +573,28 @@ class _StockViewPageState extends State<StockViewPage> {
             }).toList();
             isFilterApplied = true;
           }
+          if (title2.isNotEmpty &&
+              title2 != 'من' &&
+              title3.isNotEmpty &&
+              title3 != 'إلى') {
+            int fromYear = int.parse(title2);
+            int toYear = int.parse(title3);
+            filteredList = filteredList.where((product) {
+              int productFromYear =
+                  int.tryParse(product['engineSize']?.toString() ?? '0') ?? 0;
+              int productToYear =
+                  int.tryParse(product['fuelType']?.toString() ?? '0') ?? 0;
+              return productFromYear >= fromYear && productToYear <= toYear;
+            }).toList();
+            isFilterApplied = true;
+          }
 
+          if (title4.isNotEmpty && title4 != 'نوع الوقود') {
+            filteredList = filteredList.where((product) {
+              return product['NameCar'] == title4;
+            }).toList();
+            isFilterApplied = true;
+          }
           if (title5.isNotEmpty && title5 != 'حالة القطعة') {
             filteredList = filteredList.expand<Map<String, dynamic>>((product) {
               if (product['checkboxData'] != null &&
@@ -857,7 +937,7 @@ class _StockViewPageState extends State<StockViewPage> {
         print("Error decoding base64: $e");
       }
     }
-
+    final size = MediaQuery.of(context).size;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -869,7 +949,7 @@ class _StockViewPageState extends State<StockViewPage> {
         decodedImage != null
             ? GestureDetector(
                 onTap: () {
-                  _showImageDialog(decodedImage!); // فقط تمرير الصورة غير null
+                  _showImageDialog(decodedImage!);
                 },
                 child: Image.memory(
                   decodedImage,
@@ -886,7 +966,6 @@ class _StockViewPageState extends State<StockViewPage> {
     );
   }
 
-// دالة لعرض الصورة داخل Dialog
   void _showImageDialog(Uint8List decodedImage) {
     showDialog(
       context: context,
@@ -895,8 +974,7 @@ class _StockViewPageState extends State<StockViewPage> {
           backgroundColor: Colors.transparent,
           child: GestureDetector(
             onTap: () {
-              Navigator.of(context)
-                  .pop(); // إغلاق الـDialog عند النقر على الصورة
+              Navigator.of(context).pop();
             },
             child: Container(
               decoration: BoxDecoration(
@@ -906,7 +984,7 @@ class _StockViewPageState extends State<StockViewPage> {
               padding: EdgeInsets.all(10),
               child: Image.memory(
                 decodedImage,
-                fit: BoxFit.contain, // لضمان ملائمة الصورة داخل الـDialog
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -915,6 +993,7 @@ class _StockViewPageState extends State<StockViewPage> {
     );
   }
 
+  bool isDeleting = false; // متغير جديد للحذف
   void _showEditProductDialog(
       BuildContext context,
       Map<String, dynamic> product,
@@ -924,124 +1003,209 @@ class _StockViewPageState extends State<StockViewPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 15),
-                Text(
-                  "تعديل تفاصيل القطعة",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'السعر',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'الكمية',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Dialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        // استدعاء showConfirmationDialog لتأكيد التعديلات
-                        showConfirmationDialog(
-                          context: context,
-                          message: 'هل تريد تأكيد التعديلات على هذه القطعة؟',
-                          confirmText: 'تأكيد',
-                          onConfirm: () {
-                            String newPrice = priceController.text;
-                            String newAmount = amountController.text;
-                            saveChanges(
-                              product['id'].toString(),
-                              checkboxItem,
-                              newPrice,
-                              newAmount,
-                            );
-                            Navigator.of(context).pop();
-                          },
-                          cancelText: 'إلغاء',
-                          onCancel: () {
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(195, 29, 29, 1),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text('تأكيد'),
+                    SizedBox(height: 15),
+                    Text(
+                      "تعديل تفاصيل القطعة",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // استدعاء showConfirmationDialog لتأكيد الحذف
-                        showConfirmationDialog(
-                          context: context,
-                          message: 'هل أنت متأكد من أنك تريد حذف هذه القطعة؟',
-                          confirmText: 'حذف',
-                          cancelText: 'إلغاء',
-                          onConfirm: () {
-                            _showDeleteConfirmationDialog(
-                                context,
-                                product['id'].toString(),
-                                checkboxItem['id'].toString());
-                            Navigator.of(context).pop();
-                          },
-                          onCancel: () {
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(195, 29, 29, 1),
-                        foregroundColor: Colors.white,
+                    SizedBox(height: 20),
+                    TextField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'السعر',
+                        border: OutlineInputBorder(),
                       ),
-                      child: Text('حذف'),
+                    ),
+                    SizedBox(height: 10),
+                    TextField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'الكمية',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            showConfirmationDialog(
+                              context: context,
+                              message:
+                                  'هل تريد تأكيد التعديلات على هذه القطعة؟',
+                              confirmText: 'تأكيد',
+                              onConfirm: () {
+                                String newPrice = priceController.text;
+                                String newAmount = amountController.text;
+                                saveChanges(
+                                  product['id'].toString(),
+                                  checkboxItem,
+                                  newPrice,
+                                  newAmount,
+                                );
+                                Navigator.of(context).pop();
+                              },
+                              cancelText: 'إلغاء',
+                              onCancel: () {
+                                Navigator.of(context).pop();
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromRGBO(195, 29, 29, 1),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text('تأكيد'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            // استدعاء دالة تأكيد الحذف
+                            bool? deleteResult = await _confirmDelete(
+                                context, product, checkboxItem);
+
+                            if (deleteResult == true) {
+                              // إغلاق الـ Dialog الحالي
+                              Navigator.of(context).pop();
+
+                              // تحديث قائمة المنتجات
+                              if (mounted) {
+                                setState(() {
+                                  final user = Provider.of<ProfileProvider>(
+                                      context,
+                                      listen: false);
+                                  _productListFuture =
+                                      fetchProducts(user.user_id);
+                                });
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromRGBO(195, 29, 29, 1),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text('حذف'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  void _showDeleteConfirmationDialog(
-      BuildContext context, String productId, String checkboxItemId) {
-    showConfirmationDialog(
+  Future<bool?> _confirmDelete(BuildContext context,
+      Map<String, dynamic> product, Map<String, dynamic> checkboxItem) {
+    return showDialog<bool>(
       context: context,
-      message: 'هل أنت متأكد من أنك تريد حذف هذا العنصر؟',
-      confirmText: 'تأكيد الحذف',
-      cancelText: 'إلغاء',
-      onConfirm: () {
-        // استدعاء دالة الحذف مع تمرير معرّف المنتج ومعرّف العنصر
-        deleteProduct(productId, checkboxItemId);
-        Navigator.of(context).pop(); // إغلاق الـDialog بعد الحذف
-      },
-      onCancel: () {
-        Navigator.of(context).pop(); // إغلاق الـDialog عند الضغط على إلغاء
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            bool isDeleting = false;
+
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'هل أنت متأكد من أنك تريد حذف هذا العنصر؟',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false); // إلغاء الحذف
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            'إلغاء',
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.03),
+                        ElevatedButton(
+                          onPressed: () async {
+                            setState(() {
+                              isDeleting = true; // بدء حالة التحميل
+                            });
+                            bool deleteSuccess = await _deleteProduct(
+                                product['id'].toString(),
+                                checkboxItem['id'].toString());
+
+                            setState(() {
+                              isDeleting = false; // إيقاف حالة التحميل
+                            });
+
+                            Navigator.of(context).pop(deleteSuccess);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: button,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: isDeleting
+                              ? RotatingImagePage()
+                              : Text(
+                                  'تأكيد الحذف',
+                                  style: TextStyle(color: white, fontSize: 15),
+                                ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }

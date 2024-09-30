@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jcp/model/JoinTraderModel.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
+import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:jcp/screen/Drawer/ContactPage.dart';
 import 'package:jcp/screen/Drawer/OurViewPage.dart';
 import 'package:jcp/screen/Trader/AddProductTraderPage.dart';
@@ -29,41 +30,6 @@ class TraderInfoPage extends StatefulWidget {
 }
 
 bool isLoading = false; // حالة التحميل
-
-Future<JoinTraderModel?> fetchUserData(String userPhone) async {
-  final url =
-      Uri.parse('https://jordancarpart.com/Api/showalltraderdetails.php');
-  final response = await http.get(url);
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-
-    if (data['success']) {
-      List<dynamic> users = data['data'];
-
-      final user = users.firstWhere((u) => u['user_phone'] == userPhone,
-          orElse: () => null);
-
-      if (user != null) {
-        return JoinTraderModel(
-          fName: user['user_name']
-              .split(' ')
-              .first, // Assuming first part of name is the first name
-          lName: user['user_name']
-              .split(' ')
-              .last, // Assuming last part of name is the last name
-          store: user['store_name'] ?? '',
-          phone: user['user_phone'] ?? '',
-          full_address: user['store_full_address'] ?? '',
-          master: jsonDecode(user['store_master']),
-          parts_type: jsonDecode(user['store_parts_type']),
-          activity_type: jsonDecode(user['store_activity_type']),
-        );
-      }
-    }
-  }
-  return null;
-}
 
 class _TraderInfoPageState extends State<TraderInfoPage> {
   int currentTab = 0;
@@ -199,57 +165,48 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                       ),
                       onTap: () {
                         setState(() {
-                          isLoading = true; // بدء التحميل
+                          isLoading = true;
                         });
-                        fetchUserData(user.phone).then((fetchedUser) {
-                          if (fetchedUser != null) {
-                            print("User First Name: ${fetchedUser.fName}");
-                            print("User Last Name: ${fetchedUser.lName}");
-                            print("Store: ${fetchedUser.store}");
-                            print("Phone: ${fetchedUser.phone}");
-                            print("Full Address: ${fetchedUser.full_address}");
-                            print("Master Items: ${fetchedUser.master}");
-                            print("Parts Types: ${fetchedUser.parts_type}");
-                            print(
-                                "Activity Types: ${fetchedUser.activity_type}");
+                        final traderProvider =
+                            Provider.of<ProfileTraderProvider>(context,
+                                listen: false);
+                        final trader1 = traderProvider.trader;
 
-                            JoinTraderModel trader1 = fetchedUser;
-                            setState(() {
-                              isLoading =
-                                  false; // إيقاف التحميل بعد استرداد البيانات
-                            });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    TraderProfilePage(trader: trader1),
-                              ),
-                            );
-                          } else {
-                            setState(() {
-                              isLoading =
-                                  false; // إيقاف التحميل عند عدم العثور على المستخدم
-                            });
-                            print("User not found");
-                          }
-                        }).catchError((error) {
+                        if (trader1 != null) {
+                          print("User First Name: ${trader1.fName}");
+                          print("User Last Name: ${trader1.lName}");
+                          print("Store: ${trader1.store}");
+                          print("Phone: ${trader1.phone}");
+                          print("Full Address: ${trader1.full_address}");
+                          print("Master Items: ${trader1.master}");
+                          print("Parts Types: ${trader1.parts_type}");
+                          print("Activity Types: ${trader1.activity_type}");
+
                           setState(() {
-                            isLoading = false; // إيقاف التحميل في حال حدوث خطأ
+                            isLoading = false;
                           });
-                          print("An error occurred: $error");
-                        });
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TraderProfilePage(trader: trader1),
+                            ),
+                          );
+                        } else {
+                          setState(() {
+                            isLoading = false;
+                          });
+                          print("User not found in Provider");
+                        }
                       },
                     ),
                   ),
-
-                  // عرض مؤشر التحميل في أعلى الشاشة
                   if (isLoading)
                     Positioned(
                       top: 0,
                       left: 0,
                       right: 0,
-                      child:
-                          LinearProgressIndicator(), // يمكنك استخدام CircularProgressIndicator إذا أردت
+                      child: LinearProgressIndicator(),
                     ),
                 ],
               ),

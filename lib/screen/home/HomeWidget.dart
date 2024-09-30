@@ -69,17 +69,12 @@ class _HomeWidgetState extends State<HomeWidget> {
       },
     );
 
-    print(DateTime.now().toIso8601String());
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      if (data['time_difference_gt_24hrs']) {
-        print('Time difference is greater than 24 hours.');
-      }
+      if (data['time_difference_gt_24hrs']) {}
 
-      if (data['limit_of_order'] == 0) {
-        print('No order limit.');
-      }
+      if (data['limit_of_order'] == 0) {}
 
       return data;
     } else {
@@ -162,14 +157,13 @@ class _HomeWidgetState extends State<HomeWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       orderAllowed = prefs.getInt('isOrderAllowed') ?? 0;
-      print(orderAllowed);
     });
   }
 
   Future<void> _fetchData() async {
     try {
       if (userId != null) {
-        final data = await getOrderLimitation(userId!); // Pass userId here
+        final data = await getOrderLimitation(userId!);
         setState(() {
           apiData = data;
           isLoading = false;
@@ -196,7 +190,6 @@ class _HomeWidgetState extends State<HomeWidget> {
           child: Column(
             children: [
               _buildHeader(size),
-              // Use StreamBuilder here
               _limitationStream != null
                   ? StreamBuilder<Map<String, dynamic>>(
                       stream: _limitationStream,
@@ -221,7 +214,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         }
                       },
                     )
-                  : SizedBox(), // Or any placeholder when stream is not initialized
+                  : SizedBox(),
             ],
           ),
         ),
@@ -234,7 +227,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     final timeDifferenceGt24hrs = apiData['time_difference_gt_24hrs'];
     final limitOfOrder = apiData['limit_of_order'];
     saveLimitOfOrder(limitOfOrder);
-    print(timeDifferenceGt24hrs);
 
     if (timeDifferenceGt24hrs) {
       return _buildFormFields(context, size, user);
@@ -433,14 +425,12 @@ class _HomeWidgetState extends State<HomeWidget> {
                                         headers: headers,
                                       );
                                       if (response.statusCode == 200) {
-                                        print(response.body.toString());
                                         jsonDecode(response.body);
                                         SharedPreferences prefs =
                                             await SharedPreferences
                                                 .getInstance();
                                         await prefs.setInt('isOrderAllowed', 1);
-                                        print(
-                                            'Stored 1 in SharedPreferences under key "isOrderAllowed"');
+
                                         setState(() {
                                           isLoading = true;
                                           errorMessage = null;

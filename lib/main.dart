@@ -6,6 +6,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:jcp/NotificationService.dart';
@@ -21,7 +22,7 @@ import 'provider/ProfileProvider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeService(); // Make sure to await initialization.
+  await initializeService();
   NotificationService().initNotification();
 
   runApp(
@@ -35,6 +36,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => EditProductProvider()),
         ChangeNotifierProvider(create: (_) => CountdownProvider()),
         ChangeNotifierProvider(create: (_) => OrderFetchProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileTraderProvider()),
       ],
       child: const MyApp(),
     ),
@@ -50,10 +52,12 @@ Future<void> fetchNotifications(String userId) async {
       final responseData = json.decode(response.body);
       if (responseData['success'] == true) {
         List<dynamic> notifications = responseData['data'];
+
+        // هنا يمكنك استخدام ChangeNotifier لإشعار الواجهة بالتحديثات
+        _storeNotifications(notifications);
         for (var notification in notifications) {
           _createNotification(notification);
         }
-        _storeNotifications(notifications);
       }
     } else {
       print(
@@ -67,7 +71,7 @@ Future<void> fetchNotifications(String userId) async {
 void _createNotification(Map<String, dynamic> notification) {
   NotificationService().showNotification(
     id: notification['id'],
-    title: 'Notification',
+    title: 'قطع سيارات الاردن',
     body: notification['desc'],
   );
 }
@@ -84,8 +88,12 @@ Future<void> _storeNotifications(List<dynamic> notifications) async {
     }));
   }
 
-  await prefs.setStringList('notifications', storedNotifications);
-  print("Notifications stored successfully in SharedPreferences.");
+  bool result = await prefs.setStringList('notifications', storedNotifications);
+  if (result) {
+    print("Notifications stored successfully in SharedPreferences.");
+  } else {
+    print("Failed to store notifications.");
+  }
 }
 
 Future<void> initializeService() async {
@@ -110,7 +118,7 @@ Future<void> initializeService() async {
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
       autoStart: true,
-      isForegroundMode: true, // Set foreground mode to true
+      isForegroundMode: true,
     ),
     iosConfiguration: IosConfiguration(
       autoStart: true,
@@ -126,20 +134,19 @@ void onStart(ServiceInstance service) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   if (service is AndroidServiceInstance) {
-    service.setAsForegroundService(); // Ensure it runs as a foreground service.
+    service.setAsForegroundService();
     service.setForegroundNotificationInfo(
       title: "Running in Background",
       content: "Updating notifications...",
     );
   }
 
-  // Periodic task for fetching notifications.
   Timer.periodic(const Duration(seconds: 5), (timer) async {
     await fetchNotifications('35');
     if (service is AndroidServiceInstance) {
       service.setForegroundNotificationInfo(
         title: "Service Running",
-        content: "Last update: ${DateTime.now()}",
+        content: "قطع سيارات الاردن",
       );
     }
   });

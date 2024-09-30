@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../helper/snack_bar.dart';
@@ -62,7 +63,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
     }
   }
 
-  Future<void> _checkForNotifications() async {
+  Future<bool> _checkForNotifications() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
@@ -77,6 +78,8 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
     setState(() {
       check = hasUnreadNotifications;
     });
+
+    return hasUnreadNotifications;
   }
 
   @override
@@ -90,7 +93,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
       size: MediaQuery.of(context).size,
       title: "الطلب الخاص",
       notificationIcon: _buildNotificationIcon(size),
-      menuIcon: _buildMenuIcon(context, size), // أيقونة القائمة المخصصة
+      menuIcon: _buildMenuIcon(context, size),
     );
   }
 
@@ -488,6 +491,18 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
 
   Future<void> sendOrder(BuildContext context, String user_id) async {
     final size = MediaQuery.of(context).size;
+
+    // عرض مؤشر التحميل قبل بدء عملية الإرسال
+    showDialog(
+      context: context,
+      barrierDismissible: false, // لا يمكن إغلاق المؤشر بالنقر خارج النافذة
+      builder: (BuildContext context) {
+        return Center(
+          child: RotatingImagePage(), // مؤشر التحميل
+        );
+      },
+    );
+
     if (carid.text.length == 17 && part_1.text.isNotEmpty) {
       final orderData = {
         "carid": carid.text,
@@ -499,100 +514,120 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         "itemimg64": _base64Image ?? "",
       };
 
-      final response = await http.post(
-        Uri.parse('https://jordancarpart.com/Api/saveprivateorder.php'),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode(orderData),
-      );
-      if (response.statusCode == 200) {
-        setState(() {
-          part_1.clear();
-          carid.clear();
-          link.clear();
-          _imageFile = null;
-        });
-        widget.run(true);
-        showModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return Container(
-              height: 390,
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.25),
-              ),
-              child: Container(
+      try {
+        final response = await http.post(
+          Uri.parse('https://jordancarpart.com/Api/saveprivateorder.php'),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode(orderData),
+        );
+
+        // إخفاء مؤشر التحميل بعد اكتمال العملية
+        Navigator.pop(context);
+
+        if (response.statusCode == 200) {
+          setState(() {
+            part_1.clear();
+            carid.clear();
+            link.clear();
+            _imageFile = null;
+          });
+          widget.run(true);
+
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return Container(
+                height: 390,
+                width: size.width,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(1),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+                  color: Colors.black.withOpacity(0.25),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(1),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 15),
+                      Center(
+                        child: SvgPicture.asset(
+                          'assets/svg/line.svg',
+                          width: 30,
+                          height: 5,
+                        ),
+                      ),
+                      SizedBox(height: 35),
+                      Center(
+                        child: Image.asset(
+                          "assets/images/done-icon 1.png",
+                          height: 122,
+                          width: 122,
+                        ),
+                      ),
+                      SizedBox(height: 25),
+                      Center(
+                        child: CustomText(
+                          text: "تم ارسال طلبك بنجاح",
+                          size: 24,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                      Center(
+                        child: CustomText(
+                          text: "... " + "جار العمل على طلبك",
+                          size: 24,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                      SizedBox(height: size.height * 0.05),
+                      MaterialButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        height: 45,
+                        minWidth: size.width * 0.9,
+                        color: Color.fromRGBO(195, 29, 29, 1),
+                        child: CustomText(
+                          text: "رجوع",
+                          color: white,
+                          size: 18,
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  children: [
-                    SizedBox(height: 15),
-                    Center(
-                      child: SvgPicture.asset(
-                        'assets/svg/line.svg',
-                        width: 30,
-                        height: 5,
-                      ),
-                    ),
-                    SizedBox(height: 35),
-                    Center(
-                      child: Image.asset(
-                        "assets/images/done-icon 1.png",
-                        height: 122,
-                        width: 122,
-                      ),
-                    ),
-                    SizedBox(height: 25),
-                    Center(
-                      child: CustomText(
-                        text: "تم ارسال طلبك بنجاح",
-                        size: 24,
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                    Center(
-                      child: CustomText(
-                        text: "... " + "جار العمل على طلبك",
-                        size: 24,
-                        weight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(height: size.height * 0.05),
-                    MaterialButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      height: 45,
-                      minWidth: size.width * 0.9,
-                      color: Color.fromRGBO(195, 29, 29, 1),
-                      child: CustomText(
-                        text: "رجوع",
-                        color: white,
-                        size: 18,
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      } else {
+              );
+            },
+          );
+        } else {
+          showConfirmationDialog(
+            context: context,
+            message: "فشل في إرسال الطلب. حاول مرة أخرى.",
+            confirmText: "حسناً",
+            onConfirm: () {
+              // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
+            },
+            cancelText: '', // لا حاجة لزر إلغاء
+          );
+        }
+      } catch (e) {
+        // إخفاء مؤشر التحميل في حالة حدوث خطأ
+        Navigator.pop(context);
+
         showConfirmationDialog(
           context: context,
-          message: "فشل في إرسال الطلب. حاول مرة أخرى.",
+          message: "حدث خطأ أثناء إرسال الطلب: $e",
           confirmText: "حسناً",
           onConfirm: () {
             // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
@@ -601,6 +636,9 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         );
       }
     } else {
+      // إخفاء مؤشر التحميل إذا كانت الحقول غير مكتملة
+      Navigator.pop(context);
+
       showConfirmationDialog(
         context: context,
         message: "الرجاء إدخال رقم الشصي والقطعة",
