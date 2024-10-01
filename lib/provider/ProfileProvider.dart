@@ -8,7 +8,7 @@ class ProfileProvider extends ChangeNotifier {
   String type = '';
   String city = '';
   DateTime _createdAt = DateTime.now(); // Added created_at field
-
+  String token = '';
 
   String getcity() => city;
 
@@ -52,7 +52,14 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  DateTime getcreatedAt() =>_createdAt;
+  String gettoken() => token;
+
+  void settoken(String token) {
+    this.token = token;
+    notifyListeners();
+  }
+
+  DateTime getcreatedAt() => _createdAt;
 
   void setcreatedAt(DateTime _createdAt) {
     this._createdAt = _createdAt;
@@ -66,6 +73,7 @@ class ProfileProvider extends ChangeNotifier {
     setname('');
     settype('');
     setcity('');
+    settoken('');
     setcreatedAt(DateTime.now());
     notifyListeners();
   }

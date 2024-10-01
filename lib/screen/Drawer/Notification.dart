@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/style/custom_text.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../../widget/Inallpage/CustomHeader.dart';
 
@@ -14,13 +16,84 @@ class NotificationPage extends StatefulWidget {
   State<NotificationPage> createState() => _NotificationPageState();
 }
 
-class _NotificationPageState extends State<NotificationPage> {
+class _NotificationPageState extends State<NotificationPage>
+    with WidgetsBindingObserver {
   List<Map<String, dynamic>> notifications = [];
 
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
+    WidgetsBinding.instance.addObserver(this);
+    _loadNotifications(); // تأكد من استدعاء هذه الوظيفة هنا
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  Future<void> fetchNotifications(String userId) async {
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/notifications.php?user_id=$userId');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['success'] == true) {
+          List<dynamic> notifications = responseData['data'];
+          await _storeNotifications(notifications);
+        } else {}
+      } else {}
+    } catch (e) {}
+  }
+
+  Future<void> _storeNotifications(List<dynamic> notifications) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> storedNotifications =
+        prefs.getStringList('notifications') ?? [];
+
+    Set<String> existingIds =
+        storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+
+    for (var notification in notifications) {
+      if (!existingIds.contains(notification['id'].toString())) {
+        storedNotifications.add(jsonEncode({
+          'id': notification['id'],
+          'message': notification['desc'],
+          'isRead': false,
+        }));
+      }
+    }
+
+    await prefs.setStringList('notifications', storedNotifications);
+
+    List<String> currentStoredNotifications =
+        prefs.getStringList('notifications') ?? [];
+    print("Current stored notifications: $currentStoredNotifications");
+  }
+
+  Stream<List<Map<String, dynamic>>> _notificationStream() async* {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> storedNotifications =
+        prefs.getStringList('notifications') ?? [];
+
+    while (true) {
+      List<Map<String, dynamic>> updatedNotifications =
+          storedNotifications.map((notification) {
+        Map<String, dynamic> notificationMap =
+            Map<String, dynamic>.from(jsonDecode(notification));
+        notificationMap['isRead'] = true; // مثال على تعديل البيانات
+        return notificationMap;
+      }).toList();
+
+      // إعادة النتائج عن طريق yield
+      yield updatedNotifications;
+
+      // يمكنك ضبط التحديث بعد فترة زمنية معينة إذا لزم الأمر
+      await Future.delayed(
+          Duration(seconds: 5)); // على سبيل المثال، تحديث كل 5 ثوانٍ
+    }
   }
 
   Future<void> _loadNotifications() async {
@@ -40,9 +113,8 @@ class _NotificationPageState extends State<NotificationPage> {
       Map<String, dynamic> notificationMap =
           Map<String, dynamic>.from(jsonDecode(notification));
 
-      if (!notificationMap['isRead']) {
-        notificationMap['isRead'] = true;
-      }
+      // تحديث حالة الإشعار عند تحميله
+      notificationMap['isRead'] = true;
       return notificationMap;
     }).toList();
 
@@ -69,7 +141,13 @@ class _NotificationPageState extends State<NotificationPage> {
 
     List<String> updatedNotificationsString =
         notifications.map((notification) => jsonEncode(notification)).toList();
-    await prefs.setStringList('notifications', updatedNotificationsString);
+
+    if (updatedNotificationsString.isNotEmpty) {
+      await prefs.setStringList('notifications', updatedNotificationsString);
+    } else {
+      await prefs
+          .remove('notifications'); // احذف المفتاح إذا لم يكن هناك إشعارات
+    }
     print("Notification deleted successfully.");
   }
 
@@ -83,15 +161,30 @@ class _NotificationPageState extends State<NotificationPage> {
         children: [
           _buildHeader(size),
           SizedBox(height: size.height * 0.01),
-          notifications.isNotEmpty
-              ? _buildNotificationList(size)
-              : Center(
-                  child: CustomText(
-                    text: "لا توجد إشعارات جديدة",
-                    color: Colors.grey,
-                    size: size.height * 0.02,
-                  ),
-                ),
+          Expanded(
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _notificationStream(), // الربط مع الدالة التي تعيد stream
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: RotatingImagePage());
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: CustomText(
+                      text: "لا توجد إشعارات جديدة",
+                      color: Colors.grey,
+                      size: size.height * 0.02,
+                    ),
+                  );
+                }
+
+                // عرض الإشعارات
+                List<Map<String, dynamic>> notifications = snapshot.data!;
+                return _buildNotificationList(notifications, size);
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -115,14 +208,14 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  Widget _buildNotificationList(Size size) {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          return _buildNotificationCard(notifications[index], index, size);
-        },
-      ),
+  Widget _buildNotificationList(
+      List<Map<String, dynamic>> notifications, Size size) {
+    return ListView.builder(
+      itemCount: notifications.length,
+      itemBuilder: (context, index) {
+        return _buildNotificationCard(
+            notifications[notifications.length - 1 - index], index, size);
+      },
     );
   }
 

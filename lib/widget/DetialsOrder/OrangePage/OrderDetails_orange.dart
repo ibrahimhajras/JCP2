@@ -210,7 +210,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   }
 
   Widget _buildOrderItemsList() {
-    final size = MediaQuery.of(context).size; // الحصول على حجم الشاشة
+    final size = MediaQuery.of(context).size;
     final screenWidth = size.width;
     return Column(
       children: [
@@ -240,7 +240,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               Flexible(
                 flex: 1,
                 child: SizedBox(
-                  width: double.infinity, // أخذ العرض الكامل
+                  width: double.infinity,
                   height: screenWidth * 0.10,
                   child: Align(
                     alignment: Alignment.bottomCenter,
@@ -256,7 +256,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               Flexible(
                 flex: 1,
                 child: SizedBox(
-                  width: double.infinity, // أخذ العرض الكامل
+                  width: double.infinity,
                   height: screenWidth * 0.10,
                   child: Align(
                     alignment: Alignment.bottomCenter,
@@ -272,7 +272,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               Flexible(
                 flex: 1,
                 child: SizedBox(
-                  width: double.infinity, // أخذ العرض الكامل
+                  width: double.infinity,
                   height: screenWidth * 0.10,
                   child: Align(
                     alignment: Alignment.bottomCenter,
@@ -286,9 +286,9 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               ),
               SizedBox(width: screenWidth * 0.02),
               Flexible(
-                flex: 2, // نفس flex في كلا الحالتين
+                flex: 2,
                 child: SizedBox(
-                  height: screenWidth * 0.10, // نفس الارتفاع في كلا الحالتين
+                  height: screenWidth * 0.10,
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: lastSelectedIndex != null &&
@@ -296,7 +296,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ? IconButton(
                             icon: Image.asset(
                               'assets/images/iconinfo.png',
-                              width: double.infinity, // عرض كامل
+                              width: double.infinity,
                             ),
                             onPressed: () {
                               final selectedOrderItem =
@@ -324,7 +324,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                                   String itemPriceString =
                                       selectedOrderItem[selectedPriceType]
                                               ?.toString()
-                                              ?.trim() ??
+                                              .trim() ??
                                           '0';
                                   double itemPrice =
                                       double.parse(itemPriceString);
@@ -334,7 +334,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                                               selectedPriceType.replaceFirst(
                                                   'price', 'warranty')]
                                           ?.toString()
-                                          ?.trim() ??
+                                          .trim() ??
                                       '0';
                                   double warrantyDouble =
                                       double.parse(warrantyString);
@@ -344,19 +344,20 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                                               selectedPriceType.replaceFirst(
                                                   'price', 'Note')]
                                           ?.toString()
-                                          ?.trim() ??
+                                          .trim() ??
                                       '';
                                   String mark = selectedOrderItem['mark']
                                           ?.toString()
-                                          ?.trim() ??
+                                          .trim() ??
                                       '';
                                   String imageUrl = selectedOrderItem[
-                                              selectedPriceType.replaceFirst(
-                                                  'price', 'Img')]
+                                              selectedPriceType
+                                                  .toLowerCase()
+                                                  .replaceFirst('price', 'Img')]
                                           ?.toString()
-                                          ?.trim() ??
+                                          .trim() ??
                                       '';
-
+                                  print(imageUrl.length);
                                   _showDetailsDialog(
                                     itemPrice: parsedItemPrice,
                                     warranty: warranty,
@@ -475,10 +476,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   }
 
   Widget _buildFooterOptions(List<dynamic> order) {
-    final size = MediaQuery.of(context).size; // الحصول على حجم الشاشة
+    final size = MediaQuery.of(context).size;
     final screenWidth = size.width;
-
-    // الحصول على القيم من الطلب
     final deliveryshop = int.tryParse(order[0]['deliveryshop'].toString()) ?? 0;
     final deliverynormal =
         int.tryParse(order[0]['deliverynormal'].toString()) ?? 0;
@@ -594,12 +593,10 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               setState(() {
                 if (selectedFieldsPerRow[rowIndex] == fieldIndex) {
                   selectedFieldsPerRow[rowIndex] = null;
-                  lastSelectedIndex =
-                      null; // إلغاء التحديد إذا تم النقر مرة أخرى
+                  lastSelectedIndex = null;
                 } else {
                   selectedFieldsPerRow[rowIndex] = fieldIndex;
-                  lastSelectedIndex =
-                      rowIndex; // تعيين الصف الحالي كآخر صف مختار
+                  lastSelectedIndex = rowIndex;
                 }
               });
             },
@@ -639,14 +636,14 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                 int warranty = int.tryParse(warrantyString) ?? 0;
 
                 String note = selectedOrderItem[selectedPriceType.replaceFirst(
-                            'price'.toUpperCase(), 'Note')]
+                            'price'.toLowerCase(), 'Note')]
                         ?.toString()
                         .trim() ??
                     'لا توجد ملاحظات';
 
                 String imageUrl = selectedOrderItem[selectedPriceType
                             .toLowerCase()
-                            .replaceFirst('price'.toUpperCase(), 'Img')]
+                            .replaceFirst('price'.toLowerCase(), 'Img')]
                         ?.toString()
                         .trim() ??
                     'لا توجد صورة';
@@ -672,17 +669,17 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             },
       child: SizedBox(
         width: double.infinity,
-        height: screenHeight * 0.06, // على سبيل المثال، 5% من ارتفاع الشاشة
+        height: screenHeight * 0.06,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: isForbidden
-                ? Colors.white // لون الحقل عندما يكون ممنوعًا
+                ? Colors.white
                 : (selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isForbidden
-                  ? Colors.white // لون الحدود عندما يكون ممنوعًا
+                  ? Colors.white
                   : (selectedFieldsPerRow[rowIndex] == fieldIndex
                       ? green
                       : grey),
@@ -696,7 +693,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: isForbidden
-                  ? Colors.black26 // لون النص عندما يكون ممنوعًا
+                  ? Colors.black26
                   : (selectedFieldsPerRow[rowIndex] == fieldIndex
                       ? Colors.white
                       : Colors.black26),
@@ -725,14 +722,12 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Container(
-                width: MediaQuery.of(context).size.width *
-                    0.9, // عرض مناسب للـ Dialog
-                height:
-                    MediaQuery.of(context).size.height * 0.5, // ارتفاع مناسب
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.5,
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 7,
-                    color: words, // يجب أن تحدد متغير اللون 'words'
+                    color: words,
                   ),
                   borderRadius: BorderRadius.circular(10),
                   color: Color.fromRGBO(255, 255, 255, 1),
@@ -752,13 +747,12 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      // عرض العلامة التجارية
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CustomText(
                             text: "$mark",
-                            color: words, // يجب أن تحدد متغير اللون 'words'
+                            color: words,
                           ),
                           CustomText(
                             text: " : العلامة التجارية",
@@ -766,7 +760,6 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ],
                       ),
                       SizedBox(height: 10),
-                      // عرض مدة الكفالة
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -790,7 +783,6 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ],
                       ),
                       SizedBox(height: 10),
-                      // عرض الملاحظات
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -804,7 +796,6 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                         ],
                       ),
                       SizedBox(height: 15),
-                      // عرض الصورة
                       if (imageUrl.isNotEmpty)
                         _buildImageRowWithClick(" ", imageUrl)
                       else
@@ -823,15 +814,13 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     );
   }
 
-// دالة لبناء الصورة مع القدرة على النقر عليها لفتحها في نافذة جديدة
   Widget _buildImageRowWithClick(String label, String? base64Image) {
+    print(base64Image?.length);
     Uint8List? decodedImage;
     if (base64Image != null && base64Image.isNotEmpty) {
       try {
         if (base64Image.contains(',')) {
-          base64Image = base64Image
-              .split(',')
-              .last; // معالجة البيانات إذا كانت تحتوي على ','.
+          base64Image = base64Image.split(',').last;
         }
         decodedImage = base64Decode(base64Image);
       } catch (e) {
@@ -843,7 +832,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
       child: decodedImage != null
           ? GestureDetector(
               onTap: () {
-                _showImageDialog(decodedImage!); // فتح الصورة في نافذة جديدة
+                _showImageDialog(decodedImage!);
               },
               child: Image.memory(
                 decodedImage,
@@ -859,23 +848,21 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
     );
   }
 
-// دالة لعرض الصورة في نافذة جديدة عند النقر عليها
   void _showImageDialog(Uint8List decodedImage) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.black54, // لون خلفية شفاف
+          backgroundColor: Colors.black54,
           child: GestureDetector(
             onTap: () {
-              Navigator.of(context)
-                  .pop(); // إغلاق الـDialog عند النقر على الصورة
+              Navigator.of(context).pop();
             },
             child: Container(
               padding: EdgeInsets.all(10),
               child: Image.memory(
                 decodedImage,
-                fit: BoxFit.contain, // لضمان عرض الصورة بالكامل
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -1125,6 +1112,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         default:
           deliveryType = 'غير محدد';
       }
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
 
       final orderData = {
         'selectedItems': selectedItems,
@@ -1140,9 +1129,9 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         'Enginecategory': widget.order1[0]['Enginecategory'],
         'Enginetype': widget.order1[0]['Enginetype'],
         'bodyid': widget.order1[0]['bodyid'],
+        'token': token
       };
 
-      // إرسال الطلب إلى الـ API
       try {
         final response = await http.post(
           Uri.parse('https://jordancarpart.com/Api/setAcceptedOrder2.php'),
@@ -1155,6 +1144,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         );
 
         print(response.body.toString());
+        print(orderData);
 
         if (response.statusCode == 200) {
           NotificationService().showNotification(

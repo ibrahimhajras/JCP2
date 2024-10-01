@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get_utils/src/extensions/export.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:jcp/loading.dart';
 import 'package:jcp/provider/DeliveryModel.dart';
 import 'package:jcp/provider/EditProductProvider.dart';
 import 'package:jcp/provider/OrderDetailsProvider.dart';
@@ -92,16 +89,15 @@ class _ProfilePageState extends State<ProfilePage> {
       final url = Uri.parse(
           'https://jordancarpart.com/Api/updateuser.php?user_id=$userId&city=$city');
       try {
-        final response = await http.post(
+        final response = await http.get(
           url,
-          headers: {'Content-Type': 'application/json'},
         );
+        print(response.body.toString());
 
         if (response.statusCode == 200) {
-          print(response.body.toString());
           print('تم تحديث المدينة بنجاح');
         } else {
-          print('فشل في تحديث المدينة: ${response.statusCode}');
+          print('فشل في تحديث المدينة: ${response.body.toString()}    end');
         }
       } catch (error) {
         print('حدث خطأ أثناء تحديث المدينة: $error');
@@ -156,14 +152,11 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               ClipRRect(
                 borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.width *
-                        0.25), // نسبة من عرض الشاشة لتحديد نصف القطر
+                    MediaQuery.of(context).size.width * 0.25),
                 child: Image.asset(
                   "assets/images/person.png",
-                  height: MediaQuery.of(context).size.width *
-                      0.30, // نسبة من عرض الشاشة لتحديد الارتفاع
-                  width: MediaQuery.of(context).size.width *
-                      0.30, // نسبة من عرض الشاشة لتحديد العرض
+                  height: MediaQuery.of(context).size.width * 0.30,
+                  width: MediaQuery.of(context).size.width * 0.30,
                 ),
               ),
               Padding(
@@ -206,9 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Padding(
                 padding: EdgeInsets.symmetric(
                   vertical: MediaQuery.of(context).size.height * 0.02,
-                  // نسبة من ارتفاع الشاشة لتحديد الهوامش الرأسية
-                  horizontal: MediaQuery.of(context).size.width *
-                      0.03, // نسبة من عرض الشاشة لتحديد الهوامش الأفقية
+                  horizontal: MediaQuery.of(context).size.width * 0.03,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -384,10 +375,8 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: MediaQuery.of(context).size.height * 0.015),
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width *
-                      0.05, // 5% من عرض الشاشة
-                  vertical: MediaQuery.of(context).size.height *
-                      0.03, // 3% من ارتفاع الشاشة
+                  horizontal: MediaQuery.of(context).size.width * 0.05,
+                  vertical: MediaQuery.of(context).size.height * 0.03,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

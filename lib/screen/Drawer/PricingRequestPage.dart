@@ -267,12 +267,15 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
     final String apiUrl = "https://jordancarpart.com/Api/pricingrequest.php";
     final user = Provider.of<ProfileProvider>(context, listen: false);
     final size = MediaQuery.of(context).size;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
 
     Map<String, dynamic> requestBody = {
       "name": user.name,
       "user_id": user.user_id,
       "phone": user.phone,
       "message": message,
+      "token": token
     };
 
     try {
@@ -285,6 +288,7 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
         },
         body: json.encode(requestBody),
       );
+      print(response.body);
       print('Name: ${user.name}');
       print('User ID: ${user.user_id}');
       print('Phone: ${user.phone}');

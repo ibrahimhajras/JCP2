@@ -357,12 +357,10 @@ class OrderViewWidget extends StatelessWidget {
   }
 
   Future<Map<String, dynamic>> fetchPrivateOrderDetails(String orderId) async {
-    // تكوين رابط الطلب مع المعايير
     final url = Uri.parse(
         'https://jordancarpart.com/Api/getacceptedprivateorder.php?order_id=$orderId');
 
     try {
-      // استخدام GET بدلاً من POST
       final response = await http.get(
         url,
         headers: {

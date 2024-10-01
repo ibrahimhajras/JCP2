@@ -37,14 +37,17 @@ class _OrderWidgetState extends State<OrderWidget> {
   // Method to fetch orders for a specific user
   Future<List<OrderModel>> fetchOrdersForUser(
       BuildContext context, String userId) async {
-    final url = Uri.parse('https://jordancarpart.com/Api/getordersofuser.php');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/getordersofuser.php?user_id=$userId&token=$token');
     try {
-      final response = await http.post(
+      final response = await http.get(
         url,
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: json.encode({'user_id': userId}),
       );
 
       if (response.statusCode == 200) {

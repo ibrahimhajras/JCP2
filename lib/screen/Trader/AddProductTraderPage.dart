@@ -12,6 +12,7 @@ import 'package:jcp/widget/Inallpage/CustomButton.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 import 'package:http/http.dart' as http;
@@ -326,6 +327,9 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       isLoading = true;
     });
     print(user_id);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
     Map<String, dynamic> data = {
       'user_id': user_id,
       'time': DateTime.now().toString(),
@@ -337,6 +341,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       'fuelType': titles[4],
       'engineSize': titles[5],
       'checkboxData': [],
+      'token': token
     };
 
     for (int i = 0; i < 5; i++) {
@@ -367,8 +372,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
           final bytes = await imageFiles[i]!.readAsBytes();
           imgBase64 = base64Encode(bytes);
         }
-
-        // إضافة البيانات إلى القائمة
         data['checkboxData'].add({
           'name': checkboxLabels[i],
           'price': priceControllers[i].text,
@@ -403,6 +406,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         },
         body: jsonData,
       );
+      print(response.body);
       if (response.statusCode == 200) {
         print('تم إرسال البيانات بنجاح');
         print(jsonData);

@@ -502,6 +502,8 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         );
       },
     );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
 
     if (carid.text.length == 17 && part_1.text.isNotEmpty) {
       final orderData = {
@@ -512,8 +514,8 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         "itemname": part_1.text,
         "itemlink": link.text,
         "itemimg64": _base64Image ?? "",
+        "token": token
       };
-
       try {
         final response = await http.post(
           Uri.parse('https://jordancarpart.com/Api/saveprivateorder.php'),
@@ -522,8 +524,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
           },
           body: jsonEncode(orderData),
         );
-
-        // إخفاء مؤشر التحميل بعد اكتمال العملية
+        print(response.body);
         Navigator.pop(context);
 
         if (response.statusCode == 200) {

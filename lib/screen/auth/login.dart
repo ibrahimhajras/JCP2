@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> saveUserPreferences(String userId, String name, String password,
-      String type, String city, DateTime time) async {
+      String type, String city, DateTime time, String token) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setBool('rememberMe', rememberMe);
@@ -62,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('type', type);
     await prefs.setString('city', city);
     await prefs.setString('time', time.toIso8601String());
+    await prefs.setString('token', token);
   }
 
   @override
@@ -413,10 +414,8 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         message: 'يرجى إدخال رقم الهاتف وكلمة المرور.',
         confirmText: 'حسناً',
-        onConfirm: () {
-          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
+        cancelText: '',
       );
       return;
     }
@@ -437,53 +436,45 @@ class _LoginPageState extends State<LoginPage> {
       print(json.encode({'phone': phone, 'password': password}).toString());
       print(response.body.toString());
 
-      if (response.statusCode == 200) {
+      if (1 == 1) {
         final responseData = json.decode(response.body);
+        print(responseData['status']);
+        if (1 == 1) {
+          print(responseData['status']);
+          final userData = responseData['user'];
 
-        if (responseData is List<dynamic>) {
-          if (responseData.isNotEmpty &&
-              responseData[0] is Map<String, dynamic>) {
-            UserModel user = UserModel.fromJson(responseData[0]);
+          UserModel user = UserModel.fromJson(userData);
 
-            profileProvider.setuser_id(user.userId);
-            profileProvider.setphone(user.phone);
-            profileProvider.setname(user.name);
-            profileProvider.setpassword(user.password);
-            profileProvider.settype(user.type);
-            profileProvider.setcity(user.city);
-            profileProvider.setcreatedAt(user.createdAt);
+          profileProvider.setuser_id(user.userId);
+          profileProvider.setphone(user.phone);
+          profileProvider.setname(user.name);
+          profileProvider.setpassword(user.password);
+          profileProvider.settype(user.type);
+          profileProvider.setcity(user.city);
+          profileProvider.setcreatedAt(user.createdAt);
+          profileProvider.settoken(user.token);
 
-            final userId = profileProvider.getuser_id();
-            if (userId.isNotEmpty && int.tryParse(userId) != null) {
-              await saveUserPreferences(
-                  profileProvider.getuser_id(),
-                  profileProvider.getname(),
-                  profileProvider.getpassword(),
-                  profileProvider.gettype(),
-                  profileProvider.getcity(),
-                  profileProvider.getcreatedAt());
-              print(profileProvider.getuser_id());
-              print(profileProvider.getcreatedAt());
+          final userId = profileProvider.getuser_id();
+          if (userId.isNotEmpty && int.tryParse(userId) != null) {
+            await saveUserPreferences(
+                profileProvider.getuser_id(),
+                profileProvider.getname(),
+                profileProvider.getpassword(),
+                profileProvider.gettype(),
+                profileProvider.getcity(),
+                profileProvider.getcreatedAt(),
+                profileProvider.gettoken());
+            print(profileProvider.getuser_id());
+            print(profileProvider.getcreatedAt());
 
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-            } else {
-              showConfirmationDialog(
-                context: context,
-                message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
-                confirmText: 'حسناً',
-                onConfirm: () {
-                  // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-                },
-                cancelText: '', // لا حاجة لزر إلغاء
-              );
-            }
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
           } else {
             showConfirmationDialog(
               context: context,
-              message: 'حدث خطأ في استلام البيانات. يرجى المحاولة مرة أخرى.',
+              message: '',
               confirmText: 'حسناً',
               onConfirm: () {
                 // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
@@ -492,6 +483,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         } else {
+          // إذا كانت الحالة غير ناجحة
           showConfirmationDialog(
             context: context,
             message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
@@ -518,9 +510,7 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
         confirmText: 'حسناً',
-        onConfirm: () {
-          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-        },
+        onConfirm: () {},
         cancelText: '', // لا حاجة لزر إلغاء
       );
     } finally {

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:jcp/helper/snack_bar.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/screen/Drawer/PricingRequestPage.dart';
@@ -48,18 +47,19 @@ class _HomeWidgetState extends State<HomeWidget> {
   String? errorMessage;
   int? orderAllowed;
 
-  Stream<Map<String, dynamic>> limitationStream(String userId) async* {
+  Stream<Map<String, dynamic>> limitationStream(
+      String userId, String token) async* {
     while (true) {
-      final data = await getOrderLimitation(userId);
+      final data = await getOrderLimitation(userId, token);
       yield data;
       await Future.delayed(Duration(seconds: 5));
     }
   }
 
-  Future<Map<String, dynamic>> getOrderLimitation(String userId) async {
+  Future<Map<String, dynamic>> getOrderLimitation(
+      String userId, String token) async {
     final String url =
-        'https://jordancarpart.com/Api/getlimitationoforder.php?user_id=$userId&time=${Uri.encodeComponent(DateTime.now().toIso8601String())}';
-
+        'https://jordancarpart.com/Api/getlimitationoforder.php?user_id=$userId&time=${Uri.encodeComponent(DateTime.now().toIso8601String())}&token=$token';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -68,14 +68,11 @@ class _HomeWidgetState extends State<HomeWidget> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
       if (data['time_difference_gt_24hrs']) {}
 
       if (data['limit_of_order'] == 0) {}
-
       return data;
     } else {
       throw Exception('Failed to load limitation');
@@ -83,7 +80,6 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Future<void> _fetchOrdersForUser(BuildContext context) async {
-    final url = Uri.parse('https://jordancarpart.com/Api/getordersofuser.php');
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final countdownProvider =
         Provider.of<CountdownProvider>(context, listen: false);
@@ -91,19 +87,19 @@ class _HomeWidgetState extends State<HomeWidget> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? userId = prefs.getString('userId');
-
+      String? token = prefs.getString('token');
       if (userId == null) {
         print('User ID not found in SharedPreferences');
         return;
       }
-
-      final response = await http.post(
+      print(token);
+      print(userId);
+      final url = Uri.parse(
+          'https://jordancarpart.com/Api/getordersofuser.php?user_id=$userId&token=$token');
+      final response = await http.get(
         url,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: json.encode({'user_id': userId}),
       );
+      print(response.body);
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         if (responseData['success'] == true) {
@@ -111,7 +107,6 @@ class _HomeWidgetState extends State<HomeWidget> {
               .map((order) => OrderModel.fromJson(order))
               .toList();
           orderProvider.setOrders(orders);
-
           if (orders.isNotEmpty) {
             countdownProvider.startCountdown(DateTime.parse(orders.last.time));
           }
@@ -141,11 +136,12 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Future<void> _initializeStream() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
     userId = prefs.getString('userId');
 
     if (userId != null) {
       setState(() {
-        _limitationStream = limitationStream(userId!);
+        _limitationStream = limitationStream(userId!, token!);
       });
       _fetchOrdersForUser(context);
     } else {
@@ -161,9 +157,11 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Future<void> _fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
     try {
       if (userId != null) {
-        final data = await getOrderLimitation(userId!);
+        final data = await getOrderLimitation(userId!, token!);
         setState(() {
           apiData = data;
           isLoading = false;
@@ -727,13 +725,15 @@ class _HomeWidgetState extends State<HomeWidget> {
         itemsList.add({"name": partWidget.part!.text});
       }
     }
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
     final order = {
       "carid": carid,
       "time": DateTime.now().toIso8601String(),
       "type": "1",
       "customer_id": user_id,
       "items": itemsList,
+      "token": token
     };
 
     final url = Uri.parse('https://jordancarpart.com/Api/saveorder.php');

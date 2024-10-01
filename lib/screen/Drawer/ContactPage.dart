@@ -24,47 +24,20 @@ class _ContactPageState extends State<ContactPage> {
   TextEditingController _feedMessage = TextEditingController();
   bool isLoading = false;
 
-  Future<void> _submitComment(CommentModel comment, Size size) async {
-    final url = Uri.parse('https://jordancarpart.com/Api/contactUs.php');
+  Future<void> submitComment(CommentModel comment) async {
+    final url = Uri.parse(
+        'https://jordancarpart.com/Api/contactUs.php?title=${comment.title}&comment=${comment.comment}&name=${comment.name}&address=${comment.address}&user_id=${comment.uid}&phone=${comment.phone}&time=${DateTime.now().toIso8601String()}');
 
-    setState(() {
-      isLoading = true;
-    });
-
-    final contactData = {
-      'title': comment.title,
-      'comment': comment.comment,
-      'name': comment.name,
-      'address': comment.address,
-      'user_id': comment.uid,
-      'phone': comment.phone,
-      'time': DateTime.now().toIso8601String(),
-    };
-    print(contactData);
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(contactData), // Send the dynamic data
       );
-      print(response.body.toString());
       if (response.statusCode == 200) {
-        print("Comment added successfully");
-        showModalBottomSheet(
-          builder: (context) {
-            return _buildSuccessBottomSheet(size);
-          },
-          context: context,
-        );
-      } else {
-        throw Exception('Failed to add comment');
+        print('تم تحديث المدينة بنجاح');
       }
     } catch (error) {
-      print("Error: $error");
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+      throw Exception('Failed to add comment: $error');
     }
   }
 
@@ -287,7 +260,7 @@ class _ContactPageState extends State<ContactPage> {
                           time: DateTime.now(),
                         );
 
-                        await _submitComment(comment, size);
+                        await submitComment(comment);
                         _feedBack.clear();
                         _feedMessage.clear();
                       },

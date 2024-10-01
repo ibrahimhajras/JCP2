@@ -9,6 +9,7 @@ import 'package:jcp/widget/EditStockTitleWidget..dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 
@@ -67,7 +68,6 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       title3 = "",
       title4 = "",
       title5 = "";
-  bool _isDialogShown = false;
 
   List<String> listNmae = [
     'اختر المركبة',
@@ -126,6 +126,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     'داتسون',
     'إسكاليد'
   ];
+
   List<String> list1 = [
     'اختر الفئة',
     'S-Class', // مرسيدس
@@ -212,7 +213,9 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     "تجاري 2"
   ];
 
+  bool _isDialogShown = false;
   bool hide = false;
+
   Future<bool> _deleteProduct(String productId, String detailsId) async {
     try {
       final url = Uri.parse(
@@ -250,8 +253,11 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   }
 
   Future<List<Map<String, dynamic>>> fetchProducts(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
     final url = Uri.parse(
-        'http://jordancarpart.com/Api/getproduct2.php?user_id=$userId');
+        'http://jordancarpart.com/Api/getproduct2.php?user_id=$userId&token=$token');
     final response = await http.get(
       url,
       headers: {

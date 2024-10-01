@@ -6,6 +6,7 @@ class UserModel {
   final String type;
   final String city;
   final DateTime createdAt; // Added created_at field
+  final String token; // Added created_at field
 
   UserModel({
     required this.userId,
@@ -14,7 +15,8 @@ class UserModel {
     required this.name,
     required this.type,
     required this.city,
-    required this.createdAt, // Added created_at field to constructor
+    required this.createdAt, // Added created_at field to constructor.
+    required this.token, // Added created_at field to constructor
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -25,7 +27,8 @@ class UserModel {
       name: json['name'].toString(),
       type: json['type'].toString(),
       city: json['city'].toString(),
-      createdAt: DateTime.parse(json['created_at']), // Parse created_at from JSON
+      createdAt: DateTime.parse(json['created_at']),
+      token: json['token'].toString(),
     );
   }
 
@@ -38,6 +41,7 @@ class UserModel {
       'type': type,
       'city': city,
       'created_at': createdAt.toIso8601String(),
+      'token': token,
     };
   }
 }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/provider/ProfileTraderProvider.dart';
@@ -53,19 +52,14 @@ Future<void> fetchNotifications(String userId) async {
       if (responseData['success'] == true) {
         List<dynamic> notifications = responseData['data'];
 
-        // هنا يمكنك استخدام ChangeNotifier لإشعار الواجهة بالتحديثات
-        _storeNotifications(notifications);
+        await _storeNotifications(notifications);
+
         for (var notification in notifications) {
           _createNotification(notification);
         }
-      }
-    } else {
-      print(
-          'Failed to fetch notifications. Status code: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error fetching notifications: $e');
-  }
+      } else {}
+    } else {}
+  } catch (e) {}
 }
 
 void _createNotification(Map<String, dynamic> notification) {
@@ -80,20 +74,24 @@ Future<void> _storeNotifications(List<dynamic> notifications) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
 
+  Set<String> existingIds =
+      storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+
   for (var notification in notifications) {
-    storedNotifications.add(jsonEncode({
-      'id': notification['id'],
-      'message': notification['desc'],
-      'isRead': false,
-    }));
+    if (!existingIds.contains(notification['id'].toString())) {
+      storedNotifications.add(jsonEncode({
+        'id': notification['id'],
+        'message': notification['desc'],
+        'isRead': false,
+      }));
+    }
   }
 
-  bool result = await prefs.setStringList('notifications', storedNotifications);
-  if (result) {
-    print("Notifications stored successfully in SharedPreferences.");
-  } else {
-    print("Failed to store notifications.");
-  }
+  await prefs.setStringList('notifications', storedNotifications);
+
+  List<String> currentStoredNotifications =
+      prefs.getStringList('notifications') ?? [];
+  print("Current stored notifications: $currentStoredNotifications");
 }
 
 Future<void> initializeService() async {
@@ -124,14 +122,12 @@ Future<void> initializeService() async {
       autoStart: true,
     ),
   );
-
   service.startService();
 }
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
 
   if (service is AndroidServiceInstance) {
     service.setAsForegroundService();
@@ -142,12 +138,19 @@ void onStart(ServiceInstance service) async {
   }
 
   Timer.periodic(const Duration(seconds: 5), (timer) async {
-    await fetchNotifications('35');
-    if (service is AndroidServiceInstance) {
-      service.setForegroundNotificationInfo(
-        title: "Service Running",
-        content: "قطع سيارات الاردن",
-      );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+
+    if (userId != null) {
+      await fetchNotifications(userId);
+      if (service is AndroidServiceInstance) {
+        service.setForegroundNotificationInfo(
+          title: "Service Running",
+          content: "قطع سيارات الاردن",
+        );
+      }
+    } else {
+      print("userId is null. Cannot fetch notifications.");
     }
   });
 }

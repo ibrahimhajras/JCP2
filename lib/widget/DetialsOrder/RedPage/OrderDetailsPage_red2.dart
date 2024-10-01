@@ -148,7 +148,7 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                       children: [
                                         ListTile(
                                           title: CustomText(
-                                            text: "name" ?? '',
+                                            text: "name",
                                             size: 18,
                                             color: black,
                                           ),
@@ -161,7 +161,7 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                         Divider(height: 2),
                                         ListTile(
                                           title: CustomText(
-                                            text: "link" ?? '',
+                                            text: "link",
                                             size: 18,
                                             color: black,
                                           ),
@@ -174,7 +174,7 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                         Divider(height: 2),
                                         ListTile(
                                           title: CustomText(
-                                            text: "photo" ?? '',
+                                            text: "photo",
                                             size: 18,
                                             color: black,
                                           ),

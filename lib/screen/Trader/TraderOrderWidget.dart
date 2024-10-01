@@ -7,7 +7,6 @@ import 'package:jcp/style/colors.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../provider/ProfileProvider.dart';
 import '../../style/custom_text.dart';
 import '../../widget/Inallpage/CustomButton.dart';
