@@ -170,15 +170,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Color(0xFFF6F6F6),
             borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-              ),
-            ],
           ),
           child: Column(
             children: [
@@ -187,6 +180,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CustomText(
+                    color: Color(0xFF8D8D92),
                     text: vehicleData["Enginetype"].toString() +
                         "  " +
                         vehicleData["Enginecategory"].toString() +
@@ -201,7 +195,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               ),
               CustomText(
                 text: vehicleData['bodyid'],
-                color: black,
+                color: Color(0xFF8D8D92),
                 letters: true,
               )
             ],
@@ -297,6 +291,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                             icon: Image.asset(
                               'assets/images/iconinfo.png',
                               width: double.infinity,
+                              height: screenWidth * 0.06,
                             ),
                             onPressed: () {
                               final selectedOrderItem =
@@ -677,14 +672,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                 ? Colors.white
                 : (selectedFieldsPerRow[rowIndex] == fieldIndex ? green : grey),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isForbidden
-                  ? Colors.white
-                  : (selectedFieldsPerRow[rowIndex] == fieldIndex
-                      ? green
-                      : grey),
-              width: 1.0,
-            ),
+            // تم إزالة خاصية border هنا
           ),
           alignment: Alignment.center,
           child: Text(
@@ -696,7 +684,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                   ? Colors.black26
                   : (selectedFieldsPerRow[rowIndex] == fieldIndex
                       ? Colors.white
-                      : Colors.black26),
+                      : Color(0xFF8D8D92)),
             ),
           ),
         ),
@@ -995,7 +983,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           SizedBox(height: 10),
           CustomText(
             text: label,
-            color: selectedOptionIndex == index ? green : black,
+            color: selectedOptionIndex == index ? green : Color(0xFF8D8D92),
           ),
         ],
       ),
@@ -1011,7 +999,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             size: 40,
             value: true,
             colorConfig: MSHColorConfig.fromCheckedUncheckedDisabled(
-              checkedColor: Colors.red,
+              checkedColor: Color(0xFF8D8D92),
             ),
             style: MSHCheckboxStyle.stroke,
             onChanged: (selected) {},
@@ -1019,7 +1007,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           SizedBox(height: 10),
           CustomText(
             text: label,
-            color: Colors.red,
+            color: Color(0xFF8D8D92),
           ),
         ],
       ),

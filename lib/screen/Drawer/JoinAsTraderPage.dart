@@ -196,7 +196,7 @@ class _TraderPageState extends State<TraderPage> {
                             await sendDataToApi();
                             showModalBottomSheet(
                               builder: (context) {
-                                return _buildSuccessBottomSheet(size);
+                                return _buildSuccessBottomSheet(context);
                               },
                               context: context,
                             );
@@ -211,22 +211,23 @@ class _TraderPageState extends State<TraderPage> {
             ],
           ),
           if (isLoading) _buildLoadingOverlay(),
-          // Show loading overlay if isLoading is true
         ],
       ),
     );
   }
 
-  Widget _buildSuccessBottomSheet(Size size) {
+  Widget _buildSuccessBottomSheet(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Container(
-      height: 390,
+      height: size.height * 0.5,
       width: size.width,
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.25),
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(1),
+          color: Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -246,15 +247,15 @@ class _TraderPageState extends State<TraderPage> {
             Center(
               child: Image.asset(
                 "assets/images/done-icon 1.png",
-                height: 122,
-                width: 122,
+                height: size.height * 0.15, // تعديل ارتفاع الصورة ليكون نسبيًا
+                width: size.width * 0.3, // تعديل عرض الصورة ليكون نسبيًا
               ),
             ),
             SizedBox(height: 25),
             Center(
               child: CustomText(
                 text: "تم ارسال طلبك لتقديم كتاجر بنجاح",
-                size: 24,
+                size: size.width * 0.06, // تعديل حجم النص ليكون نسبيًا
                 weight: FontWeight.w700,
               ),
             ),
@@ -267,13 +268,14 @@ class _TraderPageState extends State<TraderPage> {
                       builder: (context) => HomePage(),
                     ));
               },
-              height: 45,
+              height: size.height * 0.07, // تعديل ارتفاع الزر ليكون نسبيًا
               minWidth: size.width * 0.9,
               color: Color.fromRGBO(195, 29, 29, 1),
               child: CustomText(
                 text: "رجوع",
-                color: white,
-                size: 18,
+                color:
+                    Colors.white, // استخدام Colors.white مباشرة بدلاً من white
+                size: size.width * 0.045, // تعديل حجم نص الزر ليكون نسبيًا
               ),
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
               shape: RoundedRectangleBorder(

@@ -195,7 +195,12 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
         gradient: LinearGradient(
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
-          colors: [primary1, primary2, primary3],
+          colors: [
+            Color(0xFFB02D2D),
+            Color(0xFFC41D1D),
+            Color(0xFF7D0A0A),
+          ],
+          stops: [0.1587, 0.3988, 0.9722],
         ),
         image: DecorationImage(
           image: AssetImage("assets/images/card.png"),
@@ -323,6 +328,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (hdr.isNotEmpty) ...[
@@ -390,7 +396,12 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
         gradient: LinearGradient(
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
-          colors: [Colors.red, Colors.redAccent],
+          colors: [
+            Color(0xFFB02D2D),
+            Color(0xFFC41D1D),
+            Color(0xFF7D0A0A),
+          ],
+          stops: [0.1587, 0.3988, 0.9722],
         ),
         image: DecorationImage(
           image: AssetImage("assets/images/card.png"),
@@ -472,8 +483,9 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Align(
-      alignment: Alignment.centerLeft,
+    return Center(
+        child: Align(
+      alignment: Alignment.center,
       child: Text(
         title,
         style: TextStyle(
@@ -482,7 +494,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
           color: Colors.black,
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildVehicleInfo(Map<String, dynamic> hdr, Size size) {
@@ -651,7 +663,11 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
 
   Widget _buildWarrantyIcon(BuildContext context, Map<String, dynamic> item) {
     return IconButton(
-      icon: Icon(Icons.info_outline, color: Colors.green, size: 30),
+      icon: Image.asset(
+        'assets/images/iconinfo.png', // تأكد من وضع الصورة في المسار الصحيح
+        width: 25,
+        height: 25,
+      ),
       onPressed: () {
         _showWarrantyDialog(context, item);
       },
@@ -662,58 +678,178 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("تفاصيل الكفالة"),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("العلامة التجارية: ${item['mark'] ?? "غير محدد"}"),
-                SizedBox(height: 10),
-                Text("السعر: ${item['price']?.toString() ?? "غير محدد"}"),
-                SizedBox(height: 10),
-                Text(
-                    "مدة الكفالة: ${item['itemWarranty']?.toString() ?? "غير محدد"} شهر"),
-                SizedBox(height: 10),
-                Text(
-                    "الملاحظات: ${item['itemNote']?.toString().isEmpty ?? true ? "لا يوجد" : item['itemNote']}"),
-                SizedBox(height: 10),
-                if (item['itemImg'] != null &&
-                    item['itemImg'].toString().isNotEmpty)
-                  _buildImageFromBase64(item['itemImg'])
-                else
-                  Text("لا يوجد صورة"),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: Text("حسناً"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return Dialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    width: constraints.maxWidth * 0.9, // ضبط العرض
+                    height: constraints.maxHeight * 0.5, // ضبط الارتفاع
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 7,
+                        color: words,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromRGBO(255, 255, 255, 1),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 15),
+                            Text(
+                              "تفاصيل القطعة",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  text: item['mark'] ?? "غير محدد",
+                                  color: words,
+                                ),
+                                CustomText(
+                                  text: " : العلامة التجارية",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CustomText(
+                                      text: "شهر",
+                                      color: words,
+                                    ),
+                                    SizedBox(width: 2),
+                                    CustomText(
+                                      text: "${item['itemWarranty']}",
+                                      color: words,
+                                    ),
+                                  ],
+                                ),
+                                CustomText(
+                                  text: " : مدة الكفالة",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CustomText(
+                                  text: item['itemNote']?.isNotEmpty ?? false
+                                      ? item['itemNote']
+                                      : 'لا يوجد',
+                                  color: words,
+                                ),
+                                CustomText(
+                                  text: " : الملاحظات",
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 25),
+                            if (item['item'] != null &&
+                                item['item'].toString().isNotEmpty)
+                              _buildImageRow(" ", item['item'])
+                            else
+                              CustomText(
+                                text: "لا يوجد صورة",
+                                color: words,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildImageFromBase64(String base64Image) {
-    try {
-      Uint8List decodedImage = base64Decode(base64Image);
-      return Image.memory(
-        decodedImage,
-        width: 150,
-        height: 150,
-        fit: BoxFit.cover,
-      );
-    } catch (e) {
-      return Text(
-        'بيانات الصورة غير صالحة',
-        style: TextStyle(color: Colors.red),
-      );
+  Widget _buildImageRow(String label, String? base64Image) {
+    Uint8List? decodedImage;
+    if (base64Image != null && base64Image.isNotEmpty) {
+      try {
+        decodedImage = base64Decode(base64Image);
+      } catch (e) {
+        print("Error decoding base64: $e");
+      }
     }
+    final size = MediaQuery.of(context).size;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(width: 10),
+        decodedImage != null
+            ? GestureDetector(
+                onTap: () {
+                  _showImageDialog(decodedImage!);
+                },
+                child: Image.memory(
+                  decodedImage,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : Text(
+                'لا يوجد صورة',
+                style: TextStyle(fontSize: 16),
+              ),
+      ],
+    );
+  }
+
+  void _showImageDialog(Uint8List decodedImage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.all(10),
+              child: Image.memory(
+                decodedImage,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildTotalCost(Map<String, dynamic> hdr) {

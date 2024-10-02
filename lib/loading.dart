@@ -46,6 +46,8 @@ class _LoadingPageState extends State<LoadingPage>
       String name = prefs.getString('name') ?? '';
       String type = prefs.getString('type') ?? '';
       String city = prefs.getString('city') ?? '';
+      String token = prefs.getString('token') ?? '';
+
       final profileProvider =
           Provider.of<ProfileProvider>(context, listen: false);
       profileProvider.setuser_id(userId);
@@ -54,6 +56,7 @@ class _LoadingPageState extends State<LoadingPage>
       profileProvider.setname(name);
       profileProvider.settype(type);
       profileProvider.setcity(city);
+      profileProvider.settoken(token);
 
       Navigator.pushReplacement(
         context,
@@ -84,7 +87,12 @@ class _LoadingPageState extends State<LoadingPage>
             gradient: LinearGradient(
               begin: Alignment.bottomRight,
               end: Alignment.topLeft,
-              colors: [primary3, primary3, primary3],
+              colors: [
+                Color(0xFFEA3636), // اللون الأول
+                Color(0xFFC41D1D), // اللون الثاني
+                Color(0xFF7D0A0A), // اللون الثالث
+              ],
+              stops: [0.1587, 0.3988, 0.9722], // النسب المئوية من CSS
             ),
             image: DecorationImage(
               image: AssetImage("assets/images/card.png"),

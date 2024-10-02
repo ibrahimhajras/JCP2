@@ -28,8 +28,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   TextEditingController name = TextEditingController();
   final List<File?> imageFiles = List.generate(5, (_) => null);
   final picker = ImagePicker();
-  File? _imageFile;
-  String? _base64Image;
 
   String nameprodct = "";
   final List<String> checkboxLabels = [
@@ -135,7 +133,13 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     'Spider',
     'Superleggera'
   ];
-
+  List<String> masterTypes = [
+    'بلد المنشأ',
+    'شركة',
+    'تجاري',
+    'مستعمل',
+    'تجاري2'
+  ];
   final List<String> fromYearList = ["من", "2010", "2011", "2025"];
   final List<String> toYearList = ["إلى", "2010", "2011", "2025"];
   final List<String> fuelTypeList = [
@@ -348,7 +352,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       if (checkboxStates[i]) {
         if (priceControllers[i].text.isEmpty ||
             amountControllers[i].text.isEmpty ||
-            markControllers[i].text.isEmpty || // تحقق من تعبئة العلامة التجارية
+            markControllers[i].text.isEmpty ||
             double.tryParse(priceControllers[i].text) == null ||
             double.tryParse(priceControllers[i].text)! <= 0 ||
             double.tryParse(amountControllers[i].text) == null ||
@@ -363,10 +367,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               backgroundColor: Colors.red,
             ),
           );
-          return; // إيقاف العملية إذا كانت الحقول غير مكتملة
+          return;
         }
-
-        // تحويل الصورة إلى Base64 إذا كانت موجودة
         String? imgBase64;
         if (imageFiles[i] != null) {
           final bytes = await imageFiles[i]!.readAsBytes();
@@ -379,7 +381,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
           'warranty': warrantyControllers[i].text,
           'mark': markControllers[i].text,
           'note': noteControllers[i].text,
-          'img': imgBase64 ?? '', // إضافة الصورة المشفرة بالـ Base64
+          'img': imgBase64 ?? '',
         });
       }
     }
@@ -393,7 +395,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
           backgroundColor: Colors.red,
         ),
       );
-      return; // إيقاف التنفيذ إذا لم يتم تقديم بيانات checkbox
+      return;
     }
 
     String jsonData = jsonEncode(data);
@@ -435,7 +437,12 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         gradient: LinearGradient(
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
-          colors: [primary1, primary2, primary3],
+          colors: [
+            Color(0xFFB02D2D),
+            Color(0xFFC41D1D),
+            Color(0xFF7D0A0A),
+          ],
+          stops: [0.1587, 0.3988, 0.9722],
         ),
         image: DecorationImage(
           image: AssetImage("assets/images/card.png"),
@@ -454,8 +461,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             ),
           ),
           Positioned(
-            top: size.height * 0.09, // تعديل هذا القيمة لتتناسب مع النص
-            left: size.width * 0.03, // للسهم في اليسار
+            top: size.height * 0.09,
+            left: size.width * 0.03,
             child: GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -511,16 +518,16 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (trader != null && trader.master.contains("مستعمل"))
-                    buildCheckboxColumn("مستعمل", 4, sizeFactor),
-                  if (trader != null && trader.master.contains("بلد المنشأ"))
-                    buildCheckboxColumn("بلد المنشأ", 3, sizeFactor),
-                  if (trader != null && trader.master.contains("تجاري 2"))
-                    buildCheckboxColumn("تجاري 2", 2, sizeFactor),
-                  if (trader != null && trader.master.contains("تجاري"))
-                    buildCheckboxColumn("تجاري", 1, sizeFactor),
-                  if (trader != null && trader.master.contains("شركة"))
-                    buildCheckboxColumn("شركة", 0, sizeFactor),
+                  if (trader != null && trader.master.contains(masterTypes[3]))
+                    buildCheckboxColumn(masterTypes[3], 4, sizeFactor),
+                  if (trader != null && trader.master.contains(masterTypes[0]))
+                    buildCheckboxColumn(masterTypes[0], 3, sizeFactor),
+                  if (trader != null && trader.master.contains(masterTypes[2]))
+                    buildCheckboxColumn(masterTypes[2], 1, sizeFactor),
+                  if (trader != null && trader.master.contains(masterTypes[4]))
+                    buildCheckboxColumn(masterTypes[4], 2, sizeFactor),
+                  if (trader != null && trader.master.contains(masterTypes[1]))
+                    buildCheckboxColumn(masterTypes[1], 0, sizeFactor),
                 ],
               ),
             ),
@@ -596,17 +603,13 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                               vertical: sizeFactor * 5),
                           child: TextFormField(
                             controller: warrantyControllers[index],
-                            textDirection: TextDirection
-                                .rtl, // Set text direction to RTL (Right to Left)
-                            textAlign:
-                                TextAlign.right, // Align text to the right
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.right,
                             decoration: InputDecoration(
-                              labelText: 'بالأشهر', // Arabic label for "months"
+                              labelText: 'بالأشهر',
                               border: OutlineInputBorder(),
                             ),
-                            style: TextStyle(
-                                fontFamily:
-                                    'Tajawal'), // Optional: Set an Arabic-friendly font
+                            style: TextStyle(fontFamily: 'Tajawal'),
                           ),
                         ),
                       ],
@@ -625,19 +628,14 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                               vertical: sizeFactor * 5),
                           child: TextFormField(
                             controller: markControllers[index],
-                            textDirection: TextDirection
-                                .rtl, // Set text direction to RTL (Right to Left)
-                            textAlign:
-                                TextAlign.right, // Align text to the right
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.right,
                             decoration: InputDecoration(
-                              labelText: 'مثال:', // Arabic label for "Example:"
-                              hintText:
-                                  'العلامة التجارية', // Arabic hint text for "Brand"
+                              labelText: 'مثال:',
+                              hintText: 'العلامة التجارية',
                               border: OutlineInputBorder(),
                             ),
-                            style: TextStyle(
-                                fontFamily:
-                                    'Tajawal'), // Optional: Arabic-friendly font
+                            style: TextStyle(fontFamily: 'Tajawal'),
                           ),
                         ),
                       ],
@@ -736,11 +734,11 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     final pickedFile = await picker.pickImage(source: source);
     if (pickedFile != null) {
       setState(() {
-        imageFiles[index] = File(pickedFile.path); // تخزين الصورة حسب العنصر
+        imageFiles[index] = File(pickedFile.path);
       });
       try {
         final bytes = await imageFiles[index]!.readAsBytes();
-        String base64Image = base64Encode(bytes);
+        base64Encode(bytes);
         print("Image successfully encoded to Base64 for index $index.");
       } catch (e) {
         print("Error reading the image: $e");
@@ -763,7 +761,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(sizeFactor * 10)),
             shadowColor: Colors.black,
-            color: Colors.white70, // اللون نفسه المستخدم في التصميم السابق
+            color: Colors.white70,
             child: TextFormField(
               textAlign: TextAlign.center,
               controller: controller,
@@ -803,7 +801,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(sizeFactor * 10),
               ),
-              color: Colors.white70, // اللون نفسه المستخدم في التصميم السابق
+              color: Colors.white70,
               child: DropdownButtonFormField<String>(
                 padding: EdgeInsets.only(right: sizeFactor * 5),
                 alignment: Alignment.center,

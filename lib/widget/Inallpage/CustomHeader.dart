@@ -26,7 +26,12 @@ class CustomHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
-          colors: [primary1, primary2, primary3],
+          colors: [
+            Color(0xFFB02D2D),
+            Color(0xFFC41D1D),
+            Color(0xFF7D0A0A),
+          ],
+          stops: [0.1587, 0.3988, 0.9722],
         ),
         image: DecorationImage(
           image: AssetImage("assets/images/card.png"),

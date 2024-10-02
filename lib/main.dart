@@ -164,6 +164,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Car Parts',
       theme: ThemeData(
+        textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 1.0),
         fontFamily: 'Tajawal',
         canvasColor: Colors.white,
         primarySwatch: Colors.red,

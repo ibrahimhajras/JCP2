@@ -67,10 +67,11 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                     begin: Alignment.bottomRight,
                     end: Alignment.topLeft,
                     colors: [
-                      primary1,
-                      primary2,
-                      primary3,
+                      Color(0xFFB02D2D),
+                      Color(0xFFC41D1D),
+                      Color(0xFF7D0A0A),
                     ],
+                    stops: [0.1587, 0.3988, 0.9722],
                   ),
                   image: DecorationImage(
                     image: AssetImage("assets/images/card.png"),
@@ -708,25 +709,25 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                         List modifications1 = select1;
                         List modifications2 = select;
                         List modifications3 = cars;
-                        Map<String, dynamic> data = {
-                          "phone": phoneNumber,
-                          "modifications1": modifications1,
-                          "modifications2": modifications2,
-                          "modifications3": modifications3,
-                        };
-                        final response = await http.post(
-                          Uri.parse(
-                              'https://jordancarpart.com/Api/commingsoon.php'),
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: jsonEncode(data),
-                        );
 
+                        String apiUrl =
+                            'https://jordancarpart.com/Api/updateuser.php'
+                            '?phone=$phoneNumber'
+                            '&modifications1=${modifications1.join(",")}'
+                            '&modifications2=${modifications2.join(",")}'
+                            '&modifications3=${modifications3.join(",")}';
+
+                        final response = await http.get(
+                          Uri.parse(apiUrl),
+                          headers: {
+                            'Accept': 'application/json',
+                          },
+                        );
+                        print(response.body);
                         if (response.statusCode == 200) {
                           showSnack(context, "تم حفظ التعديلات بنجاح");
                           setState(() {
-                            check = false; // إخفاء حالة التعديل
+                            check = false;
                           });
                         } else {
                           showSnack(context, "فشل في حفظ التعديلات");

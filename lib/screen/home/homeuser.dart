@@ -71,13 +71,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    super.initState();
     current = HomeWidget(
       run: (value) {
         setState(() {});
       },
     );
     currentTab = 1;
-    super.initState();
   }
 
   @override
@@ -128,7 +128,10 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Divider(),
                     ),
-                    if (isLoading) LinearProgressIndicator(),
+                    if (isLoading)
+                      LinearProgressIndicator(
+                        color: button,
+                      ),
                     if (user.type == "2")
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -490,9 +493,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 setState(() {
                   current = ProOrderWidget(
-                    run: (value) {
-                      // Handle specific actions
-                    },
+                    run: (value) {},
                   );
                   currentTab = 0;
                 });
