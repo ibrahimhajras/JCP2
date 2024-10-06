@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/screen/Drawer/PricingRequestPage.dart';
+import 'package:jcp/screen/home/timer_service.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
@@ -132,6 +134,18 @@ class _HomeWidgetState extends State<HomeWidget> {
     _fetchData();
     _loadOrderAllowed();
     _initializeStream();
+    _initializeServiceAndStartTimer();
+  }
+
+  void _initializeServiceAndStartTimer() async {
+    // بدء خدمة الخلفية
+    FlutterBackgroundService service = FlutterBackgroundService();
+    bool isRunning = await service.isRunning();
+
+    if (!isRunning) {
+      service.startService(); // بدء الخدمة
+    }
+    startTimer();
   }
 
   Future<void> _initializeStream() async {
@@ -293,7 +307,8 @@ class _HomeWidgetState extends State<HomeWidget> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildVinNumberField(size),
+          SizedBox(height: size.height * 0.01),
+          _buildVinField(),
           Padding(
             padding: EdgeInsets.all(size.width * 0.01),
             child: Column(
@@ -303,7 +318,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                     "لطلب المجاني سيكون بعد 24 ساعة",
                     style: TextStyle(
                       fontSize: size.width * 0.05,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -314,7 +328,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       countdownProvider.countdownText,
                       style: TextStyle(
                         fontSize: size.width * 0.05,
-                        fontWeight: FontWeight.bold,
+                        fontFamily: "Tajawal",
                       ),
                     );
                   },
@@ -352,9 +366,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                       child: Text(
                         "  إذا كنت بحاجه لتسعيرات متكررة   ",
                         style: TextStyle(
-                          fontSize: size.width * 0.04,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: size.width * 0.04,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8D8D92)),
                       ),
                     ),
                   ],
@@ -367,7 +381,6 @@ class _HomeWidgetState extends State<HomeWidget> {
                       children: [
                         Container(
                           padding: EdgeInsets.all(size.width * 0.02),
-                          // Padding inside the box
                           decoration: BoxDecoration(
                             color: Color.fromRGBO(240, 240, 240, 1),
                             border: Border.all(
@@ -494,7 +507,9 @@ class _HomeWidgetState extends State<HomeWidget> {
       BuildContext context, Size size, ProfileProvider user) {
     return Column(
       children: [
-        _buildVinNumberField(size),
+        SizedBox(height: size.height * 0.02), // consistent spacing
+
+        _buildVinField(),
         SizedBox(height: size.height * 0.02), // consistent spacing
         _buildPartsField("القطعة الاولى", part_1, size),
         SizedBox(height: size.height * 0.02), // consistent spacing
@@ -510,75 +525,85 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget _buildVinNumberField(Size size) {
+  Widget _buildVinField() {
     return Column(
       children: [
-        SizedBox(
-          height: size.height * 0.02,
-        ),
         Center(
           child: CustomText(
             text: "رقم الشاصي",
-            size: size.width * 0.05,
+            color: Color.fromRGBO(0, 0, 0, 1),
+            size: 20,
           ),
         ),
         Container(
-          height: size.height * 0.12,
-          padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: size.height * 0.07,
-                color: grey,
-                child: TextFormField(
-                  controller: carid,
-                  maxLength: 17,
-                  textAlign: TextAlign.center,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: InputDecoration(
-                    counterText: "",
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: bor, width: 2),
-                      borderRadius: BorderRadius.circular(10.0),
+          height: 85,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 60,
+                  color: grey,
+                  child: TextFormField(
+                    controller: carid,
+                    maxLength: 17,
+                    maxLines: 1,
+                    textCapitalization: TextCapitalization.characters,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      counterText: "",
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: bor, width: 2),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: focusedColor, width: 2),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: bor, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      fillColor: grey,
+                      hintText: hint,
+                      hintStyle: TextStyle(
+                        color: green,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: "Tajawal",
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: focusedColor, width: 2),
-                      borderRadius: BorderRadius.circular(10.0),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: bor, width: 2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    hintText: hint,
-                    hintStyle: TextStyle(
-                      color: green,
-                      fontSize: size.width * 0.04,
-                    ),
-                  ),
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: size.width * 0.045,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  onChanged: (value) {
-                    count = value.length;
-                    if (value.length == 17 && !value.contains(" ")) {
+                    onChanged: (value) {
+                      count = value.length;
+                      if (value.length == 17 && !value.contains(" ")) {
+                        setState(() {
+                          focusedColor = green;
+                          bor = green;
+                        });
+                      } else {
+                        setState(() {
+                          focusedColor = Colors.red;
+                          bor = Colors.red;
+                        });
+                      }
+                    },
+                    onTap: () {
                       setState(() {
-                        focusedColor = green;
-                        bor = green;
+                        hint = "";
                       });
-                    } else {
-                      setState(() {
-                        focusedColor = Colors.red;
-                        bor = Colors.red;
-                      });
-                    }
-                  },
+                    },
+                  ),
                 ),
-              ),
-              CustomText(text: "$count/17"),
-            ],
+                CustomText(text: "$count/17"),
+              ],
+            ),
           ),
         ),
       ],
@@ -762,7 +787,6 @@ class _HomeWidgetState extends State<HomeWidget> {
         await _checkForNotifications();
         await _fetchData();
         await _loadOrderAllowed();
-
         showModalBottomSheet(
           context: context,
           builder: (context) {
@@ -830,10 +854,8 @@ class _HomeWidgetState extends State<HomeWidget> {
           context: context,
           message: "فشل في إرسال الطلب: ${response.reasonPhrase}",
           confirmText: "حسناً",
-          onConfirm: () {
-            // يمكنك تركه فارغاً أو تنفيذ أي إجراء عند النقر على "حسناً"
-          },
-          cancelText: '', // لا حاجة لزر إلغاء
+          onConfirm: () {},
+          cancelText: '',
         );
       }
     } catch (e) {
@@ -841,10 +863,8 @@ class _HomeWidgetState extends State<HomeWidget> {
         context: context,
         message: "حدث خطأ في الاتصال بالإنترنت",
         confirmText: "حسناً",
-        onConfirm: () {
-          // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
+        cancelText: '',
       );
     }
   }

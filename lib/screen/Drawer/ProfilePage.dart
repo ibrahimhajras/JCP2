@@ -11,6 +11,7 @@ import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/style/custom_text.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -104,10 +105,17 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     }
 
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    String time =
-        DateFormat('yyyy-MM-dd').format(profileProvider.getcreatedAt());
+    Future<String?> _getStoredDate() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? fullDateTime = prefs.getString('time'); // استرجاع الوقت الكامل
+      if (fullDateTime != null) {
+        // استخراج التاريخ فقط من الوقت الكامل
+        DateTime parsedDate = DateTime.parse(fullDateTime);
+        String formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+        return formattedDate;
+      }
+      return null; // إذا لم يكن هناك وقت مخزن
+    }
 
     return Scaffold(
       backgroundColor: white,
@@ -318,19 +326,33 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: grey,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          enabled: false,
-                          textAlign: TextAlign.end,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: '$time',
-                          ),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            fontFamily: "Tajawal",
-                          ),
+                        child: FutureBuilder<String?>(
+                          future:
+                              _getStoredDate(), // استدعاء الدالة التي تسترجع التاريخ
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return RotatingImagePage(); // عرض مؤشر التحميل
+                            }
+                            if (!snapshot.hasData) {
+                              return Text(
+                                  "No date available"); // عرض رسالة في حال عدم وجود بيانات
+                            }
+                            return TextFormField(
+                              enabled: false,
+                              textAlign: TextAlign.end,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: snapshot.data!, // عرض التاريخ المخزن
+                              ),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                fontFamily: "Tajawal",
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -354,7 +376,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   }
                 },
                 height: MediaQuery.of(context).size.height * 0.06,
-                // 7% من ارتفاع الشاشة
                 minWidth: size.width * 0.9,
                 color: title.isNotEmpty && title != user.city
                     ? Color.fromRGBO(153, 153, 160, 1)

@@ -33,10 +33,11 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   final List<String> checkboxLabels = [
     "شركة",
     "تجاري",
-    "تجاري 2",
+    "تجاري2",
     "بلد المنشأ",
     "مستعمل"
   ];
+
   final List<String> titles = List.filled(6, "");
   final List<String> NameCar = [
     'اختر المركبة',
@@ -133,13 +134,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     'Spider',
     'Superleggera'
   ];
-  List<String> masterTypes = [
-    'بلد المنشأ',
-    'شركة',
-    'تجاري',
-    'مستعمل',
-    'تجاري2'
-  ];
+
   final List<String> fromYearList = ["من", "2010", "2011", "2025"];
   final List<String> toYearList = ["إلى", "2010", "2011", "2025"];
   final List<String> fuelTypeList = [
@@ -297,21 +292,20 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         width: sizeFactor * 50,
         height: sizeFactor * 50,
         decoration: BoxDecoration(
-          color: isEnabled ? grey : grey,
-          borderRadius: BorderRadius.circular(sizeFactor * 10),
+          color: isEnabled ? white : grey,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 2),
+              color: isEnabled ? black : grey,
+              spreadRadius: 1,
+              blurRadius: 1,
             ),
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: sizeFactor * 8.0),
+          padding: EdgeInsets.symmetric(vertical: sizeFactor * 0.0),
           child: TextField(
             enabled: isEnabled,
+            keyboardType: TextInputType.number,
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: hintText,
@@ -518,16 +512,21 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (trader != null && trader.master.contains(masterTypes[3]))
-                    buildCheckboxColumn(masterTypes[3], 4, sizeFactor),
-                  if (trader != null && trader.master.contains(masterTypes[0]))
-                    buildCheckboxColumn(masterTypes[0], 3, sizeFactor),
-                  if (trader != null && trader.master.contains(masterTypes[2]))
-                    buildCheckboxColumn(masterTypes[2], 1, sizeFactor),
-                  if (trader != null && trader.master.contains(masterTypes[4]))
-                    buildCheckboxColumn(masterTypes[4], 2, sizeFactor),
-                  if (trader != null && trader.master.contains(masterTypes[1]))
-                    buildCheckboxColumn(masterTypes[1], 0, sizeFactor),
+                  if (trader != null &&
+                      trader.master.contains(checkboxLabels[3]))
+                    buildCheckboxColumn(checkboxLabels[3], 4, sizeFactor),
+                  if (trader != null &&
+                      trader.master.contains(checkboxLabels[0]))
+                    buildCheckboxColumn(checkboxLabels[0], 3, sizeFactor),
+                  if (trader != null &&
+                      trader.master.contains(checkboxLabels[2]))
+                    buildCheckboxColumn(checkboxLabels[2], 1, sizeFactor),
+                  if (trader != null &&
+                      trader.master.contains(checkboxLabels[4]))
+                    buildCheckboxColumn(checkboxLabels[4], 2, sizeFactor),
+                  if (trader != null &&
+                      trader.master.contains(checkboxLabels[1]))
+                    buildCheckboxColumn(checkboxLabels[1], 0, sizeFactor),
                 ],
               ),
             ),
@@ -604,6 +603,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                           child: TextFormField(
                             controller: warrantyControllers[index],
                             textDirection: TextDirection.rtl,
+                            keyboardType:
+                                TextInputType.number, // تعيين كيبورد الأرقام
                             textAlign: TextAlign.right,
                             decoration: InputDecoration(
                               labelText: 'بالأشهر',
@@ -668,11 +669,13 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 ),
               ),
               SizedBox(height: sizeFactor * 20),
-              Text(
-                'صورة القطعة (اختياري)',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: sizeFactor * 16, fontWeight: FontWeight.bold),
+              Padding(
+                padding: EdgeInsets.only(top: 10, right: 20),
+                child: CustomText(
+                  text: "صورة القطعة (اختياري)",
+                  color: Color.fromRGBO(0, 0, 0, 1),
+                  size: 18,
+                ),
               ),
               SizedBox(height: sizeFactor * 10),
               GestureDetector(
@@ -755,20 +758,23 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         children: [
           Padding(
             padding: EdgeInsets.only(right: sizeFactor * 6.5),
-            child: CustomText(text: label, size: sizeFactor * 18),
+            child: CustomText(
+              text: label,
+              size: sizeFactor * 18,
+            ),
           ),
           Card(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(sizeFactor * 10)),
             shadowColor: Colors.black,
-            color: Colors.white70,
+            color: Colors.white,
             child: TextFormField(
               textAlign: TextAlign.center,
               controller: controller,
               decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: hint,
-              ),
+                  border: InputBorder.none,
+                  hintText: hint,
+                  hintStyle: TextStyle(color: Color(0xFF8D8D92))),
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
@@ -801,7 +807,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(sizeFactor * 10),
               ),
-              color: Colors.white70,
+              color: Colors.white,
               child: DropdownButtonFormField<String>(
                 padding: EdgeInsets.only(right: sizeFactor * 5),
                 alignment: Alignment.center,

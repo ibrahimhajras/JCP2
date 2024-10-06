@@ -706,16 +706,19 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                           return;
                         }
                         String phoneNumber = widget.trader.phone;
-                        List modifications1 = select1;
-                        List modifications2 = select;
-                        List modifications3 = cars;
+                        String modifications1 = select1.toString();
+                        String modifications2 = select.toString();
+                        String modifications3 = cars.toString();
 
+                        print("نوع القطع" + modifications1);
+                        print("نوع " + modifications2);
+                        print("نوع القطع" + modifications3);
                         String apiUrl =
-                            'https://jordancarpart.com/Api/updateuser.php'
+                            'https://jordancarpart.com/Api/updatemaketrader.php'
                             '?phone=$phoneNumber'
-                            '&modifications1=${modifications1.join(",")}'
-                            '&modifications2=${modifications2.join(",")}'
-                            '&modifications3=${modifications3.join(",")}';
+                            '&parts_type=${modifications1}'
+                            '&master=${modifications2}'
+                            '&activity_type=${modifications3}';
 
                         final response = await http.get(
                           Uri.parse(apiUrl),

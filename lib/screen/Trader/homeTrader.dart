@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jcp/model/JoinTraderModel.dart';
+import 'package:jcp/provider/DeliveryModel.dart';
+import 'package:jcp/provider/EditProductProvider.dart';
+import 'package:jcp/provider/OrderDetailsProvider.dart';
+import 'package:jcp/provider/OrderProvider.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:jcp/screen/Drawer/ContactPage.dart';
@@ -15,10 +19,10 @@ import 'package:jcp/screen/Trader/TraderProfilePage.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
-import 'package:http/http.dart' as http;
 
 class TraderInfoPage extends StatefulWidget {
   static bool isEnabled = false;
@@ -332,108 +336,45 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                         width: size.width * 0.4,
                         child: MaterialButton(
                           onPressed: () async {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return StatefulBuilder(
-                                  builder: (BuildContext context, setState) {
-                                    return Dialog(
-                                      child: Container(
-                                        width: size.width * 0.9,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color:
-                                              Color.fromRGBO(255, 255, 255, 1),
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SizedBox(
-                                              height: 15,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                CustomText(
-                                                  text:
-                                                      " هل انت متأكد من تسجيل الخروج ؟ ",
-                                                  color: black,
-                                                  size: 15,
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 15,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Color.fromRGBO(153, 153,
-                                                            160, 0.63),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                    foregroundColor: white,
-                                                  ),
-                                                  child: CustomText(
-                                                    text: "لا",
-                                                    color: white,
-                                                    size: 18,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: 15,
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              LoginPage(),
-                                                        ));
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor: red,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                  ),
-                                                  child: CustomText(
-                                                    text: "نعم",
-                                                    color: grey,
-                                                    size: 18,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 15,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.clear();
+                            await prefs.setBool('rememberMe', false);
+                            await prefs.remove('phone');
+                            await prefs.remove('password');
+                            await prefs.remove('userId');
+                            await prefs.remove('name');
+                            await prefs.remove('type');
+                            await prefs.remove('city');
+                            List<String> notifications =
+                                prefs.getStringList('notifications') ?? [];
+                            await prefs.setStringList(
+                                'notifications', notifications);
+                            await prefs.setInt('isOrderAllowed', 0);
+                            final profileProvider =
+                                Provider.of<ProfileProvider>(context,
+                                    listen: false);
+                            profileProvider.resetFields();
+                            final OrderProvider1 = Provider.of<OrderProvider>(
+                                context,
+                                listen: false);
+                            OrderProvider1.clearOrders();
+                            final orderDetailsProvider =
+                                Provider.of<OrderDetailsProvider>(context,
+                                    listen: false);
+                            orderDetailsProvider.clear();
+                            final editProductProvider =
+                                Provider.of<EditProductProvider>(context,
+                                    listen: false);
+                            editProductProvider.clear();
+                            final deliveryModel =
+                                Provider.of<DeliveryModelOrange>(context,
+                                    listen: false);
+                            deliveryModel.clear();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                              (Route<dynamic> route) => false,
                             );
                           },
                           height: 45,
@@ -442,11 +383,9 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                           child: CustomText(
                             text: "تسجيل الخروج",
                             size: 16,
-                            color: white,
+                            color: Colors.white,
                           ),
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
+                          padding: EdgeInsets.symmetric(vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),

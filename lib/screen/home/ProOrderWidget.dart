@@ -6,12 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../helper/snack_bar.dart';
 import '../../../provider/ProfileProvider.dart';
 import '../../../screen/Drawer/Notification.dart';
 import '../../../style/colors.dart';
@@ -19,7 +17,6 @@ import '../../../style/custom_text.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
 import '../../widget/Inallpage/NotificationIcon.dart';
-import 'OrderWidget.dart';
 
 class ProOrderWidget extends StatefulWidget {
   final ValueChanged<bool> run;
@@ -55,7 +52,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         setState(() {
           _base64Image = base64Encode(bytes);
           print("Image successfully encoded to Base64.");
-          print(_base64Image);
+          print(_base64Image.toString().length);
         });
       } catch (e) {
         print("Error reading the image: $e");
@@ -145,7 +142,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         children: [
           SizedBox(height: 15),
           _buildVinField(),
-          SizedBox(height: 15),
+          SizedBox(height: 30),
           _buildPartField(),
           SizedBox(height: 10),
           _buildLinkField(),
@@ -185,13 +182,13 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         Container(
           height: 85,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  height: 50,
+                  height: 60,
                   color: grey,
                   child: TextFormField(
                     controller: carid,
@@ -491,20 +488,19 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
 
   Future<void> sendOrder(BuildContext context, String user_id) async {
     final size = MediaQuery.of(context).size;
-
-    // عرض مؤشر التحميل قبل بدء عملية الإرسال
     showDialog(
       context: context,
-      barrierDismissible: false, // لا يمكن إغلاق المؤشر بالنقر خارج النافذة
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
-          child: RotatingImagePage(), // مؤشر التحميل
+          child: RotatingImagePage(),
         );
       },
     );
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-
+    print(_base64Image.toString().length);
+    print(_base64Image);
     if (carid.text.length == 17 && part_1.text.isNotEmpty) {
       final orderData = {
         "carid": carid.text,
@@ -528,14 +524,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         Navigator.pop(context);
 
         if (response.statusCode == 200) {
-          setState(() {
-            part_1.clear();
-            carid.clear();
-            link.clear();
-            _imageFile = null;
-          });
           widget.run(true);
-
           showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -616,38 +605,28 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
             context: context,
             message: "فشل في إرسال الطلب. حاول مرة أخرى.",
             confirmText: "حسناً",
-            onConfirm: () {
-              // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
-            },
-            cancelText: '', // لا حاجة لزر إلغاء
+            onConfirm: () {},
+            cancelText: '',
           );
         }
       } catch (e) {
-        // إخفاء مؤشر التحميل في حالة حدوث خطأ
         Navigator.pop(context);
-
         showConfirmationDialog(
           context: context,
           message: "حدث خطأ أثناء إرسال الطلب: $e",
           confirmText: "حسناً",
-          onConfirm: () {
-            // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
-          },
-          cancelText: '', // لا حاجة لزر إلغاء
+          onConfirm: () {},
+          cancelText: '',
         );
       }
     } else {
-      // إخفاء مؤشر التحميل إذا كانت الحقول غير مكتملة
       Navigator.pop(context);
-
       showConfirmationDialog(
         context: context,
         message: "الرجاء إدخال رقم الشصي والقطعة",
         confirmText: "حسناً",
-        onConfirm: () {
-          // يمكنك تركه فارغًا أو إضافة منطق إضافي إذا لزم الأمر
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
+        cancelText: '',
       );
     }
   }

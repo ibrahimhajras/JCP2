@@ -42,58 +42,6 @@ void main() async {
   );
 }
 
-Future<void> fetchNotifications(String userId) async {
-  final url = Uri.parse(
-      'https://jordancarpart.com/Api/notifications.php?user_id=$userId');
-  try {
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      if (responseData['success'] == true) {
-        List<dynamic> notifications = responseData['data'];
-
-        await _storeNotifications(notifications);
-
-        for (var notification in notifications) {
-          _createNotification(notification);
-        }
-      } else {}
-    } else {}
-  } catch (e) {}
-}
-
-void _createNotification(Map<String, dynamic> notification) {
-  NotificationService().showNotification(
-    id: notification['id'],
-    title: 'قطع سيارات الاردن',
-    body: notification['desc'],
-  );
-}
-
-Future<void> _storeNotifications(List<dynamic> notifications) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
-
-  Set<String> existingIds =
-      storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
-
-  for (var notification in notifications) {
-    if (!existingIds.contains(notification['id'].toString())) {
-      storedNotifications.add(jsonEncode({
-        'id': notification['id'],
-        'message': notification['desc'],
-        'isRead': false,
-      }));
-    }
-  }
-
-  await prefs.setStringList('notifications', storedNotifications);
-
-  List<String> currentStoredNotifications =
-      prefs.getStringList('notifications') ?? [];
-  print("Current stored notifications: $currentStoredNotifications");
-}
-
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
 
@@ -136,23 +84,6 @@ void onStart(ServiceInstance service) async {
       content: "Updating notifications...",
     );
   }
-
-  Timer.periodic(const Duration(seconds: 5), (timer) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');
-
-    if (userId != null) {
-      await fetchNotifications(userId);
-      if (service is AndroidServiceInstance) {
-        service.setForegroundNotificationInfo(
-          title: "Service Running",
-          content: "قطع سيارات الاردن",
-        );
-      }
-    } else {
-      print("userId is null. Cannot fetch notifications.");
-    }
-  });
 }
 
 class MyApp extends StatelessWidget {

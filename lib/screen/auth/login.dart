@@ -7,12 +7,10 @@ import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
 import '../../model/UserModel.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
-import '../../widget/Inallpage/dialogs.dart';
 import '../home/homeuser.dart';
 import '../auth/forgotpassword.dart';
 import '../auth/register.dart';
@@ -84,9 +82,14 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 15),
                   _buildPhoneInput(),
                   _buildPasswordInput(),
-                  _buildRememberMeCheckbox(),
-                  _buildForgotPasswordLink(),
-                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildRememberMeCheckbox(),
+                      _buildForgotPasswordLink(),
+                    ],
+                  ),
+                  const SizedBox(height: 25),
                   _buildLoginButton(size),
                   const SizedBox(height: 10),
                   _buildRegisterLink(),
@@ -311,7 +314,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildForgotPasswordLink() {
     return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 28),
+      padding: const EdgeInsets.only(top: 15, right: 28),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -420,10 +423,8 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = 'https://jordancarpart.com/Api/login.php?phone=' +
-        phone +
-        '&password=' +
-        password;
+    final url =
+        'https://jordancarpart.com/Api/login.php?phone=$phone&password=$password';
     final profileProvider =
         Provider.of<ProfileProvider>(context, listen: false);
 
@@ -433,65 +434,45 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.get(Uri.parse(url));
-      print(json.encode({'phone': phone, 'password': password}).toString());
-      print(response.body.toString());
+      final responseData = json.decode(response.body);
+      print(responseData);
 
-      if (1 == 1) {
-        final responseData = json.decode(response.body);
-        print(responseData['status']);
-        if (1 == 1) {
-          print(responseData['status']);
-          final userData = responseData['user'];
+      if (responseData['status'] == 'success') {
+        final userData = responseData['user'];
+        UserModel user = UserModel.fromJson(userData);
 
-          UserModel user = UserModel.fromJson(userData);
+        profileProvider.setuser_id(user.userId);
+        profileProvider.setphone(user.phone);
+        profileProvider.setname(user.name);
+        profileProvider.setpassword(user.password);
+        profileProvider.settype(user.type);
+        profileProvider.setcity(user.city);
+        profileProvider.setcreatedAt(user.createdAt);
+        profileProvider.settoken(user.token);
 
-          profileProvider.setuser_id(user.userId);
-          profileProvider.setphone(user.phone);
-          profileProvider.setname(user.name);
-          profileProvider.setpassword(user.password);
-          profileProvider.settype(user.type);
-          profileProvider.setcity(user.city);
-          profileProvider.setcreatedAt(user.createdAt);
-          profileProvider.settoken(user.token);
+        final userId = profileProvider.getuser_id();
+        if (userId.isNotEmpty && int.tryParse(userId) != null) {
+          await saveUserPreferences(
+            profileProvider.getuser_id(),
+            profileProvider.getname(),
+            profileProvider.getpassword(),
+            profileProvider.gettype(),
+            profileProvider.getcity(),
+            profileProvider.getcreatedAt(),
+            profileProvider.gettoken(),
+          );
 
-          final userId = profileProvider.getuser_id();
-          if (userId.isNotEmpty && int.tryParse(userId) != null) {
-            await saveUserPreferences(
-                profileProvider.getuser_id(),
-                profileProvider.getname(),
-                profileProvider.getpassword(),
-                profileProvider.gettype(),
-                profileProvider.getcity(),
-                profileProvider.getcreatedAt(),
-                profileProvider.gettoken());
-            print(profileProvider.getuser_id());
-            print(profileProvider.getcreatedAt());
-
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
-          } else {
-            showConfirmationDialog(
-              context: context,
-              message: '',
-              confirmText: 'حسناً',
-              onConfirm: () {
-                // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-              },
-              cancelText: '', // لا حاجة لزر إلغاء
-            );
-          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
         } else {
-          // إذا كانت الحالة غير ناجحة
           showConfirmationDialog(
             context: context,
-            message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+            message: 'فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.',
             confirmText: 'حسناً',
-            onConfirm: () {
-              // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-            },
-            cancelText: '', // لا حاجة لزر إلغاء
+            onConfirm: () {},
+            cancelText: '',
           );
         }
       } else {
@@ -499,21 +480,21 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
           confirmText: 'حسناً',
-          onConfirm: () {
-            // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-          },
-          cancelText: '', // لا حاجة لزر إلغاء
+          onConfirm: () {},
+          cancelText: '',
         );
       }
     } catch (e) {
+      print(e.toString()); // تسجيل الخطأ لأغراض التصحيح
       showConfirmationDialog(
         context: context,
-        message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+        message: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
         confirmText: 'حسناً',
         onConfirm: () {},
-        cancelText: '', // لا حاجة لزر إلغاء
+        cancelText: '',
       );
     } finally {
+      // إنهاء حالة التحميل
       setState(() {
         isLoading = false;
       });

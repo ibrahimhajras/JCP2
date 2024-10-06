@@ -320,7 +320,6 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
 
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Column(
         children: [
           _buildDetailsHeader(size),

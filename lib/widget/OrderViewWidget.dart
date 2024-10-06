@@ -402,7 +402,6 @@ class OrderViewWidget extends StatelessWidget {
         'https://jordancarpart.com/Api/getItemsFromOrders.php?order_id=$orderId&flag=$flag');
 
     try {
-      // استخدام GET بدلاً من POST
       final response = await http.get(
         url,
         headers: {

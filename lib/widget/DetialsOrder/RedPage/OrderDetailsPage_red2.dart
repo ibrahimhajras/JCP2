@@ -18,6 +18,12 @@ class OrderDetailsPage2 extends StatefulWidget {
 
 class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
   @override
+  void initState() {
+    super.initState();
+    print(widget.items);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
@@ -123,16 +129,11 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                           child: Column(
                             children: widget.items.map(
                               (e) {
-                                Uint8List? decodedImage;
+                                String? imageUrl;
                                 if (e["itemimg64"] != null &&
                                     e["itemimg64"].isNotEmpty) {
-                                  try {
-                                    decodedImage = base64Decode(e["itemimg64"]);
-                                    print(e["itemimg64"].toString().length);
-                                  } catch (err) {
-                                    print(e["itemimg64"].toString().length);
-                                    print("Error decoding base64: $err");
-                                  }
+                                  imageUrl = e["itemimg64"];
+                                  print(imageUrl.toString().length);
                                 }
                                 return Padding(
                                   padding:
@@ -148,37 +149,37 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                       children: [
                                         ListTile(
                                           title: CustomText(
-                                            text: "name",
+                                            text: "اسم / رقم القطعة",
                                             size: 18,
                                             color: black,
                                           ),
                                           subtitle: CustomText(
                                             text: e["itemname"] ?? '',
                                             size: 14,
-                                            color: Colors.blue,
+                                            color: red,
                                           ),
                                         ),
                                         Divider(height: 2),
                                         ListTile(
                                           title: CustomText(
-                                            text: "link",
+                                            text: " (اختياري) رابط القطعة",
                                             size: 18,
                                             color: black,
                                           ),
                                           subtitle: CustomText(
                                             text: e["itemlink"] ?? '',
                                             size: 14,
-                                            color: Colors.blue,
+                                            color: red,
                                           ),
                                         ),
                                         Divider(height: 2),
                                         ListTile(
                                           title: CustomText(
-                                            text: "photo",
+                                            text: "رابط القطعة",
                                             size: 18,
                                             color: black,
                                           ),
-                                          subtitle: decodedImage != null
+                                          subtitle: imageUrl != null
                                               ? Container(
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
@@ -194,8 +195,8 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                                       ),
                                                     ],
                                                   ),
-                                                  child: Image.memory(
-                                                    decodedImage,
+                                                  child: Image.network(
+                                                    "https://jordancarpart.com$imageUrl",
                                                     height: 250,
                                                     width: 350,
                                                     fit: BoxFit.cover,

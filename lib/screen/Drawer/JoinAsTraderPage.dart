@@ -298,7 +298,7 @@ class _TraderPageState extends State<TraderPage> {
           Padding(
             padding: const EdgeInsets.only(right: 6.5),
             child: CustomText(
-              text: "الاسم كامل",
+              text: "ألاسم الكامل",
               size: 18,
             ),
           ),

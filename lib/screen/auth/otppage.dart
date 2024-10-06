@@ -36,7 +36,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
       List.generate(6, (index) => TextEditingController());
   bool isLoading = false;
   Timer? _timer;
-  int _start = 30;
+  int _start = 60;
   String generatedOtp = '';
   bool canResendOtp = false;
 
@@ -57,7 +57,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
   }
 
   void startTimer() {
-    _start = 30;
+    _start = 60;
     canResendOtp = false;
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_start == 0) {

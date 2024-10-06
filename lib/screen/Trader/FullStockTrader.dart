@@ -438,7 +438,7 @@ class _StockViewPageState extends State<StockViewPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        color: Colors.white70,
+        color: Colors.white,
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: DropdownButtonFormField<String>(
@@ -485,8 +485,8 @@ class _StockViewPageState extends State<StockViewPage> {
       child: Container(
         width: size.width * 0.805,
         decoration: BoxDecoration(
-          color: const Color(0xFFE0E0E0),
-          borderRadius: BorderRadius.circular(10),
+          color: white,
+          borderRadius: BorderRadius.circular(0),
           border: Border.all(
             color: Colors.grey,
             width: 1,
@@ -507,11 +507,11 @@ class _StockViewPageState extends State<StockViewPage> {
                         ? Container()
                         : const Icon(
                             Icons.search,
-                            color: Colors.black,
+                            color: Colors.grey,
                           ),
                     CustomText(
                       text: search.text.isEmpty ? "" : search.text,
-                      color: Colors.black,
+                      color: Colors.grey,
                     ),
                   ],
                 ),
@@ -826,8 +826,8 @@ class _StockViewPageState extends State<StockViewPage> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return Container(
-                    width: constraints.maxWidth * 0.9, // ضبط عرض مناسب
-                    height: constraints.maxHeight * 0.5, // ضبط ارتفاع مناسب
+                    width: constraints.maxWidth * 0.9,
+                    height: constraints.maxHeight * 0.5,
                     decoration: BoxDecoration(
                       border: Border.all(
                         width: 7,
@@ -916,13 +916,23 @@ class _StockViewPageState extends State<StockViewPage> {
                               ],
                             ),
                             SizedBox(height: 25),
-                            if (checkboxItem['img'].isNotEmpty)
-                              _buildImageRow(" ", checkboxItem['img'])
-                            else
-                              CustomText(
-                                text: "لا يوجد صورة",
-                                color: words,
-                              ),
+                            FutureBuilder<String>(
+                              future: fetchImageUrl(checkboxItem['id']),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return RotatingImagePage();
+                                } else if (snapshot.hasError) {
+                                  return Text("لا توجد صورة متاحة");
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data == null) {
+                                  return Text("لا توجد صورة متاحة");
+                                } else {
+                                  return _buildImageRow("",
+                                      'https://jordancarpart.com${snapshot.data!}');
+                                }
+                              },
+                            )
                           ],
                         ),
                       ),
@@ -937,16 +947,21 @@ class _StockViewPageState extends State<StockViewPage> {
     );
   }
 
-  Widget _buildImageRow(String label, String? base64Image) {
-    Uint8List? decodedImage;
-    if (base64Image != null && base64Image.isNotEmpty) {
-      try {
-        decodedImage = base64Decode(base64Image);
-      } catch (e) {
-        print("Error decoding base64: $e");
-      }
+  Future<String> fetchImageUrl(int productId) async {
+    final url =
+        Uri.parse('http://jordancarpart.com/Api/getproduct.php?id=$productId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print(data);
+      return data['img'];
+    } else {
+      throw Exception('فشل في تحميل الصورة');
     }
-    final size = MediaQuery.of(context).size;
+  }
+
+  Widget _buildImageRow(String label, String? imageUrl) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -955,27 +970,41 @@ class _StockViewPageState extends State<StockViewPage> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         SizedBox(width: 10),
-        decodedImage != null
+        imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
                 onTap: () {
-                  _showImageDialog(decodedImage!);
+                  _showImageDialog(imageUrl); // تعديل لاستدعاء دالة لعرض الصورة
                 },
-                child: Image.memory(
-                  decodedImage,
+                child: Image.network(
+                  imageUrl,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: RotatingImagePage(),
+                    );
+                  },
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    return Text(
+                      "لا توجد صورة متاحة",
+                      style: TextStyle(fontSize: 16),
+                    );
+                  },
                 ),
               )
             : Text(
-                'لا يوجد صورة',
+                "لا توجد صورة متاحة",
                 style: TextStyle(fontSize: 16),
               ),
       ],
     );
   }
 
-  void _showImageDialog(Uint8List decodedImage) {
+  void _showImageDialog(String imageUrl) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -991,9 +1020,30 @@ class _StockViewPageState extends State<StockViewPage> {
                 color: Colors.white,
               ),
               padding: EdgeInsets.all(10),
-              child: Image.memory(
-                decodedImage,
+              child: Image.network(
+                imageUrl,
                 fit: BoxFit.contain,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                },
+                errorBuilder: (BuildContext context, Object error,
+                    StackTrace? stackTrace) {
+                  return Center(
+                    child: Text(
+                      'خطأ في تحميل الصورة',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                },
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/colors.dart';
@@ -47,7 +48,10 @@ class _LoadingPageState extends State<LoadingPage>
       String type = prefs.getString('type') ?? '';
       String city = prefs.getString('city') ?? '';
       String token = prefs.getString('token') ?? '';
-
+      String createdAtString = prefs.getString('time') ?? '';
+      DateTime createdAt = createdAtString.isNotEmpty
+          ? DateTime.parse(createdAtString)
+          : DateTime.now();
       final profileProvider =
           Provider.of<ProfileProvider>(context, listen: false);
       profileProvider.setuser_id(userId);
@@ -57,6 +61,7 @@ class _LoadingPageState extends State<LoadingPage>
       profileProvider.settype(type);
       profileProvider.setcity(city);
       profileProvider.settoken(token);
+      profileProvider.setcreatedAt(createdAt);
 
       Navigator.pushReplacement(
         context,
