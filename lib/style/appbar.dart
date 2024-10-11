@@ -27,18 +27,18 @@ class AppBarWidget extends StatelessWidget implements PreferredSize {
     return AppBar(
       surfaceTintColor: white,
       title: CustomText(
-        text: title.toUpperCase(),
-        weight: FontWeight.normal,
-        size: 26,
+        text: title,
+        weight: FontWeight.bold, // جعل الخط بولد
+        size: 20, // تصغير حجم الخط
       ),
       centerTitle: true,
       backgroundColor: color ?? primary1,
       actions: widget ?? [],
-      leading: lead ?? null,
+      leading: lead,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(shape != null ? shape! : 0),
+        borderRadius: BorderRadius.circular(shape ?? 0),
       ),
-      elevation: elevation != null ? elevation! : 0,
+      elevation: elevation ?? 0,
       shadowColor: Colors.black,
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/style/colors.dart';
+import 'package:jcp/widget/Inallpage/CustomHeader.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -103,7 +104,7 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      // If you have a Scaffold elsewhere, you might not need this. Adjust accordingly.
+      backgroundColor: white,
       body: Column(
         children: [
           _buildHeader(size),
@@ -188,106 +189,53 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
   }
 
   Widget _buildHeader(Size size) {
-    return Container(
-      height: size.height * 0.2,
-      width: size.width,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xFFB02D2D),
-            Color(0xFFC41D1D),
-            Color(0xFF7D0A0A),
-          ],
-          stops: [0.1587, 0.3988, 0.9722],
-        ),
-        image: DecorationImage(
-          image: AssetImage("assets/images/card.png"),
-          fit: BoxFit.cover,
+    return CustomHeader(
+      size: MediaQuery.of(context).size,
+      title: "الطلبيات",
+      notificationIcon: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NotificationPage(),
+              )).then((_) {
+            _checkForNotifications();
+          });
+        },
+        child: Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(246, 246, 246, 0.26),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Image.asset(
+              hasNewNotification
+                  ? 'assets/images/notification-on.png'
+                  : 'assets/images/notification-off.png',
+            ),
+          ),
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              top: size.height * 0.05,
-              left: 10,
-              right: 10,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NotificationPage(),
-                            )).then((_) {
-                          _checkForNotifications();
-                        });
-                      },
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(246, 246, 246, 0.26),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Image.asset(
-                            hasNewNotification
-                                ? 'assets/images/notification-on.png'
-                                : 'assets/images/notification-off.png',
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Scaffold.of(context).openEndDrawer();
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(246, 246, 246, 0.26),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.menu,
-                        color: Color.fromRGBO(246, 246, 246, 1),
-                      ),
-                    ),
-                  ),
-                )
-              ],
+      menuIcon: GestureDetector(
+        onTap: () {
+          Scaffold.of(context).openEndDrawer();
+        },
+        child: Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(246, 246, 246, 0.26),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Icon(
+              Icons.menu,
+              color: Color.fromRGBO(246, 246, 246, 1),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "الطلبيات",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -320,6 +268,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
 
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: white,
       body: Column(
         children: [
           _buildDetailsHeader(size),

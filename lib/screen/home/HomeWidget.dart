@@ -138,12 +138,11 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   void _initializeServiceAndStartTimer() async {
-    // بدء خدمة الخلفية
     FlutterBackgroundService service = FlutterBackgroundService();
     bool isRunning = await service.isRunning();
 
     if (!isRunning) {
-      service.startService(); // بدء الخدمة
+      service.startService();
     }
     startTimer();
   }
@@ -315,7 +314,7 @@ class _HomeWidgetState extends State<HomeWidget> {
               children: [
                 Container(
                   child: Text(
-                    "لطلب المجاني سيكون بعد 24 ساعة",
+                    "الطلب المجاني سيكون بعد 24 ساعة",
                     style: TextStyle(
                       fontSize: size.width * 0.05,
                     ),
@@ -415,64 +414,79 @@ class _HomeWidgetState extends State<HomeWidget> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: size.width * 0.130,
-                            vertical: size.height * 0.02,
-                          ),
-                          child: ElevatedButton(
-                            onPressed: limitOfOrder > 0
-                                ? () async {
-                                    final url =
-                                        'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}_id&flag=0';
-                                    final headers = {
-                                      'Access-Control-Allow-Headers': '*',
-                                      'Access-Control-Allow-Origin': '*',
-                                      'Content-Type':
-                                          'application/json; charset=UTF-8',
-                                    };
-                                    try {
-                                      final response = await http.get(
-                                        Uri.parse(url),
-                                        headers: headers,
-                                      );
-                                      if (response.statusCode == 200) {
-                                        jsonDecode(response.body);
-                                        SharedPreferences prefs =
-                                            await SharedPreferences
-                                                .getInstance();
-                                        await prefs.setInt('isOrderAllowed', 1);
+                            padding: EdgeInsets.symmetric(
+                              horizontal: size.width * 0.130,
+                              vertical: size.height * 0.02,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: limitOfOrder > 0
+                                  ? () async {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
 
+                                      final url =
+                                          'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}_id&flag=0';
+                                      final headers = {
+                                        'Access-Control-Allow-Headers': '*',
+                                        'Access-Control-Allow-Origin': '*',
+                                        'Content-Type':
+                                            'application/json; charset=UTF-8',
+                                      };
+                                      try {
+                                        final response = await http.get(
+                                          Uri.parse(url),
+                                          headers: headers,
+                                        );
+                                        if (response.statusCode == 200) {
+                                          jsonDecode(response.body);
+                                          SharedPreferences prefs =
+                                              await SharedPreferences
+                                                  .getInstance();
+                                          await prefs.setInt(
+                                              'isOrderAllowed', 1);
+
+                                          setState(() {
+                                            errorMessage = null;
+                                          });
+                                          await _checkForNotifications();
+                                          await _fetchData();
+                                          await _loadOrderAllowed();
+                                        } else {
+                                          print(response.body.toString());
+                                          print('Failed to load data');
+                                        }
+                                      } catch (e) {
+                                        print('Error: $e');
+                                      } finally {
                                         setState(() {
-                                          isLoading = true;
-                                          errorMessage = null;
+                                          isLoading = false;
                                         });
-                                        await _checkForNotifications();
-                                        await _fetchData();
-                                        await _loadOrderAllowed();
-                                      } else {
-                                        print(response.body.toString());
-                                        print('Failed to load data');
                                       }
-                                    } catch (e) {
-                                      print('Error: $e');
                                     }
-                                  }
-                                : null,
-                            child: Text(
-                              'تفعيل',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 15),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  limitOfOrder > 0 ? Colors.green : Colors.grey,
-                              textStyle: TextStyle(fontSize: size.width * 0.01),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                  : null,
+                              child: isLoading
+                                  ? Container(
+                                      child: RotatingImagePage(),
+                                      width: 20,
+                                      height: 20,
+                                    )
+                                  : Text(
+                                      'تفعيل',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 15),
+                                    ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: limitOfOrder > 0
+                                    ? Colors.green
+                                    : Colors.grey,
+                                textStyle:
+                                    TextStyle(fontSize: size.width * 0.01),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            )),
                       ],
                     ),
                   ],
@@ -511,12 +525,24 @@ class _HomeWidgetState extends State<HomeWidget> {
 
         _buildVinField(),
         SizedBox(height: size.height * 0.02), // consistent spacing
-        _buildPartsField("القطعة الاولى", part_1, size),
+        PartsFieldWidget(
+          hintText: "القطعة الاولى",
+          controller: part_1,
+          size: size,
+        ),
         SizedBox(height: size.height * 0.02), // consistent spacing
 
-        _buildPartsField("القطعة الثانيه", part_2, size),
+        PartsFieldWidget(
+          hintText: "القطعة الثانية",
+          controller: part_2,
+          size: size,
+        ),
         SizedBox(height: size.height * 0.02), // consistent spacing
-        _buildPartsField("القطعة الثالثه", part_3, size),
+        PartsFieldWidget(
+          hintText: "القطعة الثالثة",
+          controller: part_3,
+          size: size,
+        ),
         SizedBox(height: size.height * 0.02), // consistent spacing
 
         _buildAdditionalParts(size),
@@ -607,47 +633,6 @@ class _HomeWidgetState extends State<HomeWidget> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPartsField(
-      String hintText, TextEditingController controller, Size size) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: grey,
-        ),
-        child: TextFormField(
-          controller: controller,
-          textAlign: TextAlign.end,
-          maxLength: 30,
-          decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: grey, width: 2),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: grey, width: 2),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: words,
-              fontSize: size.width * 0.04,
-            ),
-            counterText: '', // إزالة العداد
-          ),
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: size.width * 0.04,
-          ),
-        ),
-      ),
     );
   }
 
@@ -829,6 +814,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                     SizedBox(height: size.height * 0.04),
                     MaterialButton(
                       onPressed: () {
+                        setState(() {});
                         Navigator.pop(context);
                       },
                       height: size.height * 0.06,
@@ -867,5 +853,91 @@ class _HomeWidgetState extends State<HomeWidget> {
         cancelText: '',
       );
     }
+  }
+}
+
+class PartsFieldWidget extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final Size size;
+
+  const PartsFieldWidget({
+    Key? key,
+    required this.hintText,
+    required this.controller,
+    required this.size,
+  }) : super(key: key);
+
+  @override
+  _PartsFieldWidgetState createState() => _PartsFieldWidgetState();
+}
+
+class _PartsFieldWidgetState extends State<PartsFieldWidget> {
+  late FocusNode _focusNode;
+  late String currentHintText;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    currentHintText = widget.hintText;
+
+    _focusNode.addListener(() {
+      setState(() {
+        if (_focusNode.hasFocus) {
+          currentHintText = ''; // إخفاء hint عند التركيز
+        } else if (widget.controller.text.isEmpty) {
+          currentHintText = widget.hintText; // إعادة hint إذا كان الحقل فارغًا
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widget.size.width * 0.05),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: grey,
+        ),
+        child: TextFormField(
+          controller: widget.controller,
+          focusNode: _focusNode,
+          textAlign: TextAlign.end,
+          maxLength: 30,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: grey, width: 2),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: grey, width: 2),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            hintText: currentHintText,
+            hintStyle: TextStyle(
+              color: words,
+              fontSize: widget.size.width * 0.04,
+            ),
+            counterText: '', // إزالة العداد
+          ),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: widget.size.width * 0.04,
+          ),
+        ),
+      ),
+    );
   }
 }

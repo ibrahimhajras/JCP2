@@ -7,6 +7,7 @@ import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/style/custom_text.dart';
+import 'package:jcp/widget/Inallpage/CustomHeader.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 
@@ -123,48 +124,17 @@ class _ContactPageState extends State<ContactPage> {
             child: Container(
               child: Column(
                 children: [
-                  Container(
-                    height: size.height * 0.2,
-                    width: size.width,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomRight,
-                        end: Alignment.topLeft,
-                        colors: [
-                          primary1,
-                          primary2,
-                          primary3,
-                        ],
-                      ),
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/card.png"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomText(
-                            text: "تواصل معنا",
-                            color: white,
-                            size: 22,
-                            weight: FontWeight.w700,
-                          ),
-                          SizedBox(width: size.width * 0.2),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 15),
-                            child: IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: white,
-                              ),
-                            ),
-                          ),
-                        ],
+                  CustomHeader(
+                    size: size,
+                    title: "تواصل معنا",
+                    notificationIcon: SizedBox.shrink(),
+                    menuIcon: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -175,36 +145,10 @@ class _ContactPageState extends State<ContactPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         CustomText(text: "الموضوع", size: 18),
-                        Card(
-                          shadowColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          color: white,
-                          child: TextFormField(
-                            maxLines: 1,
-                            controller: _feedBack,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: black,
-                                  width: 1,
-                                ),
-                              ),
-                              hintText: " الموضوع ",
-                              suffixIcon: Icon(
-                                Icons.chat_bubble_outline_rounded,
-                              ),
-                            ),
-                            textAlign: TextAlign.end,
-                            style: TextStyle(
-                              color: black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                              fontFamily: "Tajawal",
-                            ),
-                          ),
+                        CustomHintTextField(
+                          hintText: " الموضوع ",
+                          controller: _feedBack,
+                          maxLines: 1,
                         ),
                       ],
                     ),
@@ -215,32 +159,10 @@ class _ContactPageState extends State<ContactPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         CustomText(text: "الرسالة", size: 18),
-                        Card(
-                          shadowColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          color: white,
-                          child: TextFormField(
-                            maxLines: 10,
-                            controller: _feedMessage,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: BorderSide(
-                                  color: black,
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                            textAlign: TextAlign.end,
-                            style: TextStyle(
-                              color: black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                              fontFamily: "Tajawal",
-                            ),
-                          ),
+                        CustomHintTextField(
+                          hintText: " الرسالة ",
+                          controller: _feedMessage,
+                          maxLines: 10,
                         ),
                       ],
                     ),
@@ -286,6 +208,86 @@ class _ContactPageState extends State<ContactPage> {
           child: RotatingImagePage(), // Use the same rotating image widget
         ),
       ],
+    );
+  }
+}
+
+class CustomHintTextField extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final int maxLines;
+
+  const CustomHintTextField({
+    Key? key,
+    required this.hintText,
+    required this.controller,
+    this.maxLines = 1,
+  }) : super(key: key);
+
+  @override
+  _CustomHintTextFieldState createState() => _CustomHintTextFieldState();
+}
+
+class _CustomHintTextFieldState extends State<CustomHintTextField> {
+  late FocusNode _focusNode;
+  late String currentHintText;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    currentHintText = widget.hintText;
+
+    _focusNode.addListener(() {
+      setState(() {
+        if (_focusNode.hasFocus) {
+          currentHintText = ''; // إخفاء hint عند التركيز
+        } else if (widget.controller.text.isEmpty) {
+          currentHintText = widget.hintText; // إعادة hint إذا كان الحقل فارغًا
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shadowColor: Colors.black,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      color: Colors.white,
+      child: TextFormField(
+        controller: widget.controller,
+        focusNode: _focusNode,
+        maxLines: widget.maxLines,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: Colors.black,
+              width: 1,
+            ),
+          ),
+          hintText: currentHintText,
+          suffixIcon: widget.maxLines == 1
+              ? Icon(Icons.chat_bubble_outline_rounded)
+              : null,
+        ),
+        textAlign: TextAlign.end,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+          fontFamily: "Tajawal",
+        ),
+      ),
     );
   }
 }

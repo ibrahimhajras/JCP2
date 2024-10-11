@@ -10,6 +10,7 @@ import 'package:jcp/provider/OrderProvider.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:jcp/screen/Drawer/ContactPage.dart';
+import 'package:jcp/screen/Drawer/JoinAsTraderPage.dart';
 import 'package:jcp/screen/Drawer/OurViewPage.dart';
 import 'package:jcp/screen/Trader/AddProductTraderPage.dart';
 import 'package:jcp/screen/Trader/EditStockWidget.dart';
@@ -222,6 +223,35 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         CustomText(
+                          text: "أنضم كتاجر",
+                          size: 16,
+                        ),
+                        SizedBox(width: 10),
+                        Image.asset(
+                          "assets/images/handshake.png",
+                          height: 30,
+                          width: 30,
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TraderPage(),
+                        ));
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CustomText(
                           text: "رؤيتنا",
                           size: 16,
                         ),
@@ -301,14 +331,14 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                       );
                     },
                     child: Container(
-                      height: 30,
+                      height: 35,
                       width: 30,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
                         child: SvgPicture.asset(
-                          'assets/svg/whatsapp.svg',
+                          'assets/svg/insta.svg',
                           height: 30,
                           width: 30,
                           colorFilter: ColorFilter.mode(black, BlendMode.srcIn),
@@ -414,7 +444,6 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Expanded(
-              // Use Expanded or Flexible here
               child: MaterialButton(
                 onPressed: () {
                   setState(() {

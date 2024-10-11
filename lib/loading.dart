@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../../provider/ProfileProvider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoadingPage extends StatefulWidget {
   @override
@@ -36,37 +37,136 @@ class _LoadingPageState extends State<LoadingPage>
     });
   }
 
+  void showCustomDialog({
+    required BuildContext context,
+    required String message,
+    required String confirmText,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color.fromRGBO(255, 255, 255, 1),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    message,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                ElevatedButton(
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        (Route<dynamic> route) => false,
+                      );
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    confirmText,
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> checkUserPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     bool rememberMe = prefs.getBool('rememberMe') ?? false;
 
     if (rememberMe) {
       String userId = prefs.getString('userId') ?? '';
-      String phone = prefs.getString('phone') ?? '';
-      String password = prefs.getString('password') ?? '';
-      String name = prefs.getString('name') ?? '';
-      String type = prefs.getString('type') ?? '';
-      String city = prefs.getString('city') ?? '';
-      String token = prefs.getString('token') ?? '';
-      String createdAtString = prefs.getString('time') ?? '';
-      DateTime createdAt = createdAtString.isNotEmpty
-          ? DateTime.parse(createdAtString)
-          : DateTime.now();
-      final profileProvider =
-          Provider.of<ProfileProvider>(context, listen: false);
-      profileProvider.setuser_id(userId);
-      profileProvider.setphone(phone);
-      profileProvider.setpassword(password);
-      profileProvider.setname(name);
-      profileProvider.settype(type);
-      profileProvider.setcity(city);
-      profileProvider.settoken(token);
-      profileProvider.setcreatedAt(createdAt);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+      final response = await http.get(
+        Uri.parse('http://jordancarpart.com/Api/TypeUser.php?user_id=$userId'),
       );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data['status'] == 'success') {
+          int userType = data['type'];
+
+          if (userType == 0) {
+            await prefs.clear();
+            showCustomDialog(
+              context: context,
+              message:
+                  'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
+              confirmText: 'حسناً',
+            );
+          } else {
+            String phone = prefs.getString('phone') ?? '';
+            String password = prefs.getString('password') ?? '';
+            String name = prefs.getString('name') ?? '';
+            String city = prefs.getString('city') ?? '';
+            String token = prefs.getString('token') ?? '';
+            String createdAtString = prefs.getString('time') ?? '';
+            DateTime createdAt = createdAtString.isNotEmpty
+                ? DateTime.parse(createdAtString)
+                : DateTime.now();
+            final profileProvider =
+                Provider.of<ProfileProvider>(context, listen: false);
+            profileProvider.setuser_id(userId);
+            profileProvider.setphone(phone);
+            profileProvider.setpassword(password);
+            profileProvider.setname(name);
+            profileProvider.settype(userType.toString());
+            profileProvider.setcity(city);
+            profileProvider.settoken(token);
+            profileProvider.setcreatedAt(createdAt);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          }
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        }
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
     } else {
       await prefs.clear();
       Navigator.pushReplacement(
@@ -93,11 +193,11 @@ class _LoadingPageState extends State<LoadingPage>
               begin: Alignment.bottomRight,
               end: Alignment.topLeft,
               colors: [
-                Color(0xFFEA3636), // اللون الأول
-                Color(0xFFC41D1D), // اللون الثاني
-                Color(0xFF7D0A0A), // اللون الثالث
+                Color(0xFFEA3636),
+                Color(0xFFC41D1D),
+                Color(0xFF7D0A0A),
               ],
-              stops: [0.1587, 0.3988, 0.9722], // النسب المئوية من CSS
+              stops: [0.1587, 0.3988, 0.9722],
             ),
             image: DecorationImage(
               image: AssetImage("assets/images/card.png"),

@@ -162,6 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                   fontFamily: "Tajawal",
                   fontWeight: FontWeight.w100,
                 ),
+                contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
               ),
               flagsButtonMargin: const EdgeInsets.only(right: 5),
               disableAutoFillHints: true,
@@ -440,18 +441,33 @@ class _LoginPageState extends State<LoginPage> {
       if (responseData['status'] == 'success') {
         final userData = responseData['user'];
         UserModel user = UserModel.fromJson(userData);
+        print(user.type);
+        if (user.type == "0") {
+          showConfirmationDialog(
+            context: context,
+            message: 'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+            cancelText: '',
+          );
+        } else if (user.type == "3") {
+          showConfirmationDialog(
+            context: context,
+            message: 'لا يمكن الدخول باستخدام هذا الحساب.',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+            cancelText: '',
+          );
+        } else if (user.type == "1" || user.type == "2") {
+          profileProvider.setuser_id(user.userId);
+          profileProvider.setphone(user.phone);
+          profileProvider.setname(user.name);
+          profileProvider.setpassword(user.password);
+          profileProvider.settype(user.type);
+          profileProvider.setcity(user.city);
+          profileProvider.setcreatedAt(user.createdAt);
+          profileProvider.settoken(user.token);
 
-        profileProvider.setuser_id(user.userId);
-        profileProvider.setphone(user.phone);
-        profileProvider.setname(user.name);
-        profileProvider.setpassword(user.password);
-        profileProvider.settype(user.type);
-        profileProvider.setcity(user.city);
-        profileProvider.setcreatedAt(user.createdAt);
-        profileProvider.settoken(user.token);
-
-        final userId = profileProvider.getuser_id();
-        if (userId.isNotEmpty && int.tryParse(userId) != null) {
           await saveUserPreferences(
             profileProvider.getuser_id(),
             profileProvider.getname(),
@@ -469,7 +485,7 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           showConfirmationDialog(
             context: context,
-            message: 'فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.',
+            message: 'حساب غير صالح.',
             confirmText: 'حسناً',
             onConfirm: () {},
             cancelText: '',
@@ -485,7 +501,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      print(e.toString()); // تسجيل الخطأ لأغراض التصحيح
+      print(e.toString());
       showConfirmationDialog(
         context: context,
         message: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
@@ -494,7 +510,6 @@ class _LoginPageState extends State<LoginPage> {
         cancelText: '',
       );
     } finally {
-      // إنهاء حالة التحميل
       setState(() {
         isLoading = false;
       });

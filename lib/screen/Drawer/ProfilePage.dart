@@ -235,6 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
                           ),
+                          contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
                         ),
                         flagsButtonMargin: EdgeInsets.only(right: 5),
                         disableAutoFillHints: true,

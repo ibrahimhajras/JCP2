@@ -249,7 +249,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildInputFields(Size size) {
     return Column(
       children: [
-        // Name fields
         Row(
           children: [
             Expanded(
@@ -277,17 +276,25 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         buildPhoneField(),
         buildCityField(),
-        buildPasswordField(password, "كلمة المرور", passHint, ob, (val) {
-          setState(() {
-            ob = val;
-          });
-        }),
-        buildPasswordField(
-            confirmPassword, "تأكيد كلمة المرور", passConfirmHint, ob1, (val) {
-          setState(() {
-            ob1 = val;
-          });
-        }),
+        Padding(
+          padding: const EdgeInsets.all(15.0),
+          child:
+              buildPasswordField(password, "كلمة المرور", passHint, ob, (val) {
+            setState(() {
+              ob = val;
+            });
+          }),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15.0),
+          child: buildPasswordField(
+              confirmPassword, "تأكيد كلمة المرور", passConfirmHint, ob1,
+              (val) {
+            setState(() {
+              ob1 = val;
+            });
+          }),
+        )
       ],
     );
   }
@@ -392,6 +399,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   fontFamily: "Tajawal",
                   fontWeight: FontWeight.w100,
                 ),
+                contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
               ),
               flagsButtonMargin: EdgeInsets.only(right: 5),
               disableAutoFillHints: true,

@@ -372,22 +372,24 @@ class _StockViewPageState extends State<StockViewPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => TraderInfoPage()));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: white,
+                Visibility(
+                  visible: false, // اجعلها false لإخفاء العنصر
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TraderInfoPage()));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-                SizedBox(width: size.width * 0.26),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -405,7 +407,21 @@ class _StockViewPageState extends State<StockViewPage> {
                     ),
                   ],
                 ),
-                Spacer(), // هذا لإبقاء النص في الوسط والمحافظة على التنسيق
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TraderInfoPage()));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

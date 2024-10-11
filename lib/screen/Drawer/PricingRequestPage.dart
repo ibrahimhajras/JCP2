@@ -6,6 +6,7 @@ import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/style/custom_text.dart';
+import 'package:jcp/widget/Inallpage/CustomHeader.dart';
 import 'dart:convert';
 
 import 'package:provider/provider.dart';
@@ -71,41 +72,17 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
         child: Container(
           child: Column(
             children: [
-              Container(
-                height: size.height * 0.2,
-                width: size.width,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomRight,
-                    end: Alignment.topLeft,
-                    colors: [primary1, primary2, primary3],
-                  ),
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/card.png"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomText(
-                        text: "طلب تسعير",
-                        color: white,
-                        size: 22,
-                        weight: FontWeight.w700,
-                      ),
-                      SizedBox(width: size.width * 0.27),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: white,
-                        ),
-                      ),
-                    ],
+              CustomHeader(
+                size: size,
+                title: "تفعيل طلب تسعير",
+                notificationIcon: SizedBox.shrink(),
+                menuIcon: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -135,6 +112,7 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
                         text: "هذا القسم مخصص للتسعير المدفوع",
                         size: 16,
                         textAlign: TextAlign.center,
+                        weight: FontWeight.bold,
                       ),
                       SizedBox(height: 10),
                       CustomText(

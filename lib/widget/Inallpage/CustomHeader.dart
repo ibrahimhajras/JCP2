@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 
 class CustomHeader extends StatelessWidget {
   final Size size;
   final String title;
+  final String? subtitle; // إضافة حقل لاختياري لعرض اسم المستخدم
   final Widget notificationIcon;
   final Widget menuIcon;
 
@@ -13,6 +13,7 @@ class CustomHeader extends StatelessWidget {
     Key? key,
     required this.size,
     required this.title,
+    this.subtitle, // الحقل الجديد لعرض الاسم
     required this.notificationIcon,
     required this.menuIcon,
   }) : super(key: key);
@@ -56,10 +57,28 @@ class CustomHeader extends StatelessWidget {
           ),
           SizedBox(height: size.height * 0.02),
           Center(
-            child: CustomText(
-              text: title,
-              color: Color.fromRGBO(255, 255, 255, 1),
-              size: size.width * 0.05,
+            child: Column(
+              children: [
+                CustomText(
+                  text: title,
+                  color: Color.fromRGBO(255, 255, 255, 1),
+                  size: size.width * 0.06,
+                  weight: FontWeight.w900,
+                ),
+                if (subtitle != null &&
+                    subtitle!
+                        .isNotEmpty) // عرض subtitle إذا كانت موجودة وليست فارغة
+                  Column(
+                    children: [
+                      SizedBox(height: 5),
+                      CustomText(
+                        text: subtitle!,
+                        color: Color.fromRGBO(255, 255, 255, 1),
+                        size: size.width * 0.05,
+                      ),
+                    ],
+                  ),
+              ],
             ),
           ),
         ],

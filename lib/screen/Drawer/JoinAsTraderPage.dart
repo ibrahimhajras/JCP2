@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/helper/snack_bar.dart';
 import 'package:jcp/screen/home/homeuser.dart';
+import 'package:jcp/widget/Inallpage/CustomHeader.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:http/http.dart' as http;
 import '../../style/colors.dart';
@@ -115,50 +116,17 @@ class _TraderPageState extends State<TraderPage> {
         children: [
           Column(
             children: [
-              Container(
-                height: size.height * 0.2,
-                width: size.width,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomRight,
-                    end: Alignment.topLeft,
-                    colors: [
-                      primary1,
-                      primary2,
-                      primary3,
-                    ],
-                  ),
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/card.png"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomText(
-                        text: "انضم كتاجر",
-                        color: white,
-                        size: 22,
-                        weight: FontWeight.w700,
-                      ),
-                      SizedBox(
-                        width: size.width * 0.25,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 15),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: white,
-                          ),
-                        ),
-                      ),
-                    ],
+              CustomHeader(
+                size: size,
+                title: "انضم كتاجر",
+                notificationIcon: SizedBox.shrink(),
+                menuIcon: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -298,7 +266,7 @@ class _TraderPageState extends State<TraderPage> {
           Padding(
             padding: const EdgeInsets.only(right: 6.5),
             child: CustomText(
-              text: "ألاسم الكامل",
+              text: "الاسم الكامل",
               size: 18,
             ),
           ),

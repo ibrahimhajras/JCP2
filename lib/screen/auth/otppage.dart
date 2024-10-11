@@ -44,6 +44,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
   void initState() {
     super.initState();
     generateAndStoreOtp();
+    listenForCode(); // تفعيل الاستماع للكود
     startTimer();
   }
 
@@ -173,55 +174,56 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                     Padding(
                       padding: EdgeInsets.symmetric(
                           vertical: size.height * 0.015,
-                          horizontal: size.width * 0.12),
+                          horizontal: size.width * 0.006),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(6, (index) {
                           return Flexible(
-                            // استخدام Flexible لمنع تجاوز العرض
                             child: SizedBox(
-                              width: size.width * 0.1,
-                              child: TextFormField(
-                                controller: otpControllers[index],
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                maxLength: 1,
-                                decoration: InputDecoration(
-                                  counterText: '',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide:
-                                        BorderSide(color: red, width: 2),
+                                width: size.width * 0.9,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: TextFormField(
+                                    controller: otpControllers[index],
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    maxLength: 1,
+                                    decoration: InputDecoration(
+                                      counterText: '',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide:
+                                            BorderSide(color: red, width: 2),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide:
+                                            BorderSide(color: red, width: 2),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                            color: Colors.black12, width: 1),
+                                      ),
+                                      hintText: "-",
+                                      hintStyle: TextStyle(
+                                          color: Colors.grey.shade600),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: size.height * 0.030),
+                                    ),
+                                    onChanged: (value) {
+                                      if (value.length == 1) {
+                                        if (index < 5) {
+                                          FocusScope.of(context).nextFocus();
+                                        } else {
+                                          _verifyOtp();
+                                        }
+                                      } else if (value.isEmpty && index > 0) {
+                                        FocusScope.of(context).previousFocus();
+                                      }
+                                    },
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide:
-                                        BorderSide(color: red, width: 2),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                        color: Colors.grey.shade400, width: 2),
-                                  ),
-                                  hintText: "-",
-                                  hintStyle:
-                                      TextStyle(color: Colors.grey.shade600),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: size.height * 0.015),
-                                ),
-                                onChanged: (value) {
-                                  if (value.length == 1) {
-                                    if (index < 5) {
-                                      FocusScope.of(context).nextFocus();
-                                    } else {
-                                      _verifyOtp();
-                                    }
-                                  } else if (value.isEmpty && index > 0) {
-                                    FocusScope.of(context).previousFocus();
-                                  }
-                                },
-                              ),
-                            ),
+                                )),
                           );
                         }),
                       ),
@@ -351,14 +353,20 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
         context: context,
         message: "الرمز الذي أدخلته غير صحيح.",
         confirmText: "حسناً",
-        onConfirm: () {
-          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
+        cancelText: '',
       );
     }
   }
 
   @override
-  void codeUpdated() {}
+  void codeUpdated() {
+    setState(() {
+      for (int i = 0;
+          i < generatedOtp.length && i < otpControllers.length;
+          i++) {
+        otpControllers[i].text = generatedOtp[i];
+      }
+    });
+  }
 }

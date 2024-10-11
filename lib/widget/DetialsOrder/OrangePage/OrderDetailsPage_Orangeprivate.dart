@@ -124,17 +124,22 @@ class _OrderDetailsPageState_OrangePrivate
     );
   }
 
-  void _showImageDialog(String base64String) {
+  void _showImageDialog(String imageUrl) {
+    String fullUrl = "https://jordancarpart.com$imageUrl";
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          content: base64String.isNotEmpty
-              ? Image.memory(
-                  base64Decode(base64String),
+          content: fullUrl.isNotEmpty
+              ? Image.network(
+                  fullUrl,
                   height: 250,
                   width: 350,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Text('فشل في تحميل الصورة');
+                  },
                 )
               : Text('لا توجد صورة متاحة'),
           actions: [

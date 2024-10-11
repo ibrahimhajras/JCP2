@@ -9,6 +9,7 @@ import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:jcp/screen/Trader/homeTrader.dart';
 import 'package:jcp/widget/Inallpage/CustomButton.dart';
+import 'package:jcp/widget/Inallpage/CustomHeader.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:provider/provider.dart';
@@ -233,16 +234,16 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             style: TextStyle(color: Colors.black, fontSize: sizeFactor * 12),
           ),
           SizedBox(height: sizeFactor * 10),
-          buildTextField(
-            sizeFactor,
-            priceControllers[index],
-            'السعر',
+          CustomTextField(
+            sizeFactor: sizeFactor,
+            controller: priceControllers[index],
+            hintText: 'السعر',
             isEnabled: checkboxStates[index],
           ),
-          buildTextField(
-            sizeFactor,
-            amountControllers[index],
-            'الكمية',
+          CustomTextField(
+            sizeFactor: sizeFactor,
+            controller: amountControllers[index],
+            hintText: 'الكمية',
             isEnabled: checkboxStates[index],
           ),
           Padding(
@@ -277,46 +278,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         ModalBarrier(color: Colors.black54, dismissible: false),
         Center(child: RotatingImagePage()),
       ],
-    );
-  }
-
-  Widget buildTextField(
-    double sizeFactor,
-    TextEditingController controller,
-    String hintText, {
-    bool isEnabled = true,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: sizeFactor * 8.0),
-      child: Container(
-        width: sizeFactor * 50,
-        height: sizeFactor * 50,
-        decoration: BoxDecoration(
-          color: isEnabled ? white : grey,
-          boxShadow: [
-            BoxShadow(
-              color: isEnabled ? black : grey,
-              spreadRadius: 1,
-              blurRadius: 1,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: sizeFactor * 0.0),
-          child: TextField(
-            enabled: isEnabled,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hintText,
-              hintStyle: TextStyle(fontSize: sizeFactor * 12),
-              contentPadding: EdgeInsets.zero,
-            ),
-            textAlign: TextAlign.center,
-            controller: controller,
-          ),
-        ),
-      ),
     );
   }
 
@@ -424,56 +385,19 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   }
 
   Widget buildHeader(Size size) {
-    return Container(
-      height: size.height * 0.2,
-      width: size.width,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xFFB02D2D),
-            Color(0xFFC41D1D),
-            Color(0xFF7D0A0A),
-          ],
-          stops: [0.1587, 0.3988, 0.9722],
+    return CustomHeader(
+      size: size,
+      title: "إضافة معلومات قطعة",
+      notificationIcon: SizedBox.shrink(),
+      menuIcon: IconButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        icon: Icon(
+          Icons.arrow_forward_ios_rounded,
+          color: white,
+          size: size.width * 0.06,
         ),
-        image: DecorationImage(
-          image: AssetImage("assets/images/card.png"),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            child: Center(
-              child: CustomText(
-                text: "إضافة معلومات قطعة",
-                color: Colors.white,
-                size: size.height * 0.025,
-              ),
-            ),
-          ),
-          Positioned(
-            top: size.height * 0.09,
-            left: size.width * 0.03,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TraderInfoPage(),
-                  ),
-                );
-              },
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: white,
-                size: size.width * 0.07,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -488,8 +412,12 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            buildTextInput(
-                "إسم القطعة", name, "مثال: كفه أمامية سفلية يمين", sizeFactor),
+            TextInputWidget(
+              label: "إسم القطعة",
+              controller: name,
+              hint: "مثال: كفه أمامية سفلية يمين",
+              sizeFactor: 1.0, // أو أي قيمة تلائم حجم الشاشة
+            ),
             buildDropdownRow(
                 [fuelTypeList, Category, NameCar], [0, 1, 2], sizeFactor),
             buildDropdownRow([engineSizeList, toYearList, fromYearList],
@@ -603,8 +531,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                           child: TextFormField(
                             controller: warrantyControllers[index],
                             textDirection: TextDirection.rtl,
-                            keyboardType:
-                                TextInputType.number, // تعيين كيبورد الأرقام
+                            keyboardType: TextInputType.number,
                             textAlign: TextAlign.right,
                             decoration: InputDecoration(
                               labelText: 'بالأشهر',
@@ -633,7 +560,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                             textAlign: TextAlign.right,
                             decoration: InputDecoration(
                               labelText: 'مثال:',
-                              hintText: 'العلامة التجارية',
                               border: OutlineInputBorder(),
                             ),
                             style: TextStyle(fontFamily: 'Tajawal'),
@@ -749,45 +675,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     }
   }
 
-  Widget buildTextInput(String label, TextEditingController controller,
-      String hint, double sizeFactor) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: sizeFactor * 25),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(right: sizeFactor * 6.5),
-            child: CustomText(
-              text: label,
-              size: sizeFactor * 18,
-            ),
-          ),
-          Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(sizeFactor * 10)),
-            shadowColor: Colors.black,
-            color: Colors.white,
-            child: TextFormField(
-              textAlign: TextAlign.center,
-              controller: controller,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: hint,
-                  hintStyle: TextStyle(color: Color(0xFF8D8D92))),
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
-                fontSize: sizeFactor * 16,
-                fontFamily: "Tajawal",
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget buildDropdownRow(List<List<String>> options, List<int> selectedIndices,
       double sizeFactor) {
     return Padding(
@@ -840,6 +727,172 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+}
+
+class TextInputWidget extends StatefulWidget {
+  final String label;
+  final TextEditingController controller;
+  final String hint;
+  final double sizeFactor;
+
+  const TextInputWidget({
+    Key? key,
+    required this.label,
+    required this.controller,
+    required this.hint,
+    required this.sizeFactor,
+  }) : super(key: key);
+
+  @override
+  _TextInputWidgetState createState() => _TextInputWidgetState();
+}
+
+class _TextInputWidgetState extends State<TextInputWidget> {
+  late FocusNode _focusNode;
+  late String currentHint;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    currentHint = widget.hint;
+
+    _focusNode.addListener(() {
+      setState(() {
+        if (_focusNode.hasFocus) {
+          currentHint = ''; // إخفاء النص التلميحي عند التركيز
+        } else if (widget.controller.text.isEmpty) {
+          currentHint = widget.hint; // إعادة النص التلميحي إذا كان الحقل فارغًا
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: widget.sizeFactor * 25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: widget.sizeFactor * 6.5),
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                fontSize: widget.sizeFactor * 18,
+              ),
+            ),
+          ),
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(widget.sizeFactor * 10),
+            ),
+            shadowColor: Colors.black,
+            color: Colors.white,
+            child: TextFormField(
+              textAlign: TextAlign.center,
+              controller: widget.controller,
+              focusNode: _focusNode,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: currentHint, // استخدام currentHint المتحكم فيه
+                hintStyle: TextStyle(color: Color(0xFF8D8D92)),
+              ),
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w500,
+                fontSize: widget.sizeFactor * 16,
+                fontFamily: "Tajawal",
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomTextField extends StatefulWidget {
+  final double sizeFactor;
+  final TextEditingController controller;
+  final String hintText;
+  final bool isEnabled;
+
+  const CustomTextField({
+    Key? key,
+    required this.sizeFactor,
+    required this.controller,
+    required this.hintText,
+    this.isEnabled = true,
+  }) : super(key: key);
+
+  @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.sizeFactor * 8.0),
+      child: Container(
+        width: widget.sizeFactor * 50,
+        height: widget.sizeFactor * 50,
+        decoration: BoxDecoration(
+          color: widget.isEnabled ? Colors.white : Colors.white70,
+          boxShadow: [
+            BoxShadow(
+              color: widget.isEnabled ? Colors.black : Colors.grey,
+              spreadRadius: 1,
+              blurRadius: 1,
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: widget.sizeFactor * 0.0),
+          child: TextField(
+            focusNode: _focusNode,
+            enabled: widget.isEnabled,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: _focusNode.hasFocus ? '' : widget.hintText,
+              hintStyle: TextStyle(
+                  fontSize: widget.sizeFactor * 12,
+                  color: widget.isEnabled ? Colors.black : Colors.grey),
+              contentPadding: EdgeInsets.zero,
+            ),
+            textAlign: TextAlign.center,
+            controller: widget.controller,
+          ),
+        ),
       ),
     );
   }

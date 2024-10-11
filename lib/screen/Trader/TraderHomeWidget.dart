@@ -119,10 +119,23 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
                               builder: (context) => StockViewPage()),
                         );
                       },
-                      child: CustomText(
-                        text: "كامل المخزن",
-                        color: red,
-                        textDirection: TextDirection.rtl,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CustomText(
+                            text: "كامل المخزن",
+                            color: red,
+                            textDirection: TextDirection.rtl,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            child: Container(
+                              width: 80,
+                              height: 1.5,
+                              color: red,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -170,6 +183,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
               text: user.name,
               color: Color.fromRGBO(255, 255, 255, 1),
               size: 22,
+              weight: FontWeight.bold,
             ),
           ),
         ],

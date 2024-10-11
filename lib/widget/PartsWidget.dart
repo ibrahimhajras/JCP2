@@ -20,6 +20,8 @@ class PartsWidget extends StatefulWidget {
 class _PartsWidgetState extends State<PartsWidget> {
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Container(
       height: 65,
       child: Padding(
@@ -69,16 +71,12 @@ class _PartsWidgetState extends State<PartsWidget> {
                   hintText: "قطعة الجديدة",
                   hintStyle: TextStyle(
                     color: words,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                    fontFamily: "Tajawal",
+                    fontSize: size.width * 0.04,
                   ),
                 ),
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "Tajawal",
+                  fontSize: size.width * 0.04,
                 ),
               ),
             ),

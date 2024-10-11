@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/model/OrderModel.dart';
-import 'package:jcp/provider/OrderProvider.dart';
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/widget/OrderViewWidget.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
@@ -12,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../provider/ProfileProvider.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
-import '../../widget/Inallpage/NotificationIcon.dart';
 
 class OrderWidget extends StatefulWidget {
   const OrderWidget({super.key});
@@ -24,6 +22,7 @@ class OrderWidget extends StatefulWidget {
 class _OrderWidgetState extends State<OrderWidget> {
   bool check = true;
   bool check2 = false;
+  bool hasNewNotification = false;
 
   Stream<List<OrderModel>> orderStream(
       BuildContext context, String userId) async* {
@@ -69,6 +68,13 @@ class _OrderWidgetState extends State<OrderWidget> {
       print('Error fetching orders: $e');
       return [];
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _checkForNotifications();
   }
 
   @override
@@ -119,19 +125,31 @@ class _OrderWidgetState extends State<OrderWidget> {
   }
 
   Widget _buildNotificationIcon(Size size) {
-    return NotificationIcon(
-      size: size,
-      check: check2,
+    return GestureDetector(
       onTap: () {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => NotificationPage(),
-          ),
-        ).then((_) {
+            context,
+            MaterialPageRoute(
+              builder: (context) => NotificationPage(),
+            )).then((_) {
           _checkForNotifications();
         });
       },
+      child: Container(
+        height: size.width * 0.1,
+        width: size.width * 0.1,
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(246, 246, 246, 0.26),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Image.asset(
+            hasNewNotification
+                ? 'assets/images/notification-on.png'
+                : 'assets/images/notification-off.png',
+          ),
+        ),
+      ),
     );
   }
 
@@ -156,10 +174,8 @@ class _OrderWidgetState extends State<OrderWidget> {
     bool hasUnread =
         notificationList.any((notification) => notification['isRead'] == false);
 
-    if (mounted) {
-      setState(() {
-        check2 = hasUnread;
-      });
-    }
+    setState(() {
+      hasNewNotification = hasUnread;
+    });
   }
 }

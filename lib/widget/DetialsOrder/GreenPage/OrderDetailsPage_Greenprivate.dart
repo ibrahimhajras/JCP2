@@ -24,16 +24,16 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
           child: Column(
             children: [
               _buildHeader(size, context),
-              SizedBox(height: 16),
-              _buildSectionTitle("العناصر المختارة"),
-              ..._buildSelectedItemsList(),
-              SizedBox(height: 16),
-              _buildSectionTitle("تفاصيل الطلب"),
-              _buildOrderDetails(),
-              SizedBox(height: 16),
-              _buildSectionTitle("المجموع الكلي"),
-              _buildTotalCost(),
-              SizedBox(height: 16),
+              SizedBox(height: size.height * 0.02),
+              _buildSectionTitle("العناصر المختارة", size),
+              ..._buildSelectedItemsList(size),
+              SizedBox(height: size.height * 0.02),
+              _buildSectionTitle("تفاصيل الطلب", size),
+              _buildOrderDetails(size),
+              SizedBox(height: size.height * 0.02),
+              _buildSectionTitle("المجموع الكلي", size),
+              _buildTotalCost(size),
+              SizedBox(height: size.height * 0.02),
             ],
           ),
         ),
@@ -49,7 +49,7 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
-          colors: [Colors.black!, Colors.grey!],
+          colors: [Colors.black, Colors.grey],
         ),
         image: DecorationImage(
           image: AssetImage("assets/images/card.png"),
@@ -63,11 +63,11 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
             CustomText(
               text: "تفاصيل الطلب",
               color: Colors.white,
-              size: 22,
+              size: size.height * 0.03,
             ),
             SizedBox(width: size.width * 0.2),
             Padding(
-              padding: const EdgeInsets.only(right: 15),
+              padding: EdgeInsets.only(right: size.width * 0.04),
               child: IconButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -84,15 +84,15 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, Size size) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
       child: Align(
         alignment: Alignment.centerRight,
         child: Text(
           title,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: size.height * 0.025,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -101,15 +101,16 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildSelectedItemsList() {
+  List<Widget> _buildSelectedItemsList(Size size) {
     return items.map<Widget>((item) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.04, vertical: size.height * 0.01),
         child: Container(
-          padding: EdgeInsets.all(12),
+          padding: EdgeInsets.all(size.width * 0.03),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(size.width * 0.02),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.3),
@@ -121,14 +122,15 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildDetailRow("اسم العنصر:", item["itemname"].toString()),
-              _buildDetailRow("رابط العنصر:", item["itemlink"].toString()),
-              SizedBox(height: 10),
+              _buildDetailRow("اسم العنصر:", item["itemname"].toString(), size),
+              _buildDetailRow(
+                  "رابط العنصر:", item["itemlink"].toString(), size),
+              SizedBox(height: size.height * 0.01),
               if (item["itemimg64"] != null && item["itemimg64"].isNotEmpty)
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(size.width * 0.1),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.3),
@@ -137,11 +139,14 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Image.memory(
-                    base64Decode(item["itemimg64"]),
-                    width: 150,
-                    height: 150,
+                  child: Image.network(
+                    "https://jordancarpart.com${item["itemimg64"]}",
+                    width: size.width * 0.4,
+                    height: size.height * 0.2,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(child: Text('فشل في تحميل الصورة'));
+                    },
                   ),
                 )
               else
@@ -153,14 +158,14 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
     }).toList();
   }
 
-  Widget _buildOrderDetails() {
+  Widget _buildOrderDetails(Size size) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(size.width * 0.03),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(size.width * 0.02),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.3),
@@ -172,21 +177,23 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow("رقم الطلب:", "${orderData["orderid"]}"),
-            _buildDetailRow("تاريخ الطلب:", "${orderData["timeorder"]}"),
-            _buildDetailRow("سعر القطعه:", "${orderData["productCost"]}"),
-            _buildDetailRow(": تكيفه الجمارك", "${orderData["customs"]}"),
-            _buildDetailRow("وقت التوصيل:", "${orderData["deliveryTime"]}"),
-            _buildDetailRow("الملاحضات:", "${orderData["additionalNote"]}"),
+            _buildDetailRow("رقم الطلب:", "${orderData["orderid"]}", size),
+            _buildDetailRow("تاريخ الطلب:", "${orderData["timeorder"]}", size),
+            _buildDetailRow("سعر القطعة:", "${orderData["productCost"]}", size),
+            _buildDetailRow("تكلفة الجمارك:", "${orderData["customs"]}", size),
+            _buildDetailRow(
+                "وقت التوصيل:", "${orderData["deliveryTime"]}", size),
+            _buildDetailRow(
+                "الملاحظات:", "${orderData["additionalNote"]}", size),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String title, String value) {
+  Widget _buildDetailRow(String title, String value, Size size) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: EdgeInsets.only(bottom: size.height * 0.01),
       child: Row(
         children: [
           Text(
@@ -194,14 +201,16 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.black,
+              fontSize: size.height * 0.02,
             ),
           ),
-          SizedBox(width: 8),
+          SizedBox(width: size.width * 0.02),
           Expanded(
             child: Text(
               value,
               style: TextStyle(
                 color: Colors.black87,
+                fontSize: size.height * 0.018,
               ),
             ),
           ),
@@ -210,14 +219,14 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
     );
   }
 
-  Widget _buildTotalCost() {
+  Widget _buildTotalCost(Size size) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(size.width * 0.03),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(size.width * 0.02),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.3),
@@ -230,7 +239,7 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDetailRow(
-                "المجموع الكلي:", "${orderData["totalCost"]} دينار"),
+                "المجموع الكلي:", "${orderData["totalCost"]} دينار", size),
           ],
         ),
       ),

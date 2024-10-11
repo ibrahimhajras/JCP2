@@ -236,6 +236,7 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                             fontSize: 18,
                             fontFamily: "Tajawal",
                           ),
+                          contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
                         ),
                         flagsButtonMargin: EdgeInsets.only(
                           right: 5,
@@ -709,7 +710,11 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                         String modifications1 = select1.toString();
                         String modifications2 = select.toString();
                         String modifications3 = cars.toString();
-
+                        if (widget.trader.master?.contains("تجاري2") == true &&
+                            !select.contains("تجاري2")) {
+                          select.add("تجاري2");
+                          modifications2 = select.toString();
+                        }
                         print("نوع القطع" + modifications1);
                         print("نوع " + modifications2);
                         print("نوع القطع" + modifications3);

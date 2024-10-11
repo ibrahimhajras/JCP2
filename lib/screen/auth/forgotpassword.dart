@@ -59,7 +59,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     height: 30.0,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -78,34 +78,35 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         decoration: InputDecoration(
                           hintText: phoneHint,
                           border: InputBorder.none,
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w100,
                             fontSize: 16,
                           ),
-                          hintStyle: TextStyle(
-                            color: Color.fromRGBO(153, 153, 160, 1),
+                          hintStyle: const TextStyle(
+                            color: Color.fromRGBO(153, 153, 153, 1),
                             fontSize: 18,
                             fontFamily: "Tajawal",
                             fontWeight: FontWeight.w100,
                           ),
+                          contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
                         ),
-                        flagsButtonMargin: EdgeInsets.only(
-                          right: 5,
-                        ),
-                        controller: controller,
+                        flagsButtonMargin: const EdgeInsets.only(right: 5),
                         disableAutoFillHints: true,
                         textAlignVertical: TextAlignVertical.center,
                         initialCountryCode: 'JO',
-                        style: TextStyle(
+                        controller: controller,
+                        style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           fontFamily: "Tajawal",
                         ),
                         onChanged: (phone) {
-                          if (phone.number.length == 0) {
-                            phoneHint = "79xxxxxxxxx";
+                          if (phone.number.isEmpty) {
+                            setState(() {
+                              phoneHint = "79xxxxxxxxx";
+                            });
                           }
                         },
                       ),
@@ -192,9 +193,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     String msg =
         "شكرًا لك على الانضمام إلى Jordan Car Parts. تم إرسال الرمز بنجاح ${OTP}";
     Uri apiUrl = Uri.parse(
-        'http://82.212.81.40:8080/websmpp/websms?user=JCParts21&pass=123A@Neu%23&text=$msg&type=4&mno=962' +
-            phone +
-            '&sid=JC-Parts');
+        'http://82.212.81.40:8080/websmpp/websms?user=JCParts21&pass=123A@Neu%23&text=$msg&type=4&mno=962+${phone}&sid=JCP-Jordan');
     try {
       final response = await http.get(apiUrl);
       setState(() {

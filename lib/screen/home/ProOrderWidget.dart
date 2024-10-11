@@ -142,11 +142,8 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         children: [
           SizedBox(height: 15),
           _buildVinField(),
-          SizedBox(height: 30),
           _buildPartField(),
-          SizedBox(height: 10),
           _buildLinkField(),
-          SizedBox(height: 15),
           _buildImagePicker(size),
           SizedBox(height: 15),
           MaterialButton(
@@ -264,54 +261,9 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
             size: 20,
           ),
         ),
-        Container(
-          height: 65,
-          child: Padding(
-            padding: EdgeInsets.only(left: 15.0, right: 15, top: 5, bottom: 5),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: grey,
-              ),
-              child: TextFormField(
-                controller: part_1,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: grey,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: grey,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  fillColor: Color.fromRGBO(246, 246, 246, 1),
-                  hintText: "اسم / رقم القطعة",
-                  hintStyle: TextStyle(
-                    color: words,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                    fontFamily: "Tajawal",
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "Tajawal",
-                ),
-              ),
-            ),
-          ),
+        CustomHintTextField(
+          hintText: "اسم / رقم القطعة",
+          controller: part_1,
         ),
       ],
     );
@@ -326,58 +278,21 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               CustomText(
-                text: " (اختياري) رابط القطعة",
+                text: "(اختياري) رابط القطعة",
                 color: Color.fromRGBO(0, 0, 0, 1),
                 size: 18,
               ),
             ],
           ),
         ),
-        Container(
-          height: 65,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: grey,
-              ),
-              child: TextFormField(
-                controller: link,
-                keyboardType: TextInputType.url,
-                textAlign: TextAlign.start,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: grey, width: 2),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: grey, width: 2),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  fillColor: Color.fromRGBO(246, 246, 246, 1),
-                  hintText: "https://www.ebay.com",
-                  hintStyle: TextStyle(
-                    color: words,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                    fontFamily: "Tajawal",
-                  ),
-                  prefixIcon: Image.asset(
-                    "assets/images/link.png",
-                  ),
-                ),
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: "Tajawal",
-                ),
-              ),
-            ),
+        CustomHintTextField(
+          hintText: "https://www.ebay.com",
+          controller: link,
+          keyboardType: TextInputType.url,
+          textAlign: TextAlign.start,
+          prefixIcon: Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Image.asset("assets/images/link.png"),
           ),
         ),
       ],
@@ -512,6 +427,8 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         "itemimg64": _base64Image ?? "",
         "token": token
       };
+      print(orderData.toString());
+
       try {
         final response = await http.post(
           Uri.parse('https://jordancarpart.com/Api/saveprivateorder.php'),
@@ -524,86 +441,134 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         Navigator.pop(context);
 
         if (response.statusCode == 200) {
-          widget.run(true);
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return Container(
-                height: 390,
-                width: size.width,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
-                ),
-                child: Container(
+          final responseBody = jsonDecode(response.body);
+
+          if (responseBody["status"] == "success") {
+            widget.run(true);
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Container(
+                  height: 390,
+                  width: size.width,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(1),
+                    color: Colors.black.withOpacity(0.25),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(1),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 15),
+                        Center(
+                          child: SvgPicture.asset(
+                            'assets/svg/line.svg',
+                            width: 30,
+                            height: 5,
+                          ),
+                        ),
+                        SizedBox(height: 35),
+                        Center(
+                          child: Image.asset(
+                            "assets/images/done-icon 1.png",
+                            height: 122,
+                            width: 122,
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        Center(
+                          child: CustomText(
+                            text: "تم ارسال طلبك بنجاح",
+                            size: 24,
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                        Center(
+                          child: CustomText(
+                            text: "... " + "جار العمل على طلبك",
+                            size: 24,
+                            weight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(height: size.height * 0.05),
+                        MaterialButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          height: 45,
+                          minWidth: size.width * 0.9,
+                          color: Color.fromRGBO(195, 29, 29, 1),
+                          child: CustomText(
+                            text: "رجوع",
+                            color: white,
+                            size: 18,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          } else if (responseBody["status"] == "error") {
+            // عرض رسالة الخطأ باستخدام Bottom Sheet أو Dialog
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return Container(
+                  height: 200,
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(20),
                     ),
                   ),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Icon(Icons.error, color: Colors.red, size: 50),
                       SizedBox(height: 15),
-                      Center(
-                        child: SvgPicture.asset(
-                          'assets/svg/line.svg',
-                          width: 30,
-                          height: 5,
-                        ),
+                      CustomText(
+                        text: responseBody["message"] ??
+                            "حدث خطأ أثناء معالجة طلبك",
+                        size: 20,
+                        weight: FontWeight.w600,
+                        color: Colors.black,
                       ),
-                      SizedBox(height: 35),
-                      Center(
-                        child: Image.asset(
-                          "assets/images/done-icon 1.png",
-                          height: 122,
-                          width: 122,
-                        ),
-                      ),
-                      SizedBox(height: 25),
-                      Center(
-                        child: CustomText(
-                          text: "تم ارسال طلبك بنجاح",
-                          size: 24,
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                      Center(
-                        child: CustomText(
-                          text: "... " + "جار العمل على طلبك",
-                          size: 24,
-                          weight: FontWeight.w700,
-                        ),
-                      ),
-                      SizedBox(height: size.height * 0.05),
+                      SizedBox(height: 20),
                       MaterialButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        height: 45,
-                        minWidth: size.width * 0.9,
-                        color: Color.fromRGBO(195, 29, 29, 1),
+                        color: Colors.red,
                         child: CustomText(
-                          text: "رجوع",
-                          color: white,
-                          size: 18,
-                        ),
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          text: "إغلاق",
+                          color: Colors.white,
+                          size: 16,
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
-          );
+                );
+              },
+            );
+          }
         } else {
           showConfirmationDialog(
             context: context,
-            message: "فشل في إرسال الطلب. حاول مرة أخرى.",
+            message: "حدث خطأ أثناء إرسال الطلب:",
             confirmText: "حسناً",
             onConfirm: () {},
             cancelText: '',
@@ -629,5 +594,96 @@ class _ProOrderWidgetState extends State<ProOrderWidget> {
         cancelText: '',
       );
     }
+  }
+}
+
+class CustomHintTextField extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final TextInputType keyboardType;
+  final TextAlign textAlign;
+  final Widget? prefixIcon;
+
+  const CustomHintTextField({
+    Key? key,
+    required this.hintText,
+    required this.controller,
+    this.keyboardType = TextInputType.text,
+    this.textAlign = TextAlign.center,
+    this.prefixIcon,
+  }) : super(key: key);
+
+  @override
+  _CustomHintTextFieldState createState() => _CustomHintTextFieldState();
+}
+
+class _CustomHintTextFieldState extends State<CustomHintTextField> {
+  late FocusNode _focusNode;
+  late String currentHintText;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    currentHintText = widget.hintText;
+
+    _focusNode.addListener(() {
+      setState(() {
+        currentHintText = _focusNode.hasFocus ? '' : widget.hintText;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: grey,
+        ),
+        child: TextFormField(
+          controller: widget.controller,
+          focusNode: _focusNode,
+          textAlign: widget.textAlign,
+          keyboardType: widget.keyboardType,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: grey, width: 2),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: grey, width: 2),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            hintText: currentHintText,
+            hintStyle: TextStyle(
+              color: words,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal,
+              fontFamily: "Tajawal",
+            ),
+            counterText: '', // إزالة العداد
+            prefixIcon: widget.prefixIcon,
+          ),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w500,
+            fontFamily: "Tajawal",
+          ),
+        ),
+      ),
+    );
   }
 }

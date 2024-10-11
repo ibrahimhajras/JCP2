@@ -9,6 +9,9 @@ class CustomText extends StatelessWidget {
   final TextAlign? textAlign;
   final bool? letters;
   final TextDirection? textDirection;
+  final TextDecoration? decoration;
+  final double? decorationThickness; // سماكة الخط السفلي
+  final Color? decorationColor; // لون الخط السفلي
 
   CustomText({
     super.key,
@@ -19,6 +22,9 @@ class CustomText extends StatelessWidget {
     this.textAlign,
     this.letters,
     this.textDirection,
+    this.decoration,
+    this.decorationThickness,
+    this.decorationColor,
   });
 
   @override
@@ -31,15 +37,13 @@ class CustomText extends StatelessWidget {
         fontFamily: "Tajawal",
         fontSize: size ?? 16,
         letterSpacing: letters == true ? 2.0 : 0,
+        decoration: decoration,
+        decorationThickness: decorationThickness ?? 1.5,
+        decorationColor:
+            decorationColor ?? color, // لون الخط السفلي مطابق للون النص
       ),
       textAlign: textAlign ?? TextAlign.center,
       textDirection: textDirection ?? TextDirection.ltr,
     );
-  }
-}
-
-extension StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
   }
 }

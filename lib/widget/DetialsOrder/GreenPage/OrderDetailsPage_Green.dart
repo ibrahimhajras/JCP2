@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:jcp/style/custom_text.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import '../../../style/colors.dart';
 
@@ -16,6 +17,10 @@ class OrderDetailsPage_Green extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     List<dynamic> items = orderData["items"] as List<dynamic>;
     Map<String, dynamic> items1 = orderData["header"];
+
+    print(items);
+    print(items1);
+
     return Scaffold(
       backgroundColor: white,
       body: SingleChildScrollView(
@@ -343,10 +348,11 @@ class OrderDetailsPage_Green extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 15),
-                      // عرض الصورة
                       if (item['itemImg'] != null && item['itemImg'].isNotEmpty)
-                        _buildImageRowWithClick(
-                            "صورة المنتج", item['itemImg'], context)
+                        _buildImageRow(
+                            "",
+                            'https://jordancarpart.com${item['itemImg']}',
+                            context)
                       else
                         CustomText(
                           text: "لا يوجد صورة",
@@ -363,57 +369,83 @@ class OrderDetailsPage_Green extends StatelessWidget {
     );
   }
 
-// دالة لعرض الصورة مع إمكانية النقر عليها
-  Widget _buildImageRowWithClick(
-      String label, String? base64Image, BuildContext context) {
-    Uint8List? decodedImage;
-    if (base64Image != null && base64Image.isNotEmpty) {
-      try {
-        if (base64Image.contains(',')) {
-          base64Image = base64Image.split(',').last;
-        }
-        decodedImage = base64Decode(base64Image);
-      } catch (e) {
-        print("Error decoding base64: $e");
-      }
-    }
-
-    return Center(
-      child: decodedImage != null
-          ? GestureDetector(
-              onTap: () {
-                _showImageDialog(
-                    decodedImage!, context); // فتح الصورة في نافذة جديدة
-              },
-              child: Image.memory(
-                decodedImage,
-                width: 150,
-                height: 150,
-                fit: BoxFit.cover,
+  Widget _buildImageRow(String label, String imageUrl, BuildContext context) {
+    print(imageUrl);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(width: 10),
+        imageUrl.isNotEmpty // التحقق من أن الصورة عبر URL وليست فارغة
+            ? GestureDetector(
+                onTap: () {
+                  _showImageDialog(imageUrl, context);
+                },
+                child: Image.network(
+                  imageUrl,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: RotatingImagePage(),
+                    );
+                  },
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    return Text(
+                      "لا توجد صورة متاحة",
+                      style: TextStyle(fontSize: 16),
+                    );
+                  },
+                ),
+              )
+            : Text(
+                "لا توجد صورة متاحة",
+                style: TextStyle(fontSize: 16),
               ),
-            )
-          : Text(
-              'لا يوجد صورة',
-              style: TextStyle(fontSize: 16),
-            ),
+      ],
     );
   }
 
-  void _showImageDialog(Uint8List decodedImage, BuildContext context) {
+  void _showImageDialog(String imageUrl, BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.black54,
+          backgroundColor: Colors.transparent,
           child: GestureDetector(
             onTap: () {
               Navigator.of(context).pop();
             },
             child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+              ),
               padding: EdgeInsets.all(10),
-              child: Image.memory(
-                decodedImage,
+              child: Image.network(
+                imageUrl,
                 fit: BoxFit.contain,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(child: RotatingImagePage());
+                },
+                errorBuilder: (BuildContext context, Object error,
+                    StackTrace? stackTrace) {
+                  return Center(
+                    child: Text(
+                      'خطأ في تحميل الصورة',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                },
               ),
             ),
           ),
