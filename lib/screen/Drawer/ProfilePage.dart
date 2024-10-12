@@ -403,124 +403,128 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return StatefulBuilder(
-                              builder: (BuildContext context, setState) {
-                                return Dialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Container(
-                                    width: size.width * 0.9,
-                                    decoration: BoxDecoration(
+                    if (user.type == "1")
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return StatefulBuilder(
+                                builder: (BuildContext context, setState) {
+                                  return Dialog(
+                                    shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
-                                      color: Color.fromRGBO(255, 255, 255, 1),
                                     ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.03),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            CustomText(
-                                              text: " الخاصة بك ؟",
-                                              color: black,
-                                              size: 15,
-                                            ),
-                                            CustomText(
-                                              text: "الحساب",
-                                              color: red,
-                                              size: 15,
-                                            ),
-                                            CustomText(
-                                              text: " هل انت متأكد من حذف",
-                                              color: black,
-                                              size: 15,
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.03),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Color.fromRGBO(
-                                                    153, 153, 160, 0.63),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              child: CustomText(
-                                                text: "رفض",
-                                                color: white,
+                                    child: Container(
+                                      width: size.width * 0.9,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Color.fromRGBO(255, 255, 255, 1),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.03),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              CustomText(
+                                                text: " الخاصة بك ؟",
+                                                color: black,
                                                 size: 15,
                                               ),
-                                            ),
-                                            SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.03),
-                                            ElevatedButton(
-                                              onPressed: () async {
-                                                await deleteUser(
-                                                    int.parse(user.user_id));
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: red,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                              CustomText(
+                                                text: "الحساب",
+                                                color: red,
+                                                size: 15,
+                                              ),
+                                              CustomText(
+                                                text: " هل انت متأكد من حذف",
+                                                color: black,
+                                                size: 15,
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.03),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Color.fromRGBO(
+                                                          153, 153, 160, 0.63),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ),
+                                                child: CustomText(
+                                                  text: "رفض",
+                                                  color: white,
+                                                  size: 15,
                                                 ),
                                               ),
-                                              child: CustomText(
-                                                text: "تأكيد",
-                                                color: grey,
-                                                size: 18,
+                                              SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.03),
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  await deleteUser(
+                                                      int.parse(user.user_id));
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: red,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                ),
+                                                child: CustomText(
+                                                  text: "تأكيد",
+                                                  color: grey,
+                                                  size: 18,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.03),
-                                      ],
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.03),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                      child: CustomText(
-                        text: "حذف الحساب",
-                        size: 16,
-                        color: red,
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                        child: CustomText(
+                          text: "حذف الحساب",
+                          size: 16,
+                          color: red,
+                        ),
                       ),
-                    ),
                     GestureDetector(
                       onTap: () async {
                         showDialog(

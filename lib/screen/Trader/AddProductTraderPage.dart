@@ -870,8 +870,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           boxShadow: [
             BoxShadow(
               color: widget.isEnabled ? Colors.black : Colors.grey,
-              spreadRadius: 1,
-              blurRadius: 1,
+              spreadRadius: 0,
+              blurRadius: 0,
             ),
           ],
         ),

@@ -37,17 +37,20 @@ class _EditStockWidgetState extends State<EditStockWidget> {
 
   @override
   void dispose() {
+    search.removeListener(_onSearchChanged); // إلغاء المستمع من البحث
     search.dispose();
     priceController.dispose();
     amountController.dispose();
-    _debounce?.cancel();
+    _debounce?.cancel(); // إلغاء المؤقت debounce
     super.dispose();
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      setState(() {});
+      if (mounted) {
+        setState(() {}); // تحقق من `mounted` قبل استدعاء setState
+      }
     });
   }
 
@@ -797,9 +800,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
 
   void _checkAndShowOutOfStockDialog(List<Map<String, dynamic>> filteredList) {
     if (_isDialogShown) return;
-
     Set<String> outOfStockProductNames = {};
-
     for (var product in filteredList) {
       if (product['checkboxData'] != null &&
           product['checkboxData'].isNotEmpty) {
@@ -825,10 +826,13 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     showConfirmationDialog(
       context: context,
       message:
-          'القطعة التالية انتهت كميتها ، يرجى تحديثها:\n${outOfStockProductNames.join(', ')}',
+          'القطعة التالية انتهت كميتها، يرجى تحديثها:\n${outOfStockProductNames.join(', ')}',
       confirmText: 'حسناً',
       onConfirm: () {
-        Navigator.of(context).pop();
+        if (mounted) {
+          print("1");
+          _isDialogShown = false;
+        }
       },
     );
   }

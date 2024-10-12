@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/screen/Drawer/Notification.dart';
@@ -713,14 +712,8 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                               ],
                             ),
                             SizedBox(height: 25),
-                            if (item['item'] != null &&
-                                item['item'].toString().isNotEmpty)
-                              _buildImageRow(" ", item['item'])
-                            else
-                              CustomText(
-                                text: "لا يوجد صورة",
-                                color: words,
-                              ),
+                            _buildImageRow(" ",
+                                'https://jordancarpart.com${item['itemImg']}')
                           ],
                         ),
                       ),
@@ -735,16 +728,8 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
     );
   }
 
-  Widget _buildImageRow(String label, String? base64Image) {
-    Uint8List? decodedImage;
-    if (base64Image != null && base64Image.isNotEmpty) {
-      try {
-        decodedImage = base64Decode(base64Image);
-      } catch (e) {
-        print("Error decoding base64: $e");
-      }
-    }
-    final size = MediaQuery.of(context).size;
+  Widget _buildImageRow(String label, String? imageUrl) {
+    print(imageUrl);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -753,27 +738,41 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         SizedBox(width: 10),
-        decodedImage != null
+        imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
                 onTap: () {
-                  _showImageDialog(decodedImage!);
+                  _showImageDialog(imageUrl);
                 },
-                child: Image.memory(
-                  decodedImage,
+                child: Image.network(
+                  imageUrl,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: RotatingImagePage(),
+                    );
+                  },
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    return Text(
+                      "لا توجد صورة متاحة",
+                      style: TextStyle(fontSize: 16),
+                    );
+                  },
                 ),
               )
             : Text(
-                'لا يوجد صورة',
+                "لا توجد صورة متاحة",
                 style: TextStyle(fontSize: 16),
               ),
       ],
     );
   }
 
-  void _showImageDialog(Uint8List decodedImage) {
+  void _showImageDialog(String imageUrl) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -789,9 +788,23 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                 color: Colors.white,
               ),
               padding: EdgeInsets.all(10),
-              child: Image.memory(
-                decodedImage,
+              child: Image.network(
+                imageUrl,
                 fit: BoxFit.contain,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(child: RotatingImagePage());
+                },
+                errorBuilder: (BuildContext context, Object error,
+                    StackTrace? stackTrace) {
+                  return Center(
+                    child: Text(
+                      'خطأ في تحميل الصورة',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  );
+                },
               ),
             ),
           ),

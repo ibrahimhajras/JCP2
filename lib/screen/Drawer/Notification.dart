@@ -225,13 +225,11 @@ class _NotificationPageState extends State<NotificationPage>
     String message = notification['message'] ?? " ";
     Iterable<Match> matches = regExp.allMatches(message);
     String number = matches.isNotEmpty ? matches.first.group(0) ?? "" : "";
-    String messageWithoutNumber = message
-        .replaceFirst(number, '') // إزالة الرقم
-        .replaceAll(':', '') // إزالة علامة ":"
-        .trim(); // إزالة المسافات الزائدة
+    String messageWithoutNumber =
+        message.replaceFirst(number, '').replaceAll(':', '').trim();
 
     return Card(
-      color: white,
+      color: Colors.white,
       margin: EdgeInsets.symmetric(
         vertical: size.height * 0.01,
         horizontal: size.width * 0.04,
@@ -239,7 +237,7 @@ class _NotificationPageState extends State<NotificationPage>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(size.width * 0.03),
       ),
-      elevation: 4,
+      elevation: 0,
       child: Padding(
         padding: EdgeInsets.symmetric(
           vertical: size.height * 0.02,

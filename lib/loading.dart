@@ -37,75 +37,6 @@ class _LoadingPageState extends State<LoadingPage>
     });
   }
 
-  void showCustomDialog({
-    required BuildContext context,
-    required String message,
-    required String confirmText,
-  }) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Color.fromRGBO(255, 255, 255, 1),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                ElevatedButton(
-                  onPressed: () {
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                        (Route<dynamic> route) => false,
-                      );
-                    } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    confirmText,
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> checkUserPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     bool rememberMe = prefs.getBool('rememberMe') ?? false;
@@ -187,57 +118,111 @@ class _LoadingPageState extends State<LoadingPage>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomRight,
-              end: Alignment.topLeft,
-              colors: [
-                Color(0xFFEA3636),
-                Color(0xFFC41D1D),
-                Color(0xFF7D0A0A),
-              ],
-              stops: [0.1587, 0.3988, 0.9722],
-            ),
-            image: DecorationImage(
-              image: AssetImage("assets/images/card.png"),
+        body: Stack(
+          children: [
+            SvgPicture.asset(
+              'assets/svg/loading.svg',
               fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
             ),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 35),
-                SvgPicture.asset(
-                  'assets/svg/logo-05.svg',
-                  width: 75,
-                  height: 75,
-                  colorFilter: ColorFilter.mode(
-                      Color.fromRGBO(246, 246, 246, 1), BlendMode.srcIn),
-                ),
-                RotationTransition(
-                  turns: _animation!,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30.0, vertical: 5),
-                      child: Container(
-                        height: 150,
-                        width: 150,
-                        child: Image.asset(
-                          'assets/images/logo-loading.png',
-                        ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 35),
+                  SvgPicture.asset(
+                    'assets/svg/logo-05.svg',
+                    width: 75,
+                    height: 75,
+                    colorFilter: ColorFilter.mode(
+                        Color.fromRGBO(246, 246, 246, 1), BlendMode.srcIn),
+                  ),
+                  RotationTransition(
+                    turns: _animation!,
+                    child: Container(
+                      height: 150,
+                      width: 150,
+                      child: Image.asset(
+                        'assets/images/logo-loading.png',
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showCustomDialog({
+    required BuildContext context,
+    required String message,
+    required String confirmText,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color.fromRGBO(255, 255, 255, 1),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    message,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                ElevatedButton(
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        (Route<dynamic> route) => false,
+                      );
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    confirmText,
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

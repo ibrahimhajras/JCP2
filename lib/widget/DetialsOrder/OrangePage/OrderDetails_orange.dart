@@ -44,52 +44,60 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final horizontalPadding = EdgeInsets.symmetric(horizontal: 25);
+
     return Scaffold(
       backgroundColor: white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(size),
-            SizedBox(height: size.height * 0.01),
-            _buildSectionTitle("المركبة"),
-            _buildVehicleInfo(),
-            SizedBox(height: size.height * 0.01),
-            if (widget.orderItems.isNotEmpty) _buildOrderItemsList(),
-            SizedBox(height: 30),
-            _buildFooterOptions(widget.order1),
-            SizedBox(height: 16),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: Divider(height: 2),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+      body: Column(
+        children: [
+          _buildHeader(size), // Header remains fixed at the top
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildFooterTotal(),
-                  _buildFooterSummary(),
+                  SizedBox(height: size.height * 0.01),
+                  _buildSectionTitle("المركبة"),
+                  _buildVehicleInfo(),
+                  SizedBox(height: size.height * 0.01),
+                  if (widget.orderItems.isNotEmpty) _buildOrderItemsList(),
+                  SizedBox(height: 30),
+                  _buildFooterOptions(widget.order1),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: horizontalPadding,
+                    child: Divider(height: 2),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        _buildFooterTotal(),
+                        _buildFooterSummary(),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  MaterialButton(
+                    onPressed: _handleConfirm,
+                    height: 50,
+                    minWidth: size.width * 0.9,
+                    color: Color.fromRGBO(195, 29, 29, 1),
+                    child: CustomText(
+                      text: "تاكيد",
+                      color: white,
+                      size: 16,
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  SizedBox(height: 10),
                 ],
               ),
             ),
-            SizedBox(height: 6),
-            MaterialButton(
-              onPressed: _handleConfirm,
-              height: 50,
-              minWidth: size.width * 0.9,
-              color: Color.fromRGBO(195, 29, 29, 1),
-              child: CustomText(
-                text: "تاكيد",
-                color: white,
-                size: 16,
-              ),
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-            SizedBox(height: 10),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
