@@ -673,7 +673,8 @@ class _CustomHintTextFieldState extends State<CustomHintTextField> {
               fontWeight: FontWeight.normal,
               fontFamily: "Tajawal",
             ),
-            counterText: '', // إزالة العداد
+            counterText: '',
+            // إزالة العداد
             prefixIcon: widget.prefixIcon,
           ),
           style: TextStyle(

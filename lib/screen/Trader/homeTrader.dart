@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:jcp/model/JoinTraderModel.dart';
 import 'package:jcp/provider/DeliveryModel.dart';
 import 'package:jcp/provider/EditProductProvider.dart';
 import 'package:jcp/provider/OrderDetailsProvider.dart';

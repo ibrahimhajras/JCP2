@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/auth/login.dart';
@@ -91,7 +90,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('otp', generatedOtp);
     String msg =
-        "شكرًا لك على أنضمامك إلى Jordan Car Parts. تم إرسال الرمز بنجاح ${generatedOtp}";
+        "شكرًا لك على أنضمامك إلى قطع سيارات الاردن تم إرسال الرمز بنجاح ${generatedOtp}";
     Uri apiUrl = Uri.parse(
         'http://82.212.81.40:8080/websmpp/websms?user=JCParts21&pass=123A@Neu%23&text=$msg&type=4&mno=962+${widget.phone}&sid=JCP-Jordan');
     try {

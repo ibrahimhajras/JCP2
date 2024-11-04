@@ -84,7 +84,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   Future<void> _fetchOrdersForUser(BuildContext context) async {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final countdownProvider =
-        Provider.of<CountdownProvider>(context, listen: false);
+    Provider.of<CountdownProvider>(context, listen: false);
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -114,13 +114,13 @@ class _HomeWidgetState extends State<HomeWidget> {
           }
           print('Orders updated successfully: ${orders.length} orders');
         } else {
-          print('Failed to load orders. Response: ${responseData['message']}');
+          print('Failed to load orders');
         }
       } else {
-        print('Failed to load orders. Status code: ${response.statusCode}');
+        print('Failed to load orders');
       }
     } catch (e) {
-      print('Error fetching orders: $e');
+      print('Failed to load orders');
     }
   }
 
@@ -203,28 +203,28 @@ class _HomeWidgetState extends State<HomeWidget> {
               _buildHeader(size),
               _limitationStream != null
                   ? StreamBuilder<Map<String, dynamic>>(
-                      stream: _limitationStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return SizedBox(
-                            height: size.height * 0.5,
-                            child: Center(
-                              child: RotatingImagePage(),
-                            ),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                              child: Text('Error: ${snapshot.error}'));
-                        } else if (!snapshot.hasData) {
-                          return Center(child: Text('لا يوجد بيانات'));
-                        } else {
-                          final apiData = snapshot.data!;
-                          return _buildContentBasedOnApiData(
-                              size, user, apiData);
-                        }
-                      },
-                    )
+                stream: _limitationStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return SizedBox(
+                      height: size.height * 0.5,
+                      child: Center(
+                        child: RotatingImagePage(),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                        child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData) {
+                    return Center(child: Text('لا يوجد بيانات'));
+                  } else {
+                    final apiData = snapshot.data!;
+                    return _buildContentBasedOnApiData(
+                        size, user, apiData);
+                  }
+                },
+              )
                   : SizedBox(),
             ],
           ),
@@ -289,12 +289,12 @@ class _HomeWidgetState extends State<HomeWidget> {
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-        notifications.map((notification) {
+    notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-        notificationList.any((notification) => notification['isRead'] == false);
+    notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       hasNewNotification = hasUnread;
@@ -421,67 +421,67 @@ class _HomeWidgetState extends State<HomeWidget> {
                             child: ElevatedButton(
                               onPressed: limitOfOrder > 0
                                   ? () async {
-                                      setState(() {
-                                        isLoading = true;
-                                      });
+                                setState(() {
+                                  isLoading = true;
+                                });
 
-                                      final url =
-                                          'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}_id&flag=0';
-                                      final headers = {
-                                        'Access-Control-Allow-Headers': '*',
-                                        'Access-Control-Allow-Origin': '*',
-                                        'Content-Type':
-                                            'application/json; charset=UTF-8',
-                                      };
-                                      try {
-                                        final response = await http.get(
-                                          Uri.parse(url),
-                                          headers: headers,
-                                        );
-                                        if (response.statusCode == 200) {
-                                          jsonDecode(response.body);
-                                          SharedPreferences prefs =
-                                              await SharedPreferences
-                                                  .getInstance();
-                                          await prefs.setInt(
-                                              'isOrderAllowed', 1);
+                                final url =
+                                    'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}_id&flag=0';
+                                final headers = {
+                                  'Access-Control-Allow-Headers': '*',
+                                  'Access-Control-Allow-Origin': '*',
+                                  'Content-Type':
+                                  'application/json; charset=UTF-8',
+                                };
+                                try {
+                                  final response = await http.get(
+                                    Uri.parse(url),
+                                    headers: headers,
+                                  );
+                                  if (response.statusCode == 200) {
+                                    jsonDecode(response.body);
+                                    SharedPreferences prefs =
+                                    await SharedPreferences
+                                        .getInstance();
+                                    await prefs.setInt(
+                                        'isOrderAllowed', 1);
 
-                                          setState(() {
-                                            errorMessage = null;
-                                          });
-                                          await _checkForNotifications();
-                                          await _fetchData();
-                                          await _loadOrderAllowed();
-                                        } else {
-                                          print(response.body.toString());
-                                          print('Failed to load data');
-                                        }
-                                      } catch (e) {
-                                        print('Error: $e');
-                                      } finally {
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                      }
-                                    }
+                                    setState(() {
+                                      errorMessage = null;
+                                    });
+                                    await _checkForNotifications();
+                                    await _fetchData();
+                                    await _loadOrderAllowed();
+                                  } else {
+                                    print(response.body.toString());
+                                    print('Failed to load data');
+                                  }
+                                } catch (e) {
+                                  print('Error: $e');
+                                } finally {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
+                              }
                                   : null,
                               child: isLoading
                                   ? Container(
-                                      child: RotatingImagePage(),
-                                      width: 20,
-                                      height: 20,
-                                    )
+                                child: RotatingImagePage(),
+                                width: 20,
+                                height: 20,
+                              )
                                   : Text(
-                                      'تفعيل',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 15),
-                                    ),
+                                'تفعيل',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: limitOfOrder > 0
                                     ? Colors.green
                                     : Colors.grey,
                                 textStyle:
-                                    TextStyle(fontSize: size.width * 0.01),
+                                TextStyle(fontSize: size.width * 0.01),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -714,7 +714,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   void onDelete(TextEditingController _controller) {
     final find = parts.firstWhere(
-      (it) => it.part!.text == _controller.text,
+          (it) => it.part!.text == _controller.text,
       orElse: () => null!,
     );
     parts.removeAt(parts.indexOf(find));
@@ -885,9 +885,9 @@ class _PartsFieldWidgetState extends State<PartsFieldWidget> {
     _focusNode.addListener(() {
       setState(() {
         if (_focusNode.hasFocus) {
-          currentHintText = ''; // إخفاء hint عند التركيز
+          currentHintText = '';
         } else if (widget.controller.text.isEmpty) {
-          currentHintText = widget.hintText; // إعادة hint إذا كان الحقل فارغًا
+          currentHintText = widget.hintText;
         }
       });
     });

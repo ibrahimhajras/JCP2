@@ -34,8 +34,7 @@ class HomePage extends StatefulWidget {
 }
 
 Future<JoinTraderModel?> fetchUserData(String userPhone) async {
-  final url =
-      Uri.parse('https://jordancarpart.com/Api/showalltraderdetails.php');
+  final url = Uri.parse('https://jordancarpart.com/Api/showalltraderdetails.php');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
@@ -43,20 +42,31 @@ Future<JoinTraderModel?> fetchUserData(String userPhone) async {
 
     if (data['success']) {
       List<dynamic> users = data['data'];
-      final user = users.firstWhere((u) => u['user_phone'] == userPhone,
-          orElse: () => null);
+      final user = users.firstWhere((u) => u['user_phone'] == userPhone, orElse: () => null);
 
       if (user != null) {
-        // Decode the string representations of lists into actual lists
+        // Decode the JSON strings back to lists
+        List<String> master = user['store_master'] is String
+            ? List<String>.from(jsonDecode(user['store_master']))
+            : List<String>.from(user['store_master']);
+
+        List<String> partsType = user['store_parts_type'] is String
+            ? List<String>.from(jsonDecode(user['store_parts_type']))
+            : List<String>.from(user['store_parts_type']);
+
+        List<String> activityType = user['store_activity_type'] is String
+            ? List<String>.from(jsonDecode(user['store_activity_type']))
+            : List<String>.from(user['store_activity_type']);
+
         final trader = JoinTraderModel(
           fName: user['user_name'].split(' ').first,
           lName: user['user_name'].split(' ').last,
           store: user['store_name'] ?? '',
           phone: user['user_phone'] ?? '',
           full_address: user['store_full_address'] ?? '',
-          master: _parseJsonList(user['store_master']),
-          parts_type: _parseJsonList(user['store_parts_type']),
-          activity_type: _parseJsonList(user['store_activity_type']),
+          master: master,
+          parts_type: partsType,
+          activity_type: activityType,
         );
 
         // Print trader details
@@ -67,28 +77,6 @@ Future<JoinTraderModel?> fetchUserData(String userPhone) async {
     }
   }
   return null; // Return null if no user is found
-}
-
-List<String> _parseJsonList(dynamic jsonString) {
-  try {
-    if (jsonString is String) {
-      // Clean the string to be valid JSON format
-      // Replace single quotes with double quotes and strip outer brackets
-      jsonString = jsonString.replaceAll(
-          RegExp(r'(\[|\])'), ''); // Remove square brackets
-      jsonString = jsonString.replaceAll(
-          RegExp(r',\s*'), '","'); // Add quotes around items
-      jsonString = '["$jsonString"]'; // Wrap the string in brackets
-
-      // Now decode it
-      return List<String>.from(jsonDecode(jsonString));
-    } else if (jsonString is List) {
-      return List<String>.from(jsonString);
-    }
-  } catch (e) {
-    print("Error parsing JSON list: $e");
-  }
-  return []; // Return an empty list if parsing fails
 }
 
 class _HomePageState extends State<HomePage> {

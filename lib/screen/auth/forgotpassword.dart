@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
 import '../../widget/RotatingImagePage.dart';
-import '../../widget/Inallpage/dialogs.dart';
 import 'OtpPageForget.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -191,7 +190,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     String OTP = generateOTP();
     await prefs.setString('otp', OTP);
     String msg =
-        "شكرًا لك على الانضمام إلى Jordan Car Parts. تم إرسال الرمز بنجاح ${OTP}";
+        "شكرًا لك على الانضمام إلى قطع سيارات الاردن تم إرسال الرمز بنجاح ${OTP}";
     Uri apiUrl = Uri.parse(
         'http://82.212.81.40:8080/websmpp/websms?user=JCParts21&pass=123A@Neu%23&text=$msg&type=4&mno=962+${phone}&sid=JCP-Jordan');
     try {

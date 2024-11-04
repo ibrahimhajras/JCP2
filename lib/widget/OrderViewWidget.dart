@@ -9,6 +9,7 @@ import 'package:jcp/widget/DetialsOrder/OrangePage/OrderDetails_orange.dart';
 import 'dart:convert';
 import 'package:jcp/widget/DetialsOrder/RedPage/OrderDetails_red.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'DetialsOrder/GreenPage/OrderDetailsPage_Greenprivate.dart';
 import 'DetialsOrder/OrangePage/OrderDetailsPage_Orangeprivate.dart';
@@ -140,12 +141,13 @@ class OrderViewWidget extends StatelessWidget {
                 await fetchOrderItemsOrangePrivate(order.id.toString());
             print("orderData" + orderData.toString());
             print("orderData" + order.id.toString());
+            print(order.carId);
             Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => OrderDetailsPage_OrangePrivate(
-                    orderData: orderData, items: items),
+                    orderData: orderData, items: items, carid: order.carId.toString(),),
               ),
             );
           } catch (e) {

@@ -6,8 +6,8 @@ import 'package:jcp/style/custom_text.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
 import '../../widget/Inallpage/CustomHeader.dart';
+
 
 class NotificationPage extends StatefulWidget {
   NotificationPage({Key? key}) : super(key: key);
@@ -24,7 +24,7 @@ class _NotificationPageState extends State<NotificationPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadNotifications(); // تأكد من استدعاء هذه الوظيفة هنا
+    _loadNotifications();
   }
 
   @override
@@ -83,16 +83,14 @@ class _NotificationPageState extends State<NotificationPage>
           storedNotifications.map((notification) {
         Map<String, dynamic> notificationMap =
             Map<String, dynamic>.from(jsonDecode(notification));
-        notificationMap['isRead'] = true; // مثال على تعديل البيانات
+        notificationMap['isRead'] = true;
         return notificationMap;
       }).toList();
 
-      // إعادة النتائج عن طريق yield
       yield updatedNotifications;
 
-      // يمكنك ضبط التحديث بعد فترة زمنية معينة إذا لزم الأمر
       await Future.delayed(
-          Duration(seconds: 5)); // على سبيل المثال، تحديث كل 5 ثوانٍ
+          Duration(seconds: 5));
     }
   }
 
@@ -113,42 +111,20 @@ class _NotificationPageState extends State<NotificationPage>
       Map<String, dynamic> notificationMap =
           Map<String, dynamic>.from(jsonDecode(notification));
 
-      // تحديث حالة الإشعار عند تحميله
       notificationMap['isRead'] = true;
       return notificationMap;
     }).toList();
 
-    // تحقق من محتويات الإشعارات بعد فك الترميز
     print("Decoded notifications: $updatedNotifications");
 
     setState(() {
       notifications = updatedNotifications;
     });
 
-    // تحديث الإشعارات في SharedPreferences
     List<String> updatedNotificationsString = updatedNotifications
         .map((notification) => jsonEncode(notification))
         .toList();
     await prefs.setStringList('notifications', updatedNotificationsString);
-  }
-
-  Future<void> _deleteNotification(int index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      notifications.removeAt(index);
-    });
-
-    List<String> updatedNotificationsString =
-        notifications.map((notification) => jsonEncode(notification)).toList();
-
-    if (updatedNotificationsString.isNotEmpty) {
-      await prefs.setStringList('notifications', updatedNotificationsString);
-    } else {
-      await prefs
-          .remove('notifications'); // احذف المفتاح إذا لم يكن هناك إشعارات
-    }
-    print("Notification deleted successfully.");
   }
 
   @override
@@ -163,7 +139,7 @@ class _NotificationPageState extends State<NotificationPage>
           SizedBox(height: size.height * 0.01),
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _notificationStream(), // الربط مع الدالة التي تعيد stream
+              stream: _notificationStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: RotatingImagePage());
@@ -178,8 +154,6 @@ class _NotificationPageState extends State<NotificationPage>
                     ),
                   );
                 }
-
-                // عرض الإشعارات
                 List<Map<String, dynamic>> notifications = snapshot.data!;
                 return _buildNotificationList(notifications, size);
               },
@@ -229,7 +203,7 @@ class _NotificationPageState extends State<NotificationPage>
         message.replaceFirst(number, '').replaceAll(':', '').trim();
 
     return Card(
-      color: Colors.white,
+      color: Color(0xf5f5f5),
       margin: EdgeInsets.symmetric(
         vertical: size.height * 0.01,
         horizontal: size.width * 0.04,
@@ -299,24 +273,4 @@ class _NotificationPageState extends State<NotificationPage>
     );
   }
 
-  List<TextSpan> _buildMessageWithColoredNumbers(List<String> messageParts,
-      List<String> numbers, Color numberColor, double fontSize) {
-    List<TextSpan> spans = [];
-    for (int i = 0; i < messageParts.length; i++) {
-      // أضف الجزء النصي
-      spans.add(TextSpan(text: messageParts[i]));
-      // أضف الرقم بلون مختلف إذا كان موجوداً
-      if (i < numbers.length) {
-        spans.add(TextSpan(
-          text: numbers[i],
-          style: TextStyle(
-            color: numberColor, // اللون المخصص للأرقام بناءً على نوع الإشعار
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-          ),
-        ));
-      }
-    }
-    return spans;
-  }
 }

@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:jcp/style/custom_text.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';

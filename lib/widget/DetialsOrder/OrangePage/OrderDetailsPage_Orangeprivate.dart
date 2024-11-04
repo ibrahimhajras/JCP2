@@ -1,21 +1,23 @@
 import 'dart:convert';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/custom_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../main.dart';
+import '../../../NotificationService.dart';
 import '../../../style/colors.dart';
+import '../../RotatingImagePage.dart';
 
 class OrderDetailsPage_OrangePrivate extends StatefulWidget {
   final Map<String, dynamic> orderData;
   final List<Map<String, dynamic>> items;
+  final String carid;
 
   const OrderDetailsPage_OrangePrivate({
     super.key,
     required this.orderData,
     required this.items,
+    required this.carid,
   });
 
   @override
@@ -26,6 +28,13 @@ class OrderDetailsPage_OrangePrivate extends StatefulWidget {
 class _OrderDetailsPageState_OrangePrivate
     extends State<OrderDetailsPage_OrangePrivate> {
   @override
+  void initState() {
+    // TODO: implement initState
+    print(widget.items);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
@@ -34,15 +43,55 @@ class _OrderDetailsPageState_OrangePrivate
         child: Column(
           children: [
             _buildHeader(size),
-            SizedBox(height: 15),
-            _buildItemsList(),
-            SizedBox(height: 15),
+            SizedBox(height: size.height * 0.01),
+            _buildSectionTitle("المركبة"),
+            _buildVehicleInfo(),
+            SizedBox(height: size.height * 0.01),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 100),
+                      // Adjust padding to move "اسم القطعة"
+                      child: _buildSectionTitle("اسم القطعة"),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 50.0),
+                  // Adjust padding to move the icon
+                  child: IconButton(
+                    onPressed: () {
+                      if (widget.items.isNotEmpty &&
+                          widget.items[0]['itemimg64'] != null &&
+                          widget.items[0]['itemimg64'].isNotEmpty) {
+                        _showImageDialog(widget.items[0]['itemimg64']);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('لا توجد صورة لهذا العنصر')),
+                        );
+                      }
+                    },
+                    icon: Icon(
+                      Icons.info_outline,
+                      size: 24,
+                      color: green,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            _buildVehicleInfo2(widget.items),
+            SizedBox(height: size.height * 0.07),
+            Divider(
+              height: 2,
+            ),
+            SizedBox(height: size.height * 0.01),
             _buildOrderInfo(),
-            SizedBox(height: 30),
-            SizedBox(height: 16),
-            Divider(height: 2),
-            _buildFooterSummary(),
-            SizedBox(height: 16),
+            SizedBox(height: size.height * 0.07),
             MaterialButton(
               onPressed: _handleConfirm,
               height: 50,
@@ -64,82 +113,120 @@ class _OrderDetailsPageState_OrangePrivate
     );
   }
 
-  Widget _buildItemsList() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(widget.items.length, (index) {
-        final item = widget.items[index];
-        return Card(
-          color: grey,
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      item['itemname'] ?? '',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                    ),
-                    SizedBox(width: 30),
-                    Text(
-                      item['itemlink'] ?? '',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    if (item['itemimg64'] != null &&
-                        item['itemimg64'].isNotEmpty) {
-                      _showImageDialog(item['itemimg64']);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('لا توجد صورة لهذا العنصر')),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color.fromRGBO(195, 29, 29, 1),
-                  ),
-                  child: Text('عرض الصورة'),
-                ),
-              ],
-            ),
+  Widget _buildVehicleInfo2(List<Map<String, dynamic>> items) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        child: Column(
+          children: items.map((item) {
+            return Container(
+              width: double.infinity,
+              margin: EdgeInsets.symmetric(vertical: 8),
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Color(0xFFF6F6F6),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: CustomText(
+                text: item['itemname'] ?? '',
+                color: Colors.black,
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVehicleInfo() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+          width: double.infinity,
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color(0xFFF6F6F6),
+            borderRadius: BorderRadius.circular(8),
           ),
-        );
-      }),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomText(
+                    color: Color(0xFF8D8D92),
+                    text: widget.orderData["Enginetype"].toString() +
+                        "  " +
+                        widget.orderData["Enginecategory"].toString() +
+                        "  " +
+                        widget.orderData["Fueltype"].toString() +
+                        " " +
+                        widget.orderData["Engineyear"].toString() +
+                        "  " +
+                        widget.orderData["Enginesize"].toString(),
+                  ),
+                ],
+              ),
+              CustomText(
+                color: Color(0xFF8D8D92),
+                text: widget.carid,
+                letters: true,
+              )
+            ],
+          )),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Align(
+        alignment: Alignment.center,
+        child: CustomText(
+          text: title,
+          size: 18,
+          weight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
     );
   }
 
   void _showImageDialog(String imageUrl) {
     String fullUrl = "https://jordancarpart.com$imageUrl";
-
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           content: fullUrl.isNotEmpty
-              ? Image.network(
-                  fullUrl,
-                  height: 250,
-                  width: 350,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Text('فشل في تحميل الصورة');
-                  },
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: CustomText(
+                        text:
+                            "الملاحظات:  ${widget.orderData['additionalNote']}" ??
+                                '',
+                        size: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Image.network(
+                      fullUrl,
+                      height: 250,
+                      width: 250,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Text('فشل في تحميل الصورة');
+                      },
+                    ),
+                  ],
                 )
               : Text('لا توجد صورة متاحة'),
           actions: [
@@ -208,83 +295,46 @@ class _OrderDetailsPageState_OrangePrivate
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CustomText(
-            text: "رقم الطلب: ${widget.orderData['orderid']}",
-            size: 16,
-            color: Colors.black,
-          ),
-          SizedBox(height: 8),
-          SizedBox(height: 8),
-          CustomText(
-            text: "تاريخ الطلب: ${widget.orderData['timeorder']}",
-            size: 16,
-            color: Colors.black,
-          ),
-          SizedBox(height: 8),
-          CustomText(
-            text: "تكلفة المنتج: ${widget.orderData['productCost']} دينار",
-            size: 16,
-            color: Colors.black,
-          ),
-          SizedBox(height: 8),
-          CustomText(
-            text: "الجمارك: ${widget.orderData['customs']} دينار",
-            size: 16,
-            color: Colors.black,
-          ),
-          SizedBox(height: 8),
-          CustomText(
-            text: "التكلفة الكلية: ${widget.orderData['totalCost']} دينار",
-            size: 16,
-            color: Colors.black,
-          ),
-          SizedBox(height: 8),
-          CustomText(
-            text: "وقت التوصيل: ${widget.orderData['deliveryTime']}يوم ",
-            size: 16,
-            color: Colors.black,
-          ),
-          SizedBox(height: 8),
-          CustomText(
-            text: "ملاحظات إضافية: ${widget.orderData['additionalNote']}",
-            size: 16,
-            color: Colors.black,
-          ),
+          _buildOrderInfoRow(
+              "تكلفة المنتج", "${widget.orderData['productCost']}"),
+          _buildOrderInfoRow(
+              "تكلفة الشحن", "${widget.orderData['expierdtime']}"),
+          _buildOrderInfoRow(
+              "الضرائب والرسوم", "${widget.orderData['customs']}"),
+          _buildOrderInfoRow("المجموع",
+              "${widget.orderData['totalCost']} دينار اردني فقط لا غير",
+              isTotal: true),
+          _buildOrderInfoRow(
+              "وقت التوصيل المتوقع", "${widget.orderData['deliveryTime']} يوم",
+              color: Colors.grey),
         ],
       ),
     );
   }
 
-  Widget _buildFooterSummary() {
+  Widget _buildOrderInfoRow(String label, String value,
+      {bool isTotal = false, Color color = Colors.black}) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              CustomText(
-                text: "دينار اردني",
-                size: 18,
-              ),
-              CustomText(
-                text: " ${widget.orderData['totalCost']}", // التكلفة الكلية
-                size: 18,
-              ),
-            ],
+          CustomText(
+            text: value,
+            size: 16,
+            weight: isTotal ? FontWeight.normal : FontWeight.normal,
+            color: isTotal ? Colors.black : color,
+            textDirection: TextDirection.rtl,
           ),
           CustomText(
-            text: "  المجموع",
-            color: red,
-            weight: FontWeight.w900,
+            text: label,
             size: 18,
+            weight: isTotal ? FontWeight.normal : FontWeight.normal,
+            color: isTotal ? red : red,
+            textDirection: TextDirection.rtl,
           ),
         ],
       ),
@@ -307,11 +357,23 @@ class _OrderDetailsPageState_OrangePrivate
 Future<void> updateOrderState(BuildContext context, int orderId) async {
   final url = Uri.parse(
       'https://jordancarpart.com/Api/updateState.php?state=3&id=$orderId');
-
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Center(child: RotatingImagePage());
+    },
+  );
   try {
     final response = await http.get(url);
+    Navigator.of(context).pop();
     print("response response response" + response.body.toString());
     if (response.statusCode == 200) {
+      NotificationService().showNotification(
+          id: 0,
+          title: 'تم تأكيد طلبك بنجاح',
+          body:
+              'طلب رقم $orderId تم تأكيده بنجاح. سوف يتم التواصل معك قريباً.');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

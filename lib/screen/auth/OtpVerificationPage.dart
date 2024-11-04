@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/auth/ResetPasswordPage.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:http/http.dart' as http;
 import '../../style/custom_text.dart';
-import '../../widget/Inallpage/dialogs.dart';
 
 class OtpPageForgwe extends StatefulWidget {
   final String phone;

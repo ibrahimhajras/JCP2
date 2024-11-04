@@ -3,15 +3,13 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/screen/auth/otppage.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
-import 'package:http/http.dart' as http;
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'dart:math';
 
-import '../../widget/Inallpage/dialogs.dart'; // Import the math package for Random
+// Import the math package for Random
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -521,7 +519,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     hintText: hintText,
                     icon: GestureDetector(
                       onTap: () {
-                        toggleVisibility(!obscureText); // تغيير حالة الإخفاء
+                        toggleVisibility(!obscureText);
                       },
                       child: Icon(
                         obscureText ? Icons.visibility_off : Icons.visibility,
@@ -531,18 +529,18 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   onTap: () {
                     setState(() {
-                      hintText = ""; // إخفاء النص الوهمي عند النقر
+                      hintText = "";
                     });
                   },
                   onChanged: (value) {
                     if (value.isEmpty) {
                       setState(() {
                         hintText =
-                            "**********"; // إعادة النص الوهمي إذا كان الحقل فارغًا
+                            "**********";
                       });
                     }
                   },
-                  obscureText: obscureText, // لإخفاء النص عند الكتابة
+                  obscureText: obscureText,
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w500,

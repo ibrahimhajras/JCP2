@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/screen/auth/login.dart';
-import 'package:jcp/widget/Inallpage/dialogs.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';

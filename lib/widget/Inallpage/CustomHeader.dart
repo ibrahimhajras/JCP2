@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 
 class CustomHeader extends StatelessWidget {

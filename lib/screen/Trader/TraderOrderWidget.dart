@@ -590,7 +590,13 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
           Expanded(
             flex: 2,
             child: Text(
-              item['price']?.toString() ?? '',
+              (item['price'] != null &&
+                      double.tryParse(item['price']) != null &&
+                      double.parse(item['price']) > 0)
+                  ? double.parse(item['price'])
+                      .toInt()
+                      .toString() // Convert to int and then to string
+                  : '',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
@@ -826,7 +832,12 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                 size: 18,
               ),
               CustomText(
-                text: "${hdr['totalCost']}",
+                text: (hdr['totalCost'] != null &&
+                        double.tryParse(hdr['totalCost']) != null)
+                    ? double.parse(hdr['totalCost'])
+                        .toInt()
+                        .toString() // Convert to int
+                    : '',
                 size: 18,
               ),
               CustomText(

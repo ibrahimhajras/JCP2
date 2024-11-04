@@ -15,10 +15,16 @@ class OrderModel {
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-        id: json['id'],
-        carId: json['carid'],
-        time: json['time'],
-        type: json['type'],
-        state: json['state']);
+      id: json['id'],
+      carId: json['carid'],
+      time: json['time'],
+      type: json['type'],
+      state: json['state'],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'OrderModel(id: $id, carId: $carId, time: $time, type: $type, state: $state)';
   }
 }

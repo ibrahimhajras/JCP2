@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jcp/model/JoinTraderModel.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/provider/ProfileTraderProvider.dart';
 import 'package:jcp/screen/Trader/homeTrader.dart';
@@ -521,9 +520,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                     flex: 1,
                     child: Column(
                       children: [
-                        CustomText(
-                            text: "الكفالة ${checkboxLabels[index]}",
-                            size: sizeFactor * 16),
+                        CustomText(text: "الكفالة", size: sizeFactor * 16),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: sizeFactor * 10,

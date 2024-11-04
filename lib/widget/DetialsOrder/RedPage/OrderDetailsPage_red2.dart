@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:jcp/style/custom_text.dart';
 import '../../../style/colors.dart';
@@ -138,78 +135,68 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                 return Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 5),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: grey,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        ListTile(
-                                          title: CustomText(
-                                            text: "اسم / رقم القطعة",
-                                            size: 18,
-                                            color: black,
-                                          ),
-                                          subtitle: CustomText(
-                                            text: e["itemname"] ?? '',
-                                            size: 14,
-                                            color: red,
-                                          ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      ListTile(
+                                        title: CustomText(
+                                          text: "اسم / رقم القطعة",
+                                          size: 18,
+                                          color: black,
                                         ),
-                                        Divider(height: 2),
-                                        ListTile(
-                                          title: CustomText(
-                                            text: " (اختياري) رابط القطعة",
-                                            size: 18,
-                                            color: black,
-                                          ),
-                                          subtitle: CustomText(
-                                            text: e["itemlink"] ?? '',
-                                            size: 14,
-                                            color: red,
-                                          ),
+                                        subtitle: CustomText(
+                                          text: e["itemname"] ?? '',
+                                          size: 14,
+                                          color: red,
                                         ),
-                                        Divider(height: 2),
-                                        ListTile(
-                                          title: CustomText(
-                                            text: "رابط القطعة",
-                                            size: 18,
-                                            color: black,
-                                          ),
-                                          subtitle: imageUrl != null
-                                              ? Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            30),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.3),
-                                                        spreadRadius: 2,
-                                                        blurRadius: 5,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: Image.network(
-                                                    "https://jordancarpart.com$imageUrl",
-                                                    height: 250,
-                                                    width: 350,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                )
-                                              : CustomText(
-                                                  text: "No Image Available",
-                                                  size: 14,
-                                                  color: Colors.red,
+                                      ),
+                                      ListTile(
+                                        title: CustomText(
+                                          text: " (اختياري) رابط القطعة",
+                                          size: 18,
+                                          color: black,
+                                        ),
+                                        subtitle: CustomText(
+                                          text: e["itemlink"] ?? '',
+                                          size: 14,
+                                          color: red,
+                                        ),
+                                      ),
+                                      ListTile(
+                                        title: CustomText(
+                                          text: "صورة القطعة",
+                                          size: 18,
+                                          color: black,
+                                        ),
+                                        subtitle: imageUrl != null
+                                            ? Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                    ),
+                                                  ],
                                                 ),
-                                        ),
-                                      ],
-                                    ),
+                                                child: Image.network(
+                                                  "https://jordancarpart.com$imageUrl",
+                                                  height: 250,
+                                                  width: 350,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : CustomText(
+                                                text: "No Image Available",
+                                                size: 14,
+                                                color: Colors.red,
+                                              ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               },

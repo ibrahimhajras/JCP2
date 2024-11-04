@@ -33,12 +33,29 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   List<Map<String, dynamic>> selectedItems = [];
   int selectedDeliveryType = -1;
   int? lastSelectedIndex;
+  bool isExpired = false;
 
   @override
   void initState() {
-    super.initState();
     selectedFieldsPerRow =
         List.generate(widget.orderItems.length, (index) => null);
+    _checkExpiration();
+    super.initState();
+  }
+
+  void _checkExpiration() {
+    // Assuming order1[0] is the relevant order data you want to check
+    if (widget.order1.isNotEmpty) {
+      final expierdtime = DateTime.parse(widget.order1[0]['expierdtime']);
+      print(expierdtime);
+      setState(() {
+        isExpired = DateTime.now().isAfter(expierdtime);
+      });
+    }
+  }
+
+  void _handleBack() {
+    Navigator.pop(context);
   }
 
   @override
@@ -50,7 +67,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
       backgroundColor: white,
       body: Column(
         children: [
-          _buildHeader(size), // Header remains fixed at the top
+          _buildHeader(size),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -78,12 +95,12 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
                   ),
                   SizedBox(height: 6),
                   MaterialButton(
-                    onPressed: _handleConfirm,
+                    onPressed: isExpired ? _handleBack : _handleConfirm,
                     height: 50,
                     minWidth: size.width * 0.9,
                     color: Color.fromRGBO(195, 29, 29, 1),
                     child: CustomText(
-                      text: "تاكيد",
+                      text: isExpired ? "رجوع" : "تاكيد",
                       color: white,
                       size: 16,
                     ),
@@ -513,7 +530,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             ),
           ),
           SizedBox(width: screenWidth * 0.01),
-          if (deliverynow == 1)
+          if (deliverynow == 1 && isExpired == false)
             Flexible(
               flex: 1,
               child: Align(
@@ -530,7 +547,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               ),
             ),
           SizedBox(width: screenWidth * 0.03),
-          if (deliverynormal == 1)
+          if (deliverynormal == 1 && isExpired == false)
             Flexible(
               flex: 1,
               child: Align(
@@ -547,7 +564,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
               ),
             ),
           SizedBox(width: screenWidth * 0.03),
-          if (deliveryshop == 1)
+          if (deliveryshop == 1 && isExpired == false)
             Flexible(
               flex: 1,
               child: Align(
@@ -585,7 +602,7 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
   }
 
   Widget buildTextField(String hintText, int rowIndex, int fieldIndex) {
-    bool isForbidden = hintText == 'غ.م';
+    bool isForbidden = hintText == 'غ.م' || isExpired;
     final size = MediaQuery.of(context).size;
     final screenHeight = size.height;
     return GestureDetector(
@@ -1154,6 +1171,13 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
         'bodyid': widget.order1[0]['bodyid'],
         'token': token
       };
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(child: RotatingImagePage());
+        },
+      );
 
       try {
         final response = await http.post(
@@ -1166,6 +1190,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           body: jsonEncode(orderData),
         );
 
+        Navigator.of(context).pop();
+
         print(response.body.toString());
         print(orderData);
 
@@ -1175,6 +1201,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
             title: 'تم تأكيد طلبك بنجاح',
             body:
                 'طلب رقم ${widget.order1[0]['orderid']} تم تأكيده بنجاح. سوف يتم التواصل معك قريباً.',
+            payLoad:
+                '/orderDetails/${widget.order1[0]['orderid']}', // تمرير رقم الطلب كـ payload
           );
 
           Navigator.pushReplacement(
@@ -1217,6 +1245,8 @@ class _OrderDetailsPageState_Orange extends State<OrderDetailsPage_Orange> {
           );
         }
       } catch (e) {
+        Navigator.of(context).pop();
+
         showConfirmationDialog(
           context: context,
           message: 'حدث خطأ أثناء الإرسال: $e',

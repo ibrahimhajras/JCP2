@@ -32,26 +32,55 @@ Future<void> fetchNotifications(String userId) async {
         for (var notification in notifications) {
           _createNotification(notification);
         }
-      } else {}
-    } else {}
+      } else {
+        print('Failed to fetch notifications: ${responseData['message']}');
+      }
+    } else {
+      print('Failed to fetch notifications. Status code: ${response.statusCode}');
+    }
   } catch (e) {
     print("Error fetching notifications: $e");
   }
 }
 
-void _createNotification(Map<String, dynamic> notification) {
-  NotificationService().showNotification(
+void _createNotification(Map<String, dynamic> notification) async {
+  final notificationService = NotificationService(); // استخدم NotificationService
+  String body = notification['desc'];
+
+  // تعيين قيمة افتراضية للـ payload
+  String payload = '/defaultPage'; // يمكن تعديل هذه القيمة حسب الحاجة
+
+  // استخراج رقم الطلب من النص
+  RegExp regex = RegExp(r'\d+');
+  Match? match = regex.firstMatch(body);
+  String? orderId = match?.group(0);
+
+  // تحديد الـ payload بناءً على محتوى body
+  if (body.contains('تم تسعير طلب خاص')) {
+    payload = '/privatePricingOrder/$orderId';
+  } else if (body.contains('تم تسعير طلب')) {
+    payload = '/pricingOrder/$orderId';
+  } else if (body.contains('استلام')) {
+    payload = '/newOrder/$orderId';
+  } else {
+    payload = '/orderDetails/$orderId';
+  }
+
+  // عرض الإشعار مع الـ payload المحدد
+  notificationService.showNotification(
     id: notification['id'],
     title: 'قطع سيارات الاردن',
-    body: notification['desc'],
+    body: body,
+    payLoad: payload,
   );
 }
+
 
 Future<void> _storeNotifications(List<dynamic> notifications) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   List<String> storedNotifications = prefs.getStringList('notifications') ?? [];
   Set<String> existingIds =
-      storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+  storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
   for (var notification in notifications) {
     if (!existingIds.contains(notification['id'].toString())) {
       storedNotifications.add(jsonEncode({

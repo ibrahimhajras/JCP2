@@ -9,7 +9,6 @@ class NotificationProvider with ChangeNotifier {
 
   List<String> get notifications => _notifications;
 
-  // getter للـ Stream
   Stream<List<String>> get notificationsStream =>
       _notificationsStreamController.stream;
 

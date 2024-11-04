@@ -710,7 +710,7 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                         String modifications1 = select1.toString();
                         String modifications2 = select.toString();
                         String modifications3 = cars.toString();
-                        if (widget.trader.master?.contains("تجاري2") == true &&
+                        if (widget.trader.master.contains("تجاري2") == true &&
                             !select.contains("تجاري2")) {
                           select.add("تجاري2");
                           modifications2 = select.toString();

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jcp/style/custom_text.dart';
 import '../../../style/colors.dart';
@@ -31,7 +30,6 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
               _buildSectionTitle("تفاصيل الطلب", size),
               _buildOrderDetails(size),
               SizedBox(height: size.height * 0.02),
-              _buildSectionTitle("المجموع الكلي", size),
               _buildTotalCost(size),
               SizedBox(height: size.height * 0.02),
             ],
@@ -89,13 +87,11 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
       child: Align(
         alignment: Alignment.centerRight,
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: size.height * 0.025,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        child: CustomText(
+          text: title,
+          size: size.height * 0.025,
+          weight: FontWeight.bold,
+          color: Colors.black,
         ),
       ),
     );
@@ -106,53 +102,38 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
       return Padding(
         padding: EdgeInsets.symmetric(
             horizontal: size.width * 0.04, vertical: size.height * 0.01),
-        child: Container(
-          padding: EdgeInsets.all(size.width * 0.03),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(size.width * 0.02),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildDetailRow("اسم العنصر:", item["itemname"].toString(), size),
-              _buildDetailRow(
-                  "رابط العنصر:", item["itemlink"].toString(), size),
-              SizedBox(height: size.height * 0.01),
-              if (item["itemimg64"] != null && item["itemimg64"].isNotEmpty)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(size.width * 0.1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Image.network(
-                    "https://jordancarpart.com${item["itemimg64"]}",
-                    width: size.width * 0.4,
-                    height: size.height * 0.2,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(child: Text('فشل في تحميل الصورة'));
-                    },
-                  ),
-                )
-              else
-                Text("لا توجد صورة"),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildDetailRow("اسم العنصر", item["itemname"].toString(), size),
+            _buildDetailRow("رابط العنصر", item["itemlink"].toString(), size),
+            SizedBox(height: size.height * 0.01),
+            if (item["itemimg64"] != null && item["itemimg64"].isNotEmpty)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(size.width * 0.1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Image.network(
+                  "https://jordancarpart.com${item["itemimg64"]}",
+                  width: size.width * 0.4,
+                  height: size.height * 0.2,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(child: Text('فشل في تحميل الصورة'));
+                  },
+                ),
+              )
+            else
+              Text("لا توجد صورة"),
+          ],
         ),
       );
     }).toList();
@@ -160,33 +141,18 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
 
   Widget _buildOrderDetails(Size size) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-      child: Container(
-        padding: EdgeInsets.all(size.width * 0.03),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(size.width * 0.02),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow("رقم الطلب:", "${orderData["orderid"]}", size),
-            _buildDetailRow("تاريخ الطلب:", "${orderData["timeorder"]}", size),
-            _buildDetailRow("سعر القطعة:", "${orderData["productCost"]}", size),
-            _buildDetailRow("تكلفة الجمارك:", "${orderData["customs"]}", size),
-            _buildDetailRow(
-                "وقت التوصيل:", "${orderData["deliveryTime"]}", size),
-            _buildDetailRow(
-                "الملاحظات:", "${orderData["additionalNote"]}", size),
-          ],
-        ),
+      padding: EdgeInsets.symmetric(
+          horizontal: size.width * 0.04, vertical: size.height * 0.02),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDetailRow("الملاحظات", "${orderData["additionalNote"]}", size),
+          _buildDetailRow("وقت التوصيل", "${orderData["deliveryTime"]}", size),
+          _buildDetailRow("تكلفة الجمارك", "${orderData["customs"]}", size),
+          _buildDetailRow("سعر القطعة", "${orderData["productCost"]}", size),
+          _buildDetailRow("تاريخ الطلب", "${orderData["timeorder"]}", size),
+          _buildDetailRow("رقم الطلب", "${orderData["orderid"]}", size),
+        ],
       ),
     );
   }
@@ -196,22 +162,18 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
       padding: EdgeInsets.only(bottom: size.height * 0.01),
       child: Row(
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
+          CustomText(
+              text: title,
+              weight: FontWeight.bold,
               color: Colors.black,
-              fontSize: size.height * 0.02,
-            ),
-          ),
+              size: size.height * 0.02,
+              textAlign: TextAlign.left),
           SizedBox(width: size.width * 0.02),
           Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                color: Colors.black87,
-                fontSize: size.height * 0.018,
-              ),
+            child: CustomText(
+              text: value,
+              color: Colors.black87,
+              size: size.height * 0.018,
             ),
           ),
         ],
@@ -222,26 +184,12 @@ class OrderDetailsPage_Greenprivate extends StatelessWidget {
   Widget _buildTotalCost(Size size) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: size.width * 0.04),
-      child: Container(
-        padding: EdgeInsets.all(size.width * 0.03),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(size.width * 0.02),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDetailRow(
-                "المجموع الكلي:", "${orderData["totalCost"]} دينار", size),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildDetailRow(
+              "المجموع الكلي", "${orderData["totalCost"]} دينار", size),
+        ],
       ),
     );
   }
