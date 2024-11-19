@@ -126,6 +126,7 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Stream<Map<String, dynamic>>? _limitationStream;
   String? userId;
+  int? verificationValue;
 
   @override
   void initState() {
@@ -135,6 +136,14 @@ class _HomeWidgetState extends State<HomeWidget> {
     _loadOrderAllowed();
     _initializeStream();
     _initializeServiceAndStartTimer();
+    _loadVerificationValue();
+  }
+  Future<void> _loadVerificationValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      verificationValue = prefs.getInt('verification');
+      isLoading = false;
+    });
   }
 
   void _initializeServiceAndStartTimer() async {
@@ -308,6 +317,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         children: [
           SizedBox(height: size.height * 0.01),
           _buildVinField(),
+          verificationValue == 0 ?SizedBox() :
           Padding(
             padding: EdgeInsets.all(size.width * 0.01),
             child: Column(

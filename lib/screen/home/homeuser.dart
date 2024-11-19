@@ -84,6 +84,7 @@ class _HomePageState extends State<HomePage> {
   GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   late Widget current;
   bool isLoading = false;
+  int? verificationValue;
 
   @override
   void initState() {
@@ -94,13 +95,62 @@ class _HomePageState extends State<HomePage> {
       },
     );
     currentTab = 1;
+    _fetchDataAndSave();
+    _loadVerificationValue();
+  }
+
+  Future<void> _fetchDataAndSave() async {
+    const url = 'https://jordancarpart.com/Api/applyupload.php';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['data'] != null &&
+            responseData['data'] is List &&
+            responseData['data'].isNotEmpty) {
+          final verification =
+          responseData['data'][0]['verification'];
+          if (verification is int) {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setInt('verification', verification);
+            print("verification" + verification.toString());
+            setState(() {
+              verificationValue = verification;
+            });
+          }
+        }
+      } else {
+        throw Exception('Failed to fetch data: ${response.statusCode}');
+      }
+    } catch (e) {} finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadVerificationValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      verificationValue = prefs.getInt('verification');
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       key: _key,
@@ -310,6 +360,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
+                    verificationValue == 0 ? SizedBox() :
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
@@ -339,6 +390,8 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
+
+
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(

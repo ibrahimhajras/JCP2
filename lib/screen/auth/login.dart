@@ -424,10 +424,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url =
-        'https://jordancarpart.com/Api/login.php?phone=$phone&password=$password';
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
+    final url = 'https://jordancarpart.com/Api/login.php?phone=$phone&password=$password';
 
     setState(() {
       isLoading = true;
@@ -459,6 +456,8 @@ class _LoginPageState extends State<LoginPage> {
             cancelText: '',
           );
         } else if (user.type == "1" || user.type == "2") {
+          final profileProvider =
+          Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
           profileProvider.setphone(user.phone);
           profileProvider.setname(user.name);

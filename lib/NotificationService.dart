@@ -322,6 +322,4 @@ class NotificationService {
       throw Exception('Failed to load order details');
     }
   }
-
-
 }
