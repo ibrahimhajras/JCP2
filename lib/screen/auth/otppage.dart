@@ -17,7 +17,6 @@ import '../../widget/Inallpage/dialogs.dart';
 import '../../model/UserModel.dart';
 import '../../provider/ProfileProvider.dart';
 import '../home/homeuser.dart';
-import '../../widget/NotificationPermissionHandler.dart';
 
 class OtpPage extends StatefulWidget {
   final String phone;

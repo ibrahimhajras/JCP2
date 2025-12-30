@@ -18,7 +18,6 @@ import '../auth/forgotpassword.dart';
 import '../auth/register.dart';
 import '../../provider/ProfileProvider.dart';
 import '../home/homeuser.dart';
-import '../../widget/NotificationPermissionHandler.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -498,7 +497,6 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context) => Index_Driver(page: 1),
             ),
           );
-          NotificationPermissionHandler.checkAndRequestPermission(context);
         } else if (user.type == "0") {
           showConfirmationDialog(
             context: context,
@@ -556,7 +554,6 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context) => HomePage(page: 1),
             ),
           );
-          NotificationPermissionHandler.checkAndRequestPermission(context);
         } else {
           showConfirmationDialog(
             context: context,

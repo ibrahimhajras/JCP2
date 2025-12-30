@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../widget/Inallpage/CustomButton.dart';
 import '../../widget/Inallpage/showConfirmationDialog.dart';
-import '../../widget/NotificationPermissionHandler.dart';
 
 class PricingRequestPage extends StatefulWidget {
   const PricingRequestPage({super.key});
@@ -398,7 +397,6 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
                 builder: (context) => PayPage(
                     orderId: int.parse(userProvider.user_id), billId: billId!),
               ));
-          NotificationPermissionHandler.checkAndRequestPermission(context);
         });
       } else {
         showConfirmationDialog(

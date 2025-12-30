@@ -24,7 +24,6 @@ import '../../widget/update.dart';
 import '../auth/login.dart';
 import 'component/VehicleInfoCard.dart';
 import 'component/VehicleSelectionPage.dart';
-import '../../widget/NotificationPermissionHandler.dart';
 
 class HomeWidget extends StatefulWidget {
   final ValueChanged<bool> run;
@@ -111,8 +110,6 @@ class _HomeWidgetState extends State<HomeWidget>
     );
 
     _controller.repeat(reverse: true);
-
-    NotificationPermissionHandler.checkAndRequestPermission(context);
 
     part1FocusNode.addListener(() => _scrollToField(part1Key));
     part2FocusNode.addListener(() => _scrollToField(part2Key));
@@ -774,7 +771,6 @@ class _HomeWidgetState extends State<HomeWidget>
                                     await _checkForNotifications();
                                     await _fetchData();
                                     await _loadOrderAllowed();
-                                    NotificationPermissionHandler.checkAndRequestPermission(context);
                                   } else {
                                     await _logoutUser();
                                   }
