@@ -177,27 +177,27 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: SingleChildScrollView(
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.9,
-                            ),
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 7,
-                                color: words,
+                        child: KeyboardActions(
+                          config: KeyboardActionsUtil.buildConfig(context, [
+                            warrantyFocusNodes[index],
+                            markFocusNodes[index],
+                            noteFocusNodes[index],
+                          ]),
+                          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+                          child: SingleChildScrollView(
+                            child: Container(
+                              constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width * 0.9,
                               ),
-                              borderRadius: BorderRadius.circular(10),
-                              color: const Color.fromRGBO(255, 255, 255, 1),
-                            ),
-                            child: KeyboardActions(
-                              config: KeyboardActionsUtil.buildConfig(context, [
-                                warrantyFocusNodes[index],
-                                markFocusNodes[index],
-                                noteFocusNodes[index],
-                              ]),
-                              tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 7,
+                                  color: words,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                color: const Color.fromRGBO(255, 255, 255, 1),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
