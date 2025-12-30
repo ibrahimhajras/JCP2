@@ -725,7 +725,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                                 "بحث تنبؤي",
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey,
+                                  color: Colors.black54,
                                   fontFamily: "Tajawal",
                                 ),
                               ),
