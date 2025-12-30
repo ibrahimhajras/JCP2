@@ -17,89 +17,96 @@ class FullScreenImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.transparent, // Transparent background
-      elevation: 0,
+      backgroundColor: Colors.transparent,
+      elevation: 0, 
       insetPadding: const EdgeInsets.all(0),
-      child: Stack(
-        children: [
-          // Close button and background tap
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              color: Colors.transparent, // Keep transparent to see background
-              width: double.infinity,
-              height: double.infinity,
-            ),
-          ),
-
-          // Image with Zoom
-          Center(
-            child: InteractiveViewer(
-              minScale: 1.0,
-              maxScale: 5.0,
-              child: imageFile != null
-                  ? Image.file(
-                imageFile!,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.contain,
-              )
-                  : Image.network(
-                imageUrl!,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.contain,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(child: RotatingImagePage());
-                },
-                errorBuilder: (BuildContext context, Object error,
-                    StackTrace? stackTrace) {
-                  return const Center(
-                    child: Text(
-                      'خطأ في تحميل الصورة',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontFamily: "Tajawal",
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // Watermark Overlay
-          IgnorePointer(
-            child: Center(
-              child: Opacity(
-                opacity: 0.3, // Adjust transparency as needed
-                child: SvgPicture.asset(
-                  'assets/svg/logo-04.svg',
-                  width: MediaQuery.of(context).size.width * 0.5, // Adjust size
-                  colorFilter: const ColorFilter.mode(
-                      Colors.white,
-                      BlendMode.srcIn
+      child: Container(
+        color: Colors.transparent,
+        child: InteractiveViewer(
+          minScale: 1.0,
+          maxScale: 5.0,
+          child: Column(
+            children: [
+              // Top tap area to close
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    color: Colors.transparent,
                   ),
                 ),
               ),
-            ),
+              
+              // Image area - no closing on tap
+              GestureDetector(
+                onTap: () {}, // Prevent closing when tapping on image
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    imageFile != null 
+                      ? Image.file(
+                          imageFile!,
+                          fit: BoxFit.contain,
+                        )
+                      : Image.network(
+                          imageUrl!,
+                          fit: BoxFit.contain,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(child: RotatingImagePage());
+                          },
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return const Center(
+                              child: Text(
+                                'خطأ في تحميل الصورة',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontFamily: "Tajawal",
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    
+                    // Watermark Overlay
+                    IgnorePointer(
+                      child: Opacity(
+                        opacity: 0.3,
+                        child: SvgPicture.asset(
+                          'assets/svg/logo-04.svg',
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white, 
+                            BlendMode.srcIn
+                          ), 
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Bottom tap area to close
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ],
           ),
-
-          // Close Button (Icon)
-          Positioned(
-            top: 40,
-            right: 20,
-            child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white, size: 30),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
