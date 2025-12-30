@@ -31,7 +31,7 @@ class NotificationPermissionHandler {
         title: CustomText(
           text: "تفعيل التنبيهات",
           size: 18,
-          fontWeight: FontWeight.bold,
+          weight: FontWeight.bold,
         ),
         content: CustomText(
           text: "يرجى تفعيل التنبيهات للحصول على آخر التحديثات والطلبات الجديدة فور وصولها.",
@@ -71,7 +71,7 @@ class NotificationPermissionHandler {
         title: CustomText(
           text: "التنبيهات معطلة",
           size: 18,
-          fontWeight: FontWeight.bold,
+          weight: FontWeight.bold,
         ),
         content: CustomText(
           text: "التنبيهات معطلة من إعدادات النظام. يرجى تفعيلها من الإعدادات لاستلام التحديثات.",
