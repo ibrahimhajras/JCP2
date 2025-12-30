@@ -334,6 +334,7 @@ class _HomeWidgetState extends State<HomeWidget>
     } catch (e) {}
   }
 
+<<<<<<< HEAD
   void _scrollToField(GlobalKey key) {
     if (key.currentContext != null) {
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -363,6 +364,28 @@ class _HomeWidgetState extends State<HomeWidget>
     }
     dynamicFocusNodes.clear();
     super.dispose();
+=======
+  Stream<Map<String, dynamic>>? _limitationStream;
+  String? userId;
+  int? verificationValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForNotifications();
+    _fetchData();
+    _loadOrderAllowed();
+    _initializeStream();
+    _initializeServiceAndStartTimer();
+    _loadVerificationValue();
+  }
+  Future<void> _loadVerificationValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      verificationValue = prefs.getInt('verification');
+      isLoading = false;
+    });
+>>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
   }
 
   Future<void> _loadVerificationValue() async {
@@ -599,11 +622,17 @@ class _HomeWidgetState extends State<HomeWidget>
       child: Column(
         children: [
           SizedBox(height: size.height * 0.01),
+<<<<<<< HEAD
           _buildVehicleCard(),
           SizedBox(height: size.height * 0.01),
           verificationValue == 0
               ? const SizedBox()
               : Padding(
+=======
+          _buildVinField(),
+          verificationValue == 0 ?SizedBox() :
+          Padding(
+>>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
             padding: EdgeInsets.all(size.width * 0.01),
             child: Column(
               children: [
