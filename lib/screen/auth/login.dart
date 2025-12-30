@@ -443,12 +443,8 @@ class _LoginPageState extends State<LoginPage> {
       phone = phone.substring(1);
     }
 
-<<<<<<< HEAD
     final url =
         'https://jordancarpart.com/Api/auth/login.php?phone=$phone&password=$password';
-=======
-    final url = 'https://jordancarpart.com/Api/login.php?phone=$phone&password=$password';
->>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
 
     setState(() {
       isLoading = true;
@@ -462,31 +458,10 @@ class _LoginPageState extends State<LoginPage> {
       if (responseData['status'] == 'success') {
         final userData = responseData['user'];
         UserModel user = UserModel.fromJson(userData);
-<<<<<<< HEAD
 
         if (user.type == "4") {
           await FirebaseMessaging.instance.subscribeToTopic("Driver");
 
-=======
-        print(user.type);
-        if (user.type == "0") {
-          showConfirmationDialog(
-            context: context,
-            message: 'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
-            confirmText: 'حسناً',
-            onConfirm: () {},
-            cancelText: '',
-          );
-        } else if (user.type == "3") {
-          showConfirmationDialog(
-            context: context,
-            message: 'لا يمكن الدخول باستخدام هذا الحساب.',
-            confirmText: 'حسناً',
-            onConfirm: () {},
-            cancelText: '',
-          );
-        } else if (user.type == "1" || user.type == "2") {
->>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
           final profileProvider =
           Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
