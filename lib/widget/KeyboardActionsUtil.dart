@@ -28,15 +28,13 @@ class KeyboardActionsUtil {
     );
   }
 
-  /// Builds a [KeyboardActionsConfig] for a single focus node.
-  static KeyboardActionsConfig buildConfig(BuildContext context, FocusNode focusNode) {
+  /// Builds a [KeyboardActionsConfig] for a list of focus nodes to enable navigation arrows.
+  static KeyboardActionsConfig buildConfig(BuildContext context, List<FocusNode> nodes) {
     return KeyboardActionsConfig(
       keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
       keyboardBarColor: Colors.grey[200],
       nextFocus: true,
-      actions: [
-        buildDoneItem(focusNode),
-      ],
+      actions: nodes.map((node) => buildDoneItem(node)).toList(),
     );
   }
 }
