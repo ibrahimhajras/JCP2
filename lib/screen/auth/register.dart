@@ -34,7 +34,12 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController confirmPassword = TextEditingController();
   TextEditingController street = TextEditingController();
   bool _isChecked = false;
+  final FocusNode fNameFocus = FocusNode();
+  final FocusNode lNameFocus = FocusNode();
   final FocusNode phoneFocus = FocusNode();
+  final FocusNode streetFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
+  final FocusNode confirmPasswordFocus = FocusNode();
 
   final _key = GlobalKey<ScaffoldState>();
   bool ob = true;
@@ -167,9 +172,19 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       key: _key,
       backgroundColor: white,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
+      body: KeyboardActions(
+        config: KeyboardActionsUtil.buildConfig(context, [
+          fNameFocus,
+          lNameFocus,
+          phoneFocus,
+          streetFocus,
+          passwordFocus,
+          confirmPasswordFocus,
+        ]),
+        tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
             Container(
               child: Column(
                 children: [
@@ -339,7 +354,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child:
-                buildTextField(lname, "إسم العائلة", lNameHint, (newHint) {
+                buildTextField(lname, "إسم العائلة", lNameFocus, lNameHint, (newHint) {
                   setState(() {
                     lNameHint = newHint;
                   });
@@ -350,7 +365,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child:
-                buildTextField(fname, "الإسم الاول", fNameHint, (newHint) {
+                buildTextField(fname, "الإسم الاول", fNameFocus, fNameHint, (newHint) {
                   setState(() {
                     fNameHint = newHint;
                   });
@@ -370,11 +385,12 @@ class _RegisterPageState extends State<RegisterPage> {
         StreetFieldWidget(
           hintText: "المنطقة - الشارع - رقم البناية",
           controller: street,
+          focusNode: streetFocus,
         ),
         Padding(
           padding: const EdgeInsets.all(15.0),
           child:
-          buildPasswordField(password, "كلمة المرور", passHint, ob, (val) {
+          buildPasswordField(password, "كلمة المرور", passwordFocus, passHint, ob, (val) {
             setState(() {
               ob = val;
             });
@@ -383,7 +399,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 15.0),
           child: buildPasswordField(
-              confirmPassword, "تأكيد كلمة المرور", passConfirmHint, ob1,
+              confirmPassword, "تأكيد كلمة المرور", confirmPasswordFocus, passConfirmHint, ob1,
                   (val) {
                 setState(() {
                   ob1 = val;
@@ -697,6 +713,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildTextField(
       TextEditingController controller,
       String labelText,
+      FocusNode focusNode,
       String initialHintText,
       Function(String) updateHint,
       ) {
@@ -727,6 +744,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   border: InputBorder.none,
                   hintText: hintText,
                 ),
+                focusNode: focusNode,
                 onTap: () {
                   setState(() {
                     updateHint("");
@@ -773,9 +791,6 @@ class _RegisterPageState extends State<RegisterPage> {
             color: grey,
             child: SizedBox(
               height: 47,
-              child: KeyboardActions(
-                config: KeyboardActionsUtil.buildConfig(context, phoneFocus),
-                tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
                 child: IntlPhoneField(
                   focusNode: phoneFocus,
                   onTap: () {
@@ -892,6 +907,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget buildPasswordField(
       TextEditingController controller,
       String labelText,
+      FocusNode focusNode,
       String hintText,
       bool obscureText,
       Function(bool) toggleVisibility,
@@ -918,6 +934,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: TextFormField(
                   controller: controller,
+                  focusNode: focusNode,
                   textAlign: TextAlign.end,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -981,11 +998,13 @@ class _RegisterPageState extends State<RegisterPage> {
 class StreetFieldWidget extends StatefulWidget {
   final String hintText;
   final TextEditingController controller;
+  final FocusNode focusNode;
 
   const StreetFieldWidget({
     Key? key,
     required this.hintText,
     required this.controller,
+    required this.focusNode,
   }) : super(key: key);
 
   @override
@@ -993,18 +1012,14 @@ class StreetFieldWidget extends StatefulWidget {
 }
 
 class _StreetFieldWidgetState extends State<StreetFieldWidget> {
-  late FocusNode _focusNode;
-  late String currentHintText;
-
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode();
     currentHintText = widget.hintText;
 
-    _focusNode.addListener(() {
+    widget.focusNode.addListener(() {
       setState(() {
-        if (_focusNode.hasFocus) {
+        if (widget.focusNode.hasFocus) {
           currentHintText = '';
         } else if (widget.controller.text.isEmpty) {
           currentHintText = widget.hintText;
@@ -1015,7 +1030,6 @@ class _StreetFieldWidgetState extends State<StreetFieldWidget> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -1043,7 +1057,7 @@ class _StreetFieldWidgetState extends State<StreetFieldWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: TextFormField(
                 controller: widget.controller,
-                focusNode: _focusNode,
+                focusNode: widget.focusNode,
                 textAlign: TextAlign.end,
                 decoration: InputDecoration(
                   border: InputBorder.none,
