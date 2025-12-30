@@ -1,18 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/provider/ProfileProvider.dart';
-import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/style/custom_text.dart';
-import 'package:jcp/widget/Inallpage/CustomHeader.dart';
+import 'package:jcp/widget/DetialsOrder/OrangePage/Pay.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'dart:convert';
-
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../widget/Inallpage/CustomButton.dart';
+import '../../widget/Inallpage/showConfirmationDialog.dart';
 
 class PricingRequestPage extends StatefulWidget {
   const PricingRequestPage({super.key});
@@ -22,27 +21,15 @@ class PricingRequestPage extends StatefulWidget {
 }
 
 class _PricingRequestPageState extends State<PricingRequestPage> {
-  int selectedRequests = 1;
+  int selectedRequests = 0;
   final TextEditingController messageController = TextEditingController();
   int? limitOfOrder;
-
-  void _showDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("موافق"),
-          ),
-        ],
-      ),
-    );
-  }
+  int? billId;
+  double? dueAmount;
+  bool hasActiveBill = false;
+  late ProfileProvider userProvider;
+  Timer? _refreshTimer;
+  bool isLoading = true;
 
   Future<int?> getLimitOfOrder() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -52,44 +39,118 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
   Future<void> _loadLimitOfOrder() async {
     int? retrievedLimitOfOrder = await getLimitOfOrder();
     setState(() {
-      limitOfOrder = retrievedLimitOfOrder; // استرجاع القيمة
+      limitOfOrder = retrievedLimitOfOrder;
     });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    _initializePage();
     _loadLimitOfOrder();
+    checkActivePricingBill();
+  }
+
+  Future<void> _initializePage() async {
+    await _loadLimitOfOrder();
+    await checkActivePricingBill();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userProvider = Provider.of<ProfileProvider>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> checkActivePricingBill() async {
+    try {
+      final url = Uri.parse(
+          'https://jordancarpart.com/Api/Bills/check_pricing_bill.php');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"user_id": userProvider.user_id}),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (data['success'] == true) {
+        setState(() {
+          hasActiveBill = true;
+          billId = data['bill_id'];
+          dueAmount = double.tryParse(data['due_amount'].toString()) ?? 0.0;
+        });
+      } else {
+        setState(() {
+          hasActiveBill = false;
+        });
+      }
+    } catch (e) {}
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: white,
       body: SingleChildScrollView(
         child: Container(
           child: Column(
             children: [
-              CustomHeader(
-                size: size,
-                title: "تفعيل طلب تسعير",
-                notificationIcon: SizedBox.shrink(),
-                menuIcon: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: Colors.white,
+              Container(
+                height: size.height * 0.20,
+                width: size.width,
+                decoration: BoxDecoration(
+                  gradient:
+                  LinearGradient(colors: [primary1, primary2, primary3]),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      CustomText(
+                        text: "تفعيل طلب تسعير",
+                        color: Colors.white,
+                        size: size.width * 0.06,
+                      ),
+                      SizedBox(width: size.width * 0.2),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 15),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.arrow_forward_ios_rounded,
+                              color: white),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+              isLoading
+                  ? Center(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.3),
+                      RotatingImagePage(),
+                    ],
+                  ))
+                  : Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 5),
                 child: Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -100,7 +161,8 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
                         weight: FontWeight.bold,
                       ),
                       SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.001),
+                          height:
+                          MediaQuery.of(context).size.height * 0.001),
                       CustomText(
                         text: "${limitOfOrder?.toInt() ?? 0}",
                         size: 30,
@@ -117,66 +179,165 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
                       SizedBox(height: 10),
                       CustomText(
                         text:
-                            "يمكنك تفعيل أكثر من طلب تسعير بصلاحية تنتهي بانتهاء عدد الطلبات المدفوعة مع الاحتفاظ بحقك في التسعير المجاني لمرة واحدة في اليوم",
+                        "يمكنك تفعيل أكثر من طلب تسعير بصلاحية تنتهي بانتهاء عدد الطلبات المدفوعة مع الاحتفاظ بحقك في التسعير المجاني لمرة واحدة في اليوم",
                         size: 14,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DropdownButton<int>(
-                            value: selectedRequests,
-                            items: List.generate(20, (index) => index + 1)
-                                .map((int value) {
-                              return DropdownMenuItem<int>(
-                                value: value,
-                                child: CustomText(
-                                  text: value.toString(),
-                                  size: 20,
-                                  weight: FontWeight.bold,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedRequests = newValue!;
-                              });
-                            },
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width *
-                                0.10, // 10% من عرض الشاشة
-                          ),
-                          CustomText(
-                            text: "حدد عدد الطلبات:",
-                            size: 16,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height *
-                            0.02, // 2% من ارتفاع الشاشة
-                      ),
-
-                      // Display the calculated cost based on the selected number of requests
+                          height:
+                          MediaQuery.of(context).size.height * 0.001),
                       CustomText(
-                        text: "JDالتكلفة الإجمالية: ${selectedRequests * 2} ",
-                        size: 16,
+                        text: " JD2تكلفة كل طلب جديد هي ",
+                        size: 14,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height *
-                            0.03, // 2% من ارتفاع الشاشة
+                          height:
+                          MediaQuery.of(context).size.height * 0.02),
+                      Column(
+                        children: [
+                          ...(hasActiveBill
+                              ? []
+                              : [
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.of(context)
+                                      .size
+                                      .width *
+                                      0.15,
+                                  child: TextField(
+                                    keyboardType:
+                                    TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    // 🔥 يخلي الكتابة بالنص
+                                    textAlignVertical:
+                                    TextAlignVertical.center,
+                                    // 🔥 يخليها بنص الصندوق عمودياً
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      hintText: '',
+                                      contentPadding:
+                                      EdgeInsets.symmetric(
+                                          vertical:
+                                          10), // 🔥 أحلى تمركز
+                                    ),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedRequests =
+                                            int.tryParse(value) ??
+                                                0;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context)
+                                      .size
+                                      .width *
+                                      0.05,
+                                ),
+                                CustomText(
+                                  text: ": عدد الطلبات",
+                                  size: 16,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context)
+                                  .size
+                                  .height *
+                                  0.02,
+                            ),
+                            CustomText(
+                              text:
+                              "JDالتكلفة الإجمالية: ${selectedRequests * 2} ",
+                              size: 16,
+                              textAlign: TextAlign.center,
+                            ),
+                          ])
+                        ],
                       ),
-                      CustomButton(
-                        text: "إرسال طلب",
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.03,
+                      ),
+                      hasActiveBill
+                          ? Column(
+                        children: [
+                          SizedBox(height: 10),
+                          CustomText(
+                            text: "لديك طلب تسعير مفعل بالفعل",
+                            size: 16,
+                            color: Colors.green,
+                            weight: FontWeight.bold,
+                          ),
+                          SizedBox(height: 5),
+                          Column(
+                            children: [
+                              CustomText(
+                                text: ":رقم الفاتورة",
+                                size: 16,
+                                color: Colors.black87,
+                              ),
+                              CustomText(
+                                text: "$billId",
+                                size: 16,
+                                color: Colors.black87,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment:
+                            MainAxisAlignment.center,
+                            children: [
+                              CustomText(
+                                text: ":المبلغ المستحق",
+                                size: 16,
+                                color: Colors.red,
+                              ),
+                              CustomText(
+                                text:
+                                "${dueAmount?.toStringAsFixed(2)} JD",
+                                size: 16,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          CustomButton(
+                            height: 50,
+                            text: "متابعة",
+                            onPressed: () async {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PayPage(
+                                        orderId: int.parse(
+                                            userProvider.user_id),
+                                        billId: billId!),
+                                  ));
+                            },
+                            color: button,
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                              fontFamily: "Tajawal",
+                            ),
+                          ),
+                        ],
+                      )
+                          : CustomButton(
+                        height: 50,
+                        minWidth: size.width * 0.9,
+                        text: "شراء",
                         onPressed: () {
-                          _submitRequest(selectedRequests.toString(), context);
+                          _submitRequest(
+                              selectedRequests.toString(), context);
                         },
-                        color: button, // يمكنك تمرير أي لون تريده
+                        color: button,
                         textStyle: TextStyle(
                           color: Colors.white,
                           fontSize: 16.0,
@@ -184,52 +345,6 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      CustomText(
-                        text: "رقم الدفع:",
-                        size: 18,
-                        weight: FontWeight.bold,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.009,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CustomText(
-                            text: "0796888501",
-                            size: 16,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.009,
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.copy, color: Colors.grey),
-                            onPressed: () {
-                              Clipboard.setData(
-                                  ClipboardData(text: "0796888501"));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('تم نسخ رقم الهاتف')),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.009,
-                      ),
-                      CustomText(
-                        text: "طرق الدفع",
-                        size: 18,
-                        weight: FontWeight.bold,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.009,
-                      ),
-                      CustomText(
-                        text: "من خلال اي فواتيركم من قائمة فاتورتك",
-                        size: 14,
-                        textAlign: TextAlign.center,
-                      ),
                     ],
                   ),
                 ),
@@ -242,121 +357,62 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
   }
 
   Future<void> _submitRequest(String message, context) async {
-    final String apiUrl = "https://jordancarpart.com/Api/pricingrequest.php";
     final user = Provider.of<ProfileProvider>(context, listen: false);
-    final size = MediaQuery.of(context).size;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    Map<String, dynamic> requestBody = {
-      "name": user.name,
+    final billData = {
+      "order_id": user.user_id,
       "user_id": user.user_id,
-      "phone": user.phone,
-      "message": message,
-      "token": token
+      "cust_name": user.name,
+      "due_amount": (int.tryParse(message) ?? 0) * 2,
+      "service_type": "Pay_bill",
+      "bill_type": "OneOff",
+      "bill_status": "BillNew",
+      "status": "pricing",
+      "bill_category": "pricing",
     };
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
+      final billResponse = await http.post(
+        Uri.parse('https://jordancarpart.com/Api/Bills/create_bill.php'),
         headers: {
-          'Access-Control-Allow-Headers': '*',
-          'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: json.encode(requestBody),
+        body: jsonEncode(billData),
       );
-      print(response.body);
-      print('Name: ${user.name}');
-      print('User ID: ${user.user_id}');
-      print('Phone: ${user.phone}');
-      print('Message: $message');
 
-      if (response.statusCode == 200) {
-        print("Request successful: ${response.body}");
-        showModalBottomSheet(
-          builder: (context) {
-            return _buildSuccessBottomSheet(size);
-          },
-          context: context,
-        );
+      final responseJson = jsonDecode(billResponse.body);
+
+      if (billResponse.statusCode == 200 && responseJson['success'] == true) {
+        await checkActivePricingBill();
+
+        setState(() {
+          hasActiveBill = true;
+          billId = responseJson['bill_id'];
+          dueAmount = double.tryParse(message) ?? 0.0;
+        });
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PayPage(
+                  orderId: int.parse(userProvider.user_id), billId: billId!),
+            ));
       } else {
-        print("Request failed: ${response.statusCode}");
-        _showDialog("خطأ", "حدث خطأ أثناء إرسال طلبك. حاول مرة أخرى.");
+        showConfirmationDialog(
+          context: context,
+          message: '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+          confirmText: 'حسنًا',
+          onConfirm: () {},
+        );
       }
     } catch (e) {
-      print("Request error: $e");
-      _showDialog("خطأ", "حدث خطأ أثناء الاتصال بالخادم.");
+      showConfirmationDialog(
+        context: context,
+        message: '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+        confirmText: 'حسنًا',
+        onConfirm: () {},
+      );
     }
-  }
-
-  Widget _buildSuccessBottomSheet(Size size) {
-    return Container(
-      height: 390,
-      width: size.width,
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.25),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(1),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        child: Column(
-          children: [
-            SizedBox(height: 15),
-            Center(
-              child: SvgPicture.asset(
-                'assets/svg/line.svg',
-                width: 30,
-                height: 5,
-              ),
-            ),
-            SizedBox(height: 35),
-            Center(
-              child: Image.asset(
-                "assets/images/done-icon 1.png",
-                height: 122,
-                width: 122,
-              ),
-            ),
-            SizedBox(height: 25),
-            Center(
-              child: CustomText(
-                text:
-                    "تم ارسال طلبك لتسعير\n سوف يتم زيادة الطلبات في اقرب وقت",
-                size: 24,
-                weight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: size.height * 0.05),
-            MaterialButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomePage(),
-                    ));
-              },
-              height: 45,
-              minWidth: size.width * 0.9,
-              color: Color.fromRGBO(195, 29, 29, 1),
-              child: CustomText(
-                text: "رجوع",
-                color: white,
-                size: 18,
-              ),
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

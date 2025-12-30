@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "164063284685",
+    "project_id": "jcp-jordan",
+    "storage_bucket": "jcp-jordan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164063284685:android:64187122044aa236068884",
+        "android_client_info": {
+          "package_name": "com.zaid.Jcp.car"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlioIW8k9G5D_wjubF6EvUK_m3FAuRbiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164063284685:android:b98a1f9cf50ca4fd068884",
+        "android_client_info": {
+          "package_name": "com.zaid.Jcpcar.name"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlioIW8k9G5D_wjubF6EvUK_m3FAuRbiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

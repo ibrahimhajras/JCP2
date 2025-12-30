@@ -4,20 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/style/custom_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../NotificationService.dart';
 import '../../../style/colors.dart';
+import '../../FullScreenImageViewer.dart';
 import '../../RotatingImagePage.dart';
+import 'Pay.dart';
 
 class OrderDetailsPage_OrangePrivate extends StatefulWidget {
   final Map<String, dynamic> orderData;
   final List<Map<String, dynamic>> items;
-  final String carid;
+  final bool status;
 
   const OrderDetailsPage_OrangePrivate({
     super.key,
     required this.orderData,
     required this.items,
-    required this.carid,
+    required this.status,
   });
 
   @override
@@ -29,8 +30,7 @@ class _OrderDetailsPageState_OrangePrivate
     extends State<OrderDetailsPage_OrangePrivate> {
   @override
   void initState() {
-    // TODO: implement initState
-    print(widget.items);
+
     super.initState();
   }
 
@@ -39,76 +39,75 @@ class _OrderDetailsPageState_OrangePrivate
     final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(size),
-            SizedBox(height: size.height * 0.01),
-            _buildSectionTitle("المركبة"),
-            _buildVehicleInfo(),
-            SizedBox(height: size.height * 0.01),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 100),
-                      // Adjust padding to move "اسم القطعة"
-                      child: _buildSectionTitle("اسم القطعة"),
-                    ),
+      body: Column(
+        children: [
+          _buildHeader(size),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: size.height * 0.01),
+                  _buildSectionTitle("المركبة"),
+                  _buildVehicleInfo(),
+                  SizedBox(height: size.height * 0.01),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 100),
+                            child: _buildSectionTitle("اسم القطعة"),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 50.0),
+                        child: IconButton(
+                          onPressed: () {
+                            _showImageDialog(widget.items[0]['itemimg64'] ?? "");
+                          },
+                          icon: Icon(
+                            Icons.info_outline,
+                            size: 24,
+                            color: green,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 50.0),
-                  // Adjust padding to move the icon
-                  child: IconButton(
-                    onPressed: () {
-                      if (widget.items.isNotEmpty &&
-                          widget.items[0]['itemimg64'] != null &&
-                          widget.items[0]['itemimg64'].isNotEmpty) {
-                        _showImageDialog(widget.items[0]['itemimg64']);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('لا توجد صورة لهذا العنصر')),
-                        );
-                      }
-                    },
-                    icon: Icon(
-                      Icons.info_outline,
-                      size: 24,
-                      color: green,
-                    ),
+                  _buildVehicleInfo2(widget.items),
+                  SizedBox(height: size.height * 0.07),
+                  Divider(
+                    height: 2,
                   ),
-                ),
-              ],
-            ),
-            _buildVehicleInfo2(widget.items),
-            SizedBox(height: size.height * 0.07),
-            Divider(
-              height: 2,
-            ),
-            SizedBox(height: size.height * 0.01),
-            _buildOrderInfo(),
-            SizedBox(height: size.height * 0.07),
-            MaterialButton(
-              onPressed: _handleConfirm,
-              height: 50,
-              minWidth: size.width * 0.9,
-              color: Color.fromRGBO(195, 29, 29, 1),
-              child: CustomText(
-                text: "تاكيد",
-                color: white,
-                size: 16,
-              ),
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                  SizedBox(height: size.height * 0.01),
+                  _buildOrderInfo(),
+                  SizedBox(height: size.height * 0.07),
+                  widget.status == true
+                      ? MaterialButton(
+                    onPressed: _handleConfirm,
+                    height: 50,
+                    minWidth: size.width * 0.9,
+                    color: Color.fromRGBO(195, 29, 29, 1),
+                    child: CustomText(
+                      text: "تاكيد",
+                      color: white,
+                      size: 16,
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  )
+                      : Container(),
+                  SizedBox(height: 20),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -170,11 +169,6 @@ class _OrderDetailsPageState_OrangePrivate
                   ),
                 ],
               ),
-              CustomText(
-                color: Color(0xFF8D8D92),
-                text: widget.carid,
-                letters: true,
-              )
             ],
           )),
     );
@@ -196,48 +190,10 @@ class _OrderDetailsPageState_OrangePrivate
   }
 
   void _showImageDialog(String imageUrl) {
-    String fullUrl = "https://jordancarpart.com$imageUrl";
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          content: fullUrl.isNotEmpty
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: CustomText(
-                        text:
-                            "الملاحظات:  ${widget.orderData['additionalNote']}" ??
-                                '',
-                        size: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Image.network(
-                      fullUrl,
-                      height: 250,
-                      width: 250,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Text('فشل في تحميل الصورة');
-                      },
-                    ),
-                  ],
-                )
-              : Text('لا توجد صورة متاحة'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('إغلاق'),
-            ),
-          ],
-        );
+      builder: (BuildContext context) {
+        return FullScreenImageViewer(imageUrl: imageUrl);
       },
     );
   }
@@ -247,15 +203,7 @@ class _OrderDetailsPageState_OrangePrivate
       height: size.height * 0.20,
       width: size.width,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topLeft,
-          colors: [primary1, primary2, primary3],
-        ),
-        image: DecorationImage(
-          image: AssetImage("assets/images/card.png"),
-          fit: BoxFit.cover,
-        ),
+        gradient: LinearGradient(colors: [primary1, primary2, primary3]),
       ),
       child: Center(
         child: Row(
@@ -264,7 +212,7 @@ class _OrderDetailsPageState_OrangePrivate
             CustomText(
               text: "تفاصيل الطلب",
               color: Colors.white,
-              size: 22,
+              size: size.width * 0.06,
             ),
             SizedBox(width: size.width * 0.2),
             Padding(
@@ -274,14 +222,11 @@ class _OrderDetailsPageState_OrangePrivate
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HomePage(),
+                      builder: (context) => HomePage(page: 2),
                     ),
                   );
                 },
-                icon: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: white,
-                ),
+                icon: Icon(Icons.arrow_forward_ios_rounded, color: white),
               ),
             ),
           ],
@@ -342,75 +287,117 @@ class _OrderDetailsPageState_OrangePrivate
   }
 
   void _handleConfirm() async {
-    int orderId = int.tryParse(widget.orderData['orderid']) ?? 0;
-    print(orderId);
-    if (orderId != 0) {
-      await updateOrderState(context, orderId);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('فشل في تأكيد الطلب، رقم الطلب غير صالح'),
-      ));
+    int orderId = int.tryParse(widget.orderData['orderid'].toString()) ?? 0;
+    if (orderId == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('رقم الطلب غير صالح')),
+      );
+      return;
     }
-  }
-}
 
-Future<void> updateOrderState(BuildContext context, int orderId) async {
-  final url = Uri.parse(
-      'https://jordancarpart.com/Api/updateState.php?state=3&id=$orderId');
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return Center(child: RotatingImagePage());
-    },
-  );
-  try {
-    final response = await http.get(url);
-    Navigator.of(context).pop();
-    print("response response response" + response.body.toString());
-    if (response.statusCode == 200) {
-      NotificationService().showNotification(
-          id: 0,
-          title: 'تم تأكيد طلبك بنجاح',
-          body:
-              'طلب رقم $orderId تم تأكيده بنجاح. سوف يتم التواصل معك قريباً.');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(),
-        ),
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(child: RotatingImagePage()),
+    );
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      final billData = {
+        "order_id": widget.orderData['orderid'],
+        "cust_name": widget.orderData['cust_name'] ?? "زبون خاص",
+        "user_id": widget.orderData['userid'] ?? "0",
+        "due_amount": widget.orderData['totalCost'],
+        "service_type": "Pay_bill",
+        "bill_type": "OneOff",
+        "bill_status": "BillNew",
+        "status": "order",
+        "bill_category": "special",
+        "token": token,
+      };
+
+      final billResponse = await http.post(
+        Uri.parse('https://jordancarpart.com/Api/Bills/create_bill.php'),
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(billData),
       );
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> notifications = prefs.getStringList('notifications') ?? [];
+      Navigator.of(context).pop();
 
-      List notificationList = notifications.map((notification) {
-        return jsonDecode(notification);
-      }).toList();
+      final billResponseData = jsonDecode(billResponse.body);
 
-      void addNotification(String message, String type) {
-        notificationList.add({
-          'message': message,
-          'type': type,
-          'isRead': false,
-        });
+
+      if (billResponse.statusCode == 200 &&
+          billResponseData['success'] == true) {
+        int billId = int.tryParse(billResponseData['bill_id'].toString()) ?? 0;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PayPage(
+              orderId: orderId,
+              billId: billId,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+              )),
+        );
       }
-
-      addNotification(' ${orderId} تم تأكيد طلب رقم  ', "تأكيد");
-      List<String> updatedNotifications = notificationList
-          .map((notification) => jsonEncode(notification))
-          .toList();
-      await prefs.setStringList('notifications', updatedNotifications);
-
-      print("Notifications stored successfully in SharedPreferences.");
-
-      print("Notification stored successfully in SharedPreferences.");
-    } else {
-      throw Exception('Failed to update order state');
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+            Text('. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى')),
+      );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('حدث خطأ أثناء تحديث حالة الطلب: $e')),
-    );
   }
+
+// void _handleConfirm() async {
+//   int orderId = int.tryParse(widget.orderData['orderid']) ?? 0;
+//   if (orderId == 0) {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text('رقم الطلب غير صالح')),
+//     );
+//     return;
+//   }
+//
+//   final url = Uri.parse('https://jordancarpart.com/Api/updateState.php?state=3&id=$orderId');
+//
+//   showDialog(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (context) => Center(child: RotatingImagePage()),
+//   );
+//
+//   try {
+//     final response = await http.get(url);
+//     Navigator.of(context).pop();
+//
+//     if (response.statusCode == 200) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('تم تأكيد الطلب بنجاح')),
+//       );
+//     } else {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text('فشل في تأكيد الطلب')),
+//       );
+//     }
+//   } catch (e) {
+//     Navigator.of(context).pop();
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(content: Text('خطأ في الاتصال، حاول مرة أخرى')),
+//     );
+//   }
+// }
 }

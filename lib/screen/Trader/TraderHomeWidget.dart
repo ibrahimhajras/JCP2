@@ -1,15 +1,22 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:jcp/provider/ProductProvider.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/Drawer/Notification.dart';
-import 'package:jcp/screen/Trader/FullStockTrader.dart';
+import 'package:jcp/screen/Trader/AddProductTraderPage.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../provider/ProfileTraderProvider.dart' show ProfileTraderProvider;
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
-import 'package:http/http.dart' as http;
+import '../../widget/Inallpage/CustomHeader.dart';
+import '../../widget/Inallpage/MenuIcon.dart';
+import '../../widget/update.dart';
+import 'Outofstock.dart';
+import 'PendingPartsPage.dart';
 
 class TraderHomeWidget extends StatefulWidget {
   const TraderHomeWidget({super.key});
@@ -23,36 +30,138 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
   int totalOrders = 0;
   int totalOrdersday = 0;
   bool hasNewNotification = false;
+  int lengthItems = 0;
+  bool _isInitialized = false;
+  int total = 0;
+  int pendingPartsCount = 0;
+  bool isLoadingPendingParts = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final user = Provider.of<ProfileProvider>(context, listen: false);
+      fetchOrders(user.user_id, 1);
+      fetchOrders(user.user_id, 2);
+      fetchLengthData(user.user_id);
+      loadTraderInvitationsCount();
+      _checkForNotifications();
+      _isInitialized = true;
+    }
+  }
+
+  Future<int> fetchTotalParts(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final url = Uri.parse(
+      'http://jordancarpart.com/Api/get_total_parts.php?user_id=$userId&token=$token',
+    );
+
+    final response = await http.get(url);
+    try {
+      final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+      if (jsonResponse.containsKey('total')) {
+        return int.tryParse(jsonResponse['total'].toString()) ?? 0;
+      } else {
+        throw Exception('Key "total" not found in response: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Exception parsing total: $e\nBody: ${response.body}');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      final productProvider =
-          Provider.of<ProductProvider>(context, listen: false);
-      final user = Provider.of<ProfileProvider>(context, listen: false);
-      productProvider.loadProducts(user.user_id);
-      fetchOrders(user.user_id, 1);
-      fetchOrders(user.user_id, 2);
+    Update.checkAndUpdate(context);
+    Future.delayed(Duration.zero, () async {
+      if (mounted) {
+        final productProvider =
+        Provider.of<ProductProvider>(context, listen: false);
+        final user = Provider.of<ProfileProvider>(context, listen: false);
+        productProvider.loadProducts(user.user_id);
+        fetchOrders(user.user_id, 1);
+        fetchOrders(user.user_id, 2);
+
+        int totalFetched = await fetchTotalParts(user.user_id);
+        if (mounted) {
+          setState(() {
+            total = totalFetched;
+          });
+        }
+        fetchLengthData(user.user_id);
+      }
     });
     _checkForNotifications();
   }
 
-  Future<void> _checkForNotifications() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> notifications = prefs.getStringList('notifications') ?? [];
+  Future<void> loadTraderInvitationsCount() async {
+    if (isLoadingPendingParts) return;
 
-    List<Map<String, dynamic>> notificationList =
-        notifications.map((notification) {
-      return jsonDecode(notification) as Map<String, dynamic>;
-    }).toList();
-
-    bool hasUnread =
-        notificationList.any((notification) => notification['isRead'] == false);
+    final user = Provider.of<ProfileProvider>(context, listen: false);
 
     setState(() {
-      hasNewNotification = hasUnread;
+      isLoadingPendingParts = true;
     });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://jordancarpart.com/Api/trader/getTraderInvitationsCount1.php?user_id=${user.user_id}'),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == true) {
+          final data = responseData['data'];
+          final newCount = data['pending_invitations_count'] ?? 0;
+
+          // ✅ فقط حدّث إذا القيمة فعلاً تغيّرت
+          if (mounted && newCount != pendingPartsCount) {
+            setState(() {
+              pendingPartsCount = newCount;
+            });
+          }
+        }
+      }
+    } catch (e) {
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingPendingParts = false;
+        });
+      }
+    }
+  }
+
+  Future<void> fetchLengthData(String userId) async {
+    String url =
+        "https://jordancarpart.com/Api/Out_of_stock.php?user_id=$userId";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData.containsKey("data") && responseData["data"] is List) {
+          setState(() {
+            lengthItems = responseData["data"].length; // Update UI
+          });
+        } else {
+          setState(() {
+            lengthItems = 0;
+          });
+        }
+      } else {}
+    } catch (error) {}
   }
 
   Future<List<dynamic>> fetchOrders(String user_id, int flag) async {
@@ -66,6 +175,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
         final List<dynamic> orders = responseData['orders'];
 
         if (flag == 1) {
+          if (!mounted) return orders;
           setState(() {
             totalOrders = orders.length;
           });
@@ -77,19 +187,19 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
             Duration difference = now.difference(orderTime);
             return difference.inHours < 24;
           }).toList();
+
+          if (!mounted) return filteredOrders;
           setState(() {
             totalOrdersday = filteredOrders.length;
           });
+
           return filteredOrders;
-        } else {
-          return [];
         }
-      } else {
         return [];
       }
-    } else {
       return [];
     }
+    return [];
   }
 
   @override
@@ -102,9 +212,9 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
         height: size.height * 0.8,
         child: Column(
           children: [
-            _buildTopBanner(size, user),
+            _buildHeader(size, user),
             Container(
-              height: size.height * 0.6,
+              height: size.height * 0.52,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -116,26 +226,143 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => StockViewPage()),
+                              builder: (context) => OutOfStockPage()),
                         );
                       },
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CustomText(
-                            text: "كامل المخزن",
-                            color: red,
-                            textDirection: TextDirection.rtl,
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            child: Container(
-                              width: 80,
-                              height: 1.5,
-                              color: red,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CustomText(
+                                      text: "قطع نفذت كميتها",
+                                      color: Colors.black,
+                                      textDirection: TextDirection.rtl,
+                                      size: 16,
+                                    ),
+                                    SizedBox(height: 5),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 50),
+                                      decoration: BoxDecoration(
+                                        color: red,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: CustomText(
+                                        text: lengthItems.toString(),
+                                        color: white,
+                                        size: 18,
+                                        weight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CustomText(
+                                      text: "قطع للتسعير",
+                                      color: Colors.black,
+                                      textDirection: TextDirection.rtl,
+                                      size: 16,
+                                    ),
+                                    SizedBox(height: 5),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                PendingPartsPage(),
+                                          ),
+                                        ).then((_) {
+                                          Future.delayed(const Duration(milliseconds: 350), () {
+                                            if (mounted) loadTraderInvitationsCount();
+                                          });
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10, horizontal: 50),
+                                        decoration: BoxDecoration(
+                                          color: green,
+                                          borderRadius:
+                                          BorderRadius.circular(12),
+                                        ),
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 25,
+                                          child: Center(
+                                            child: isLoadingPendingParts
+                                                ? RotatingImagePage()
+                                                : CustomText(
+                                              text: pendingPartsCount
+                                                  .toString(),
+                                              color: white,
+                                              size: 18,
+                                              weight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              height: size.height * 0.01,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AddProductTraderPage(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: red,
+                                      foregroundColor: white,
+                                      elevation: 5,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 24, vertical: 12),
+                                    ),
+                                    icon: Padding(
+                                      padding:
+                                      const EdgeInsets.only(bottom: 3.0),
+                                      child: Icon(Icons.add_circle_outline,
+                                          size: 22),
+                                    ),
+                                    label: CustomText(
+                                      text: "إضافة قطعة",
+                                      size: 16,
+                                      color: white,
+                                      weight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -148,214 +375,269 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
     );
   }
 
-  Widget _buildTopBanner(Size size, ProfileProvider user) {
-    return Container(
-      height: size.height * 0.2,
-      width: size.width,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/images/card.png"),
-          fit: BoxFit.cover,
+  Future<Map<String, dynamic>?> getTraderInvitationsCount() async {
+    final user = Provider.of<ProfileProvider>(context, listen: false);
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://jordancarpart.com/Api/trader/getTraderInvitationsCount1.php?user_id=${user.user_id}'),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == true) {
+          return responseData['data'];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void loadTraderStats() async {
+    final data = await getTraderInvitationsCount();
+    if (data != null) {}
+  }
+
+  Widget _buildHeader(Size size, ProfileProvider user) {
+    return CustomHeader(
+      title: user.name ?? "",
+      notificationIcon: _buildNotificationIcon(size),
+      menuIcon: _buildMenuIcon(context, size),
+    );
+  }
+
+  Widget _buildNotificationIcon(Size size) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NotificationPage(),
+            )).then((_) {
+          _checkForNotifications();
+        });
+      },
+      child: Container(
+        height: size.width * 0.1,
+        width: size.width * 0.1,
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(246, 246, 246, 0.26),
+          borderRadius: BorderRadius.circular(10),
         ),
-        gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topLeft,
-          colors: [
-            Color(0xFFB02D2D),
-            Color(0xFFC41D1D),
-            Color(0xFF7D0A0A),
-          ],
-          stops: [0.1587, 0.3988, 0.9722],
+        child: Center(
+          child: Image.asset(
+            hasNewNotification
+                ? 'assets/images/notification-on.png'
+                : 'assets/images/notification-off.png',
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              top: size.height * 0.05,
-              left: 10,
-              right: 10,
-            ),
-            child: _buildTopBar(),
-          ),
-          Center(
-            child: CustomText(
-              text: user.name,
-              color: Color.fromRGBO(255, 255, 255, 1),
-              size: 22,
-              weight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildTopBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => NotificationPage()),
-            );
-          },
-          child: hasNewNotification
-              ? _buildIconBox("assets/images/notification-on.png")
-              : _buildIconBox("assets/images/notification-off.png"),
-        ),
-        GestureDetector(
-          onTap: () {
-            Scaffold.of(context).openEndDrawer();
-          },
-          child: _buildIconBox(Icons.menu),
-        ),
-      ],
+  Widget _buildMenuIcon(BuildContext context, Size size) {
+    return MenuIcon(
+      size: size,
+      onTap: () {
+        Scaffold.of(context).openEndDrawer();
+      },
     );
   }
 
-  Widget _buildIconBox(dynamic icon) {
-    return Container(
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(
-        color: Color.fromRGBO(246, 246, 246, 0.26),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: icon is String
-            ? Image.asset(icon)
-            : Icon(icon, color: Color.fromRGBO(246, 246, 246, 1)),
-      ),
-    );
+  Future<void> _checkForNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> notifications = prefs.getStringList('notifications') ?? [];
+
+    List<Map<String, dynamic>> notificationList =
+    notifications.map((notification) {
+      return jsonDecode(notification) as Map<String, dynamic>;
+    }).toList();
+
+    bool hasUnread =
+    notificationList.any((notification) => notification['isRead'] == false);
+
+    setState(() {
+      hasNewNotification = hasUnread;
+    });
   }
 
   Widget _buildProductOrderCard(Size size, ProfileProvider user) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
-        height: 175,
+        height: size.height * 0.24, // ✅ تقليل الارتفاع
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/card-1.png"),
             fit: BoxFit.cover,
           ),
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Stack(
-          children: [
-            Positioned(
-              bottom: 0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 5),
-                child: _buildProductOrderInfo(size),
-              ),
-            ),
-            Positioned(
-              top: 10,
-              right: 10,
-              child: _buildUserInfo(user),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProductOrderInfo(Size size) {
-    return Container(
-      width: size.width * 0.8,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Consumer<ProductProvider>(
-              builder: (context, productProvider, child) {
-                return Row(
-                  children: [
-                    Flexible(
-                      child: CustomText(
-                        text: "${productProvider.totalCheckboxDataItems}",
-                        textDirection: TextDirection.rtl,
-                        color: white,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    CustomText(
-                      text: "مجموع القطع",
-                      textDirection: TextDirection.rtl,
-                      color: white,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+        child: Padding(
+          padding: EdgeInsets.all(size.width * 0.03), // ✅ تقليل الـ padding
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              CustomText(
-                text: totalOrders.toString(), // Placeholder for order total
-                textDirection: TextDirection.rtl,
-                color: white,
-              ),
-              SizedBox(width: 5),
-              CustomText(
-                text: "مجموع الطلبات",
-                textDirection: TextDirection.rtl,
-                color: white,
+              _buildUserInfo(user, size),
+              SizedBox(height: size.height * 0.008), // ✅ تقليل المساحة
+              Expanded(
+                // ✅ استخدام Expanded للمحتوى المتبقي
+                child: _buildOrderStats(size, user),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildUserInfo(ProfileProvider user) {
+  Widget _buildUserInfo(ProfileProvider user, Size size) {
+    final trader = Provider.of<ProfileTraderProvider>(context).trader;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        CustomText(
+          text: trader!.store,
+          color: white,
+          weight: FontWeight.bold,
+          size: size.width * 0.05,
+        ),
+        SizedBox(width: size.width * 0.03),
+        Image.asset(
+          "assets/images/09.png",
+          height: size.height * 0.07,
+          fit: BoxFit.fill,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrderStats(Size size, ProfileProvider user) {
+    final trader = Provider.of<ProfileTraderProvider>(context).trader;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // ✅ توزيع متساوي
+      children: [
+        _buildStatsRow([
+          //_buildStatItem(":مجموع الطلبات", totalOrders.toString()),
+          _buildStatItem(":عدد الطلبات اليومية", totalOrdersday.toString()),
+        ]),
+        _buildStatsRow([
+          // _buildStatItem(":عدد المخالفات", "0"),
+          Consumer<ProductProvider>(builder: (context, productProvider, child) {
+            return _buildStatItem(":مجموع القطع", "${total}");
+          })
+        ]),
+        /* _buildStatsRow([
+          _buildStatItem(
+              ":فوري داخل المحافظة",
+              trader!.urgentPaymentInside.isEmpty
+                  ? "0"
+                  : trader.urgentPaymentInside),
+          _buildStatItem(
+              ":عادي داخل المحافظة",
+              trader!.normalPaymentInside.isEmpty
+                  ? "0"
+                  : trader.normalPaymentInside),
+        ]),
+        _buildStatsRow([
+          _buildStatItem(
+              ":فوري خارج المحافظة",
+              trader!.urgentPaymentOutside.isEmpty
+                  ? "0"
+                  : trader.urgentPaymentOutside),
+          _buildStatItem(
+              ":عادي خارج المحافظة",
+              trader!.normalPaymentOutside.isEmpty
+                  ? "0"
+                  : trader.normalPaymentOutside),
+        ]),*/
+        _buildSingleStatItem(
+            ":نسبة الخصم",
+            trader!.discountPercentage.isEmpty
+                ? "غ.م"
+                : trader.discountPercentage.replaceAll('%', '')),
+        _buildSingleStatItem(":حدود التوصيل",
+            trader!.deliveryLimit.isEmpty ? "غ.م" : trader.deliveryLimit),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(List<Widget> items) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: items,
+    );
+  }
+
+  Widget _buildSingleStatItem(String title, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          height: 75,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              CustomText(
-                text: user.name,
-                textDirection: TextDirection.rtl,
-                color: white,
-                weight: FontWeight.w700,
-                size: 20,
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: totalOrdersday.toString(),
-                    textDirection: TextDirection.rtl,
-                    color: white,
-                  ),
-                  SizedBox(width: 15),
-                  CustomText(
-                    text: "عدد الطلبات اليومية",
-                    textDirection: TextDirection.rtl,
-                    color: white,
-                  ),
-                ],
-              ),
-            ],
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.normal,
+              fontSize: 12,
+              fontFamily: 'Tajawal',
+            ),
           ),
         ),
-        SizedBox(width: 15),
-        Image.asset("assets/images/13.png", height: 75, fit: BoxFit.fill),
+        SizedBox(width: 5),
+        Text(
+          title,
+          style: TextStyle(
+            color: white,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            fontFamily: 'Tajawal',
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildStatItem(String title, String value) {
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.normal,
+              fontSize: 11,
+              fontFamily: 'Tajawal',
+            ),
+          ),
+          SizedBox(width: 3),
+          Text(
+            title,
+            style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+              fontFamily: 'Tajawal',
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../provider/ProfileProvider.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
+import '../../widget/update.dart';
 
 class OrderWidget extends StatefulWidget {
   const OrderWidget({super.key});
@@ -19,10 +20,17 @@ class OrderWidget extends StatefulWidget {
   State<OrderWidget> createState() => _OrderWidgetState();
 }
 
-class _OrderWidgetState extends State<OrderWidget> {
+class _OrderWidgetState extends State<OrderWidget> with WidgetsBindingObserver {
   bool check = true;
   bool check2 = false;
   bool hasNewNotification = false;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
+  }
 
   Stream<List<OrderModel>> orderStream(
       BuildContext context, String userId) async* {
@@ -54,17 +62,15 @@ class _OrderWidgetState extends State<OrderWidget> {
           List<OrderModel> orders = (responseData['data'] as List<dynamic>)
               .map((order) => OrderModel.fromJson(order))
               .toList();
+
           return orders;
         } else {
-          print('Failed to load orders. Response: ${responseData['message']}');
           return [];
         }
       } else {
-        print('Failed to load orders. Status code: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('Error fetching orders: $e');
       return [];
     }
   }
@@ -73,7 +79,15 @@ class _OrderWidgetState extends State<OrderWidget> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkForNotifications();
+    Update.checkAndUpdate(context);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -85,8 +99,7 @@ class _OrderWidgetState extends State<OrderWidget> {
       child: Column(
         children: [
           _buildHeader(size),
-          Container(
-            height: size.height * 0.7,
+          Expanded(
             child: StreamBuilder<List<OrderModel>>(
               stream: orderStream(context, user.user_id),
               builder: (context, snapshot) {
@@ -102,7 +115,12 @@ class _OrderWidgetState extends State<OrderWidget> {
                     itemCount: orders.length,
                     itemBuilder: (context, index) {
                       OrderModel order = orders[orders.length - 1 - index];
-                      return OrderViewWidget(order: order);
+                      return OrderViewWidget(
+                        order: order,
+                        onDeleted: () {
+                          setState(() {});
+                        },
+                      );
                     },
                   );
                 }
@@ -116,7 +134,6 @@ class _OrderWidgetState extends State<OrderWidget> {
 
   Widget _buildHeader(Size size) {
     return CustomHeader(
-      size: MediaQuery.of(context).size,
       title: "سجل الطلبات",
       notificationIcon: _buildNotificationIcon(size),
       menuIcon: _buildMenuIcon(context, size),
@@ -166,12 +183,12 @@ class _OrderWidgetState extends State<OrderWidget> {
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-        notifications.map((notification) {
+    notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-        notificationList.any((notification) => notification['isRead'] == false);
+    notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       hasNewNotification = hasUnread;

@@ -7,13 +7,21 @@ class ProfileProvider extends ChangeNotifier {
   String name = '';
   String type = '';
   String city = '';
-  DateTime _createdAt = DateTime.now(); // Added created_at field
+  String addressDetail = '';
+  DateTime _createdAt = DateTime.now();
   String token = '';
 
   String getcity() => city;
 
   void setcity(String city) {
     this.city = city;
+    notifyListeners();
+  }
+
+  String getaddressDetail() => addressDetail;
+
+  void setaddressDetail(String addressDetail) {
+    this.addressDetail = addressDetail;
     notifyListeners();
   }
 
@@ -73,6 +81,7 @@ class ProfileProvider extends ChangeNotifier {
     setname('');
     settype('');
     setcity('');
+    setaddressDetail('');
     settoken('');
     setcreatedAt(DateTime.now());
     notifyListeners();

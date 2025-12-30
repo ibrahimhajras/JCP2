@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -11,10 +12,12 @@ import '../../model/UserModel.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
-import '../home/homeuser.dart';
+import '../../widget/update.dart';
+import '../driver/Index_Driver.dart';
 import '../auth/forgotpassword.dart';
 import '../auth/register.dart';
 import '../../provider/ProfileProvider.dart';
+import '../home/homeuser.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,7 +29,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String image = "assets/images/eye-hide.png";
   bool ob = true;
-  bool rememberMe = false;
+  bool rememberMe = true;
   bool isLoading = false;
   String phoneHint = "79xxxxxxxxx", passHint = "**********";
 
@@ -37,19 +40,26 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     loadUserPreferences();
+    rememberMe = true;
   }
 
   Future<void> loadUserPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      rememberMe = prefs.getBool('rememberMe') ?? false;
+      rememberMe = true;
       phone.text = prefs.getString('phone') ?? '';
       password.text = prefs.getString('password') ?? '';
     });
   }
-
-  Future<void> saveUserPreferences(String userId, String name, String password,
-      String type, String city, DateTime time, String token) async {
+  Future<void> saveUserPreferences(
+      String userId,
+      String name,
+      String password,
+      String type,
+      String city,
+      String addressDetail,
+      DateTime time,
+      String token) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setBool('rememberMe', rememberMe);
@@ -59,6 +69,7 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString('name', name);
     await prefs.setString('type', type);
     await prefs.setString('city', city);
+    await prefs.setString('addressDetail', addressDetail);
     await prefs.setString('time', time.toIso8601String());
     await prefs.setString('token', token);
   }
@@ -67,38 +78,41 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBarWidget(title: "تسجيل الدخول", color: white),
-      backgroundColor: white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Container(
-              width: size.width,
-              child: Column(
-                children: [
-                  _buildLogo(size),
-                  const SizedBox(height: 15),
-                  _buildPhoneInput(),
-                  _buildPasswordInput(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildRememberMeCheckbox(),
-                      _buildForgotPasswordLink(),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-                  _buildLoginButton(size),
-                  const SizedBox(height: 10),
-                  _buildRegisterLink(),
-                ],
+    return GestureDetector(onTap:(){FocusScope.of(context).unfocus();},
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBarWidget(title: "تسجيل الدخول", color: white),
+        backgroundColor: white,
+        body: Stack(
+          children: [
+            SingleChildScrollView
+              (
+              child: Container(
+                width: size.width,
+                child: Column(
+                  children: [
+                    _buildLogo(size),
+                    const SizedBox(height: 15),
+                    _buildPhoneInput(),
+                    _buildPasswordInput(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildRememberMeCheckbox(),
+                        _buildForgotPasswordLink(),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+                    _buildLoginButton(size),
+                    const SizedBox(height: 10),
+                    _buildRegisterLink(),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (isLoading) _buildLoadingOverlay(),
-        ],
+            if (isLoading) _buildLoadingOverlay(),
+          ],
+        ),
       ),
     );
   }
@@ -411,23 +425,26 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  late FirebaseMessaging messaging;
+
   Future<void> loginUser(
       BuildContext context, String phone, String password) async {
     if (phone.isEmpty || password.isEmpty) {
       showConfirmationDialog(
         context: context,
-        message: 'يرجى إدخال رقم الهاتف وكلمة المرور.',
+        message: 'يرجى إدخال رقم الهاتف وكلمة المرور',
         confirmText: 'حسناً',
         onConfirm: () {},
         cancelText: '',
       );
       return;
     }
+    if (phone.length == 10 && phone.startsWith('0')) {
+      phone = phone.substring(1);
+    }
 
     final url =
-        'https://jordancarpart.com/Api/login.php?phone=$phone&password=$password';
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
+        'https://jordancarpart.com/Api/auth/login.php?phone=$phone&password=$password';
 
     setState(() {
       isLoading = true;
@@ -436,29 +453,17 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final response = await http.get(Uri.parse(url));
       final responseData = json.decode(response.body);
-      print(responseData);
 
+      print(response.body);
       if (responseData['status'] == 'success') {
         final userData = responseData['user'];
         UserModel user = UserModel.fromJson(userData);
-        print(user.type);
-        if (user.type == "0") {
-          showConfirmationDialog(
-            context: context,
-            message: 'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
-            confirmText: 'حسناً',
-            onConfirm: () {},
-            cancelText: '',
-          );
-        } else if (user.type == "3") {
-          showConfirmationDialog(
-            context: context,
-            message: 'لا يمكن الدخول باستخدام هذا الحساب.',
-            confirmText: 'حسناً',
-            onConfirm: () {},
-            cancelText: '',
-          );
-        } else if (user.type == "1" || user.type == "2") {
+
+        if (user.type == "4") {
+          await FirebaseMessaging.instance.subscribeToTopic("Driver");
+
+          final profileProvider =
+          Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
           profileProvider.setphone(user.phone);
           profileProvider.setname(user.name);
@@ -467,6 +472,7 @@ class _LoginPageState extends State<LoginPage> {
           profileProvider.setcity(user.city);
           profileProvider.setcreatedAt(user.createdAt);
           profileProvider.settoken(user.token);
+          profileProvider.setaddressDetail(user.addressDetail);
 
           await saveUserPreferences(
             profileProvider.getuser_id(),
@@ -474,18 +480,84 @@ class _LoginPageState extends State<LoginPage> {
             profileProvider.getpassword(),
             profileProvider.gettype(),
             profileProvider.getcity(),
+            profileProvider.getaddressDetail(),
             profileProvider.getcreatedAt(),
             profileProvider.gettoken(),
           );
+          if (rememberMe == true) {
+            messaging = FirebaseMessaging.instance;
+            messaging.getToken().then((token) async {
 
+              updateFCMToken(profileProvider.getuser_id(), token.toString());
+            });
+          }
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(
+              builder: (context) => Index_Driver(page: 1),
+            ),
+          );
+        } else if (user.type == "0") {
+          showConfirmationDialog(
+            context: context,
+            message: 'لقد تم إيقاف حسابك مؤقتًا يرجى التواصل مع خدمة العملاء',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+            cancelText: '',
+          );
+        } else if (user.type == "3") {
+          showConfirmationDialog(
+            context: context,
+            message: 'لا يمكن الدخول باستخدام هذا الحساب',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+            cancelText: '',
+          );
+        } else if (user.type == "1" || user.type == "2") {
+          final profileProvider =
+          Provider.of<ProfileProvider>(context, listen: false);
+          profileProvider.setuser_id(user.userId);
+          profileProvider.setphone(user.phone);
+          profileProvider.setname(user.name);
+          profileProvider.setpassword(user.password);
+          profileProvider.settype(user.type);
+          profileProvider.setcity(user.city);
+          profileProvider.setcreatedAt(user.createdAt);
+          profileProvider.settoken(user.token);
+          profileProvider.setaddressDetail(user.addressDetail);
+
+          await saveUserPreferences(
+            profileProvider.getuser_id(),
+            profileProvider.getname(),
+            profileProvider.getpassword(),
+            profileProvider.gettype(),
+            profileProvider.getcity(),
+            profileProvider.getaddressDetail(),
+            profileProvider.getcreatedAt(),
+            profileProvider.gettoken(),
+          );
+          if (rememberMe == true) {
+            messaging = FirebaseMessaging.instance;
+            messaging.getToken().then((token) {
+
+              updateFCMToken(profileProvider.getuser_id(), token.toString());
+            });
+          }
+          if (user.type == "1") {
+            await FirebaseMessaging.instance.subscribeToTopic("User");
+          } else if (user.type == "2") {
+            await FirebaseMessaging.instance.subscribeToTopic("Trader");
+          }
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(page: 1),
+            ),
           );
         } else {
           showConfirmationDialog(
             context: context,
-            message: 'حساب غير صالح.',
+            message: 'حساب غير صالح يرجى التواصل مع خدمة العملاء',
             confirmText: 'حسناً',
             onConfirm: () {},
             cancelText: '',
@@ -494,25 +566,50 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         showConfirmationDialog(
           context: context,
-          message: 'رقم الهاتف أو كلمة المرور غير صحيحة.',
+          message: 'رقم الهاتف أو كلمة المرور غير صحيحة',
           confirmText: 'حسناً',
           onConfirm: () {},
           cancelText: '',
         );
       }
     } catch (e) {
-      print(e.toString());
+
       showConfirmationDialog(
         context: context,
-        message: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+        message: 'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
         confirmText: 'حسناً',
         onConfirm: () {},
-        cancelText: '',
       );
     } finally {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  void subscribeToTopic() {
+    FirebaseMessaging.instance.subscribeToTopic("all").then((_) {
+    }).catchError((e) {
+    });
+  }
+
+  void updateFCMToken(String userId, String fcmToken) async {
+    final url = Uri.parse('https://jordancarpart.com/Api/update_fcm_token.php');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_id': userId,
+        'fcm_token': fcmToken,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+
+    } else {
+
     }
   }
 }

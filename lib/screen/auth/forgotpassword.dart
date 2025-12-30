@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
 import '../../widget/RotatingImagePage.dart';
+import '../../utils/otp_rate_limiter.dart';
 import 'OtpPageForget.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -143,12 +145,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         ],
                       ),
                       padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       onPressed: () {
-                        sendOtp(controller.text);
+                        sendOtpWithPhoneCheck(controller.text,context);
                       },
                     ),
                   ),
@@ -180,45 +182,151 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     }
     return otp;
   }
+  String? formatPhone(BuildContext context, String phone) {
+    phone = phone.trim();
 
-  Future<void> sendOtp(String phone) async {
+    if (phone.length == 9 && phone.startsWith('7')) {
+      return phone;
+    } else if (phone.length == 9 && !phone.startsWith('7')) {
+      showConfirmationDialog(
+        context: context,
+        message: 'الرقم يجب أن يبدأ بالرقم 7',
+        confirmText: 'حسناً',
+        onConfirm: () {},
+        cancelText: '',
+      );
+      return null;
+    } else if (phone.length == 10 && phone.startsWith('0')) {
+      return phone.substring(1);
+    } else {
+      showConfirmationDialog(
+        context: context,
+        message: 'رقم الهاتف غير صالح',
+        confirmText: 'حسناً',
+        onConfirm: () {},
+        cancelText: '',
+      );
+      return null;
+    }
+  }
+
+
+  Future<void> sendOtpWithPhoneCheck(String phone, BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
+    String? formattedPhone = formatPhone(context,phone);
+    if (formattedPhone == null) return; // أضف هذا السطر لمنع المتابعة في حال الرقم غير صحيح
 
     setState(() {
       isLoading = true;
     });
-    String OTP = generateOTP();
-    await prefs.setString('otp', OTP);
-    String msg =
-        "شكرًا لك على الانضمام إلى قطع سيارات الاردن تم إرسال الرمز بنجاح ${OTP}";
-    Uri apiUrl = Uri.parse(
-        'http://82.212.81.40:8080/websmpp/websms?user=JCParts21&pass=123A@Neu%23&text=$msg&type=4&mno=962+${phone}&sid=JCP-Jordan');
-    try {
-      final response = await http.get(apiUrl);
+
+    // Check OTP rate limit first
+    final limitCheck = await OtpRateLimiter.checkOtpLimit(formattedPhone);
+
+    if (limitCheck['success'] == true && limitCheck['allowed'] == false) {
       setState(() {
         isLoading = false;
       });
-      print(response.body.toString());
-      if (response.statusCode == 200) {
-        print(OTP);
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OtpPageForgwe(
-              phone: phone,
-            ),
-          ),
-        );
+      String message = 'لقد تجاوزت الحد المسموح من محاولات إرسال رمز التحقق';
+      if (limitCheck['remaining_seconds'] != null) {
+        message += '\n\nيمكنك المحاولة مرة أخرى بعد\n${OtpRateLimiter.formatRemainingTime(limitCheck['remaining_seconds'])}';
+      }
+
+      showConfirmationDialog(
+        context: context,
+        message: message,
+        confirmText: 'حسناً',
+        onConfirm: () {},
+        cancelText: '',
+      );
+      return;
+    }
+
+    final checkApiUrl = Uri.parse('https://jordancarpart.com/Api/auth/CheckPhone.php?phone=$formattedPhone');
+
+    try {
+      final checkResponse = await http.get(checkApiUrl);
+
+      if (checkResponse.statusCode == 200) {
+        final checkData = json.decode(checkResponse.body);
+
+        if (checkData['success'] == true && checkData['exists'] == true) {
+          // Log OTP attempt
+          await OtpRateLimiter.logOtpAttempt(formattedPhone);
+          String OTP = generateOTP();
+          await prefs.setString('otp', OTP);
+
+          // Print OTP in terminal for development
+          print('🔐 OTP Generated (Forgot Password): $OTP');
+
+          String msg = "يرجى إدخال الرمز التالي لإعادة تعيين كلمة المرور: $OTP";
+
+          final sendApiUrl = Uri.parse('https://jordancarpart.com/Api/auth/send_sms.php');
+
+          final sendResponse = await http.post(sendApiUrl, body: {'phone': formattedPhone, 'message': msg});
+
+          setState(() {
+            isLoading = false;
+          });
+
+          if (sendResponse.statusCode == 200) {
+            final sendData = json.decode(sendResponse.body);
+
+            if (sendData["status"] == "success") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OtpPageForgwe(phone: formattedPhone !),
+                ),
+              );
+            } else {
+              showConfirmationDialog(
+                context: context,
+                message: 'حدث خطأ أثناء إرسال OTP.',
+                confirmText: 'حسناً',
+                onConfirm: () {},
+              );
+            }
+          } else {
+            showConfirmationDialog(
+              context: context,
+              message: 'حدث خطأ أثناء إرسال OTP.',
+              confirmText: 'حسناً',
+              onConfirm: () {},
+            );
+          }
+        } else if (checkData['success'] == true && checkData['exists'] == false) {
+          setState(() {
+            isLoading = false;
+          });
+          showConfirmationDialog(
+            context: context,
+            message: 'رقم الهاتف غير مسجل لدينا. يرجى التحقق من الرقم والمحاولة مرة أخرى',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+          );
+          return;
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          showConfirmationDialog(
+            context: context,
+            message: 'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+          );
+        }
       } else {
+        setState(() {
+          isLoading = false;
+        });
         showConfirmationDialog(
           context: context,
-          message: 'حدث خطأ أثناء إرسال OTP.',
+          message: 'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.',
           confirmText: 'حسناً',
-          onConfirm: () {
-            // يمكن تركه فارغاً لأنه مجرد رسالة معلوماتية
-          },
-          cancelText: '', // لا حاجة لزر إلغاء
+          onConfirm: () {},
         );
       }
     } catch (e) {
@@ -227,12 +335,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       });
       showConfirmationDialog(
         context: context,
-        message: 'حدث خطأ أثناء إرسال OTP: $e',
+        message: 'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.',
         confirmText: 'حسناً',
-        onConfirm: () {
-          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
       );
     }
   }

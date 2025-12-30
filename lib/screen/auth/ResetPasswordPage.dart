@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 
@@ -53,16 +54,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 // Proportional size
                 color: button,
                 child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
+                    ? RotatingImagePage()
                     : Text(
-                        "إعادة تعيين",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.width * 0.04, // Proportional size
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Tajawal",
-                        ),
-                      ),
+                  "إعادة تعيين",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: size.width * 0.04, // Proportional size
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Tajawal",
+                  ),
+                ),
                 padding: EdgeInsets.symmetric(
                     vertical: size.height * 0.015,
                     horizontal: size.width * 0.1),
@@ -98,7 +99,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         Card(
           shape: RoundedRectangleBorder(
             borderRadius:
-                BorderRadius.circular(size.width * 0.025), // Proportional size
+            BorderRadius.circular(size.width * 0.025), // Proportional size
           ),
           shadowColor: Colors.black,
           color: grey,
@@ -140,29 +141,34 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         context: context,
         message: 'يرجى إدخال كلمة المرور.',
         confirmText: 'حسناً',
-        onConfirm: () {
-          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
+        cancelText: '',
       );
       return;
     }
-
+    if (passwordController.text.length < 6) {
+      showConfirmationDialog(
+        context: context,
+        message: 'كلمة المرور يجب أن تكون 6 أحرف أو أكثر',
+        confirmText: 'حسناً',
+        onConfirm: () {},
+        cancelText: '',
+      );
+      return;
+    }
     setState(() {
       isLoading = true;
     });
 
-    Uri apiUrl = Uri.parse('https://jordancarpart.com/Api/changepassword.php');
+    Uri apiUrl = Uri.parse(
+      'https://jordancarpart.com/Api/auth/changepassword.php?phone=${widget.phone}&password=${passwordController.text}',
+    );
     try {
-      final response = await http.post(
+      final response = await http.get(
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'phone': widget.phone,
-          'password': passwordController.text,
-        }),
       );
 
       setState(() {
@@ -170,6 +176,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       });
 
       if (response.statusCode == 200) {
+
+
+
         showDialog(
           context: context,
           builder: (_) => Dialog(
@@ -213,8 +222,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     onPressed: () {
                       Navigator.of(context).pop(); // إغلاق الـ Dialog
                     },
-                    color: Color.fromRGBO(
-                        195, 29, 29, 1), // اللون الأحمر المستخدم في التصميم
+                    color: Color.fromRGBO(195, 29, 29, 1),
+                    // اللون الأحمر المستخدم في التصميم
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -233,22 +242,18 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             ),
           ),
         ).then((_) {
-          // بعد إغلاق الـ Dialog، الانتقال إلى صفحة تسجيل الدخول
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),
-            (Route<dynamic> route) => false,
+                (Route<dynamic> route) => false,
           );
         });
       } else {
         showConfirmationDialog(
           context: context,
-          message: 'حدث خطأ أثناء إعادة تعيين كلمة المرور.',
+          message: '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
           confirmText: 'حسناً',
-          onConfirm: () {
-            // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-          },
-          cancelText: '', // لا حاجة لزر إلغاء
+          onConfirm: () {},
         );
       }
     } catch (e) {
@@ -257,12 +262,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       });
       showConfirmationDialog(
         context: context,
-        message: 'حدث خطأ أثناء الاتصال بالخادم: $e',
+        message: '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
         confirmText: 'حسناً',
-        onConfirm: () {
-          // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-        },
-        cancelText: '', // لا حاجة لزر إلغاء
+        onConfirm: () {},
       );
     }
   }

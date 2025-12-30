@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jcp/provider/DeliveryModel.dart';
@@ -15,28 +16,54 @@ import 'package:jcp/screen/Trader/TraderHomeWidget.dart';
 import 'package:jcp/screen/Trader/TraderOrderWidget.dart';
 import 'package:jcp/screen/Trader/TraderProfilePage.dart';
 import 'package:jcp/screen/auth/login.dart';
-import 'package:jcp/screen/home/homeuser.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
+import 'package:http/http.dart' as http;
+import '../Drawer/PredictivePartsPage.dart';
+import '../Drawer/PricingRequestPage.dart';
+import '../home/homeuser.dart';
 
 class TraderInfoPage extends StatefulWidget {
   static bool isEnabled = false;
+  final int initialTab;
 
-  const TraderInfoPage({super.key});
+  const TraderInfoPage({super.key, this.initialTab = 1});
 
   @override
   State<TraderInfoPage> createState() => _TraderInfoPageState();
 }
 
-bool isLoading = false; // حالة التحميل
+bool isLoading = false;
 
 class _TraderInfoPageState extends State<TraderInfoPage> {
-  int currentTab = 0;
+  late int currentTab;
+  late Widget current;
 
-  Widget current = TraderHomeWidget();
+  @override
+  void initState() {
+    super.initState();
+    currentTab = widget.initialTab;
+    _updateCurrentWidget();
+  }
+
+  void _updateCurrentWidget() {
+    switch (currentTab) {
+      case 0:
+        current = EditStockWidget();
+        break;
+      case 1:
+        current = TraderHomeWidget();
+        break;
+      case 2:
+        current = TraderOrderWidget();
+        break;
+      default:
+        current = TraderHomeWidget();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,501 +76,589 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
       backgroundColor: white,
       endDrawer: Drawer(
         backgroundColor: white,
-        width: size.width * 0.7,
-        child: Container(
-          height: size.height,
-          color: white,
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                height: 35,
-              ),
-              Container(
-                height: 175,
-                child: Column(
+        width: MediaQuery.of(context).size.width *
+            0.75,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.22,
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        "assets/images/logo-05.png",
+                        height: MediaQuery.of(context).size.height *
+                            0.1, // حجم متجاوب
+                        width: double.infinity,
+                        fit: BoxFit.contain,
+                      ),
+                      CustomText(
+                        text: "قطع سيارات الاردن",
+                        size: MediaQuery.of(context).size.width *
+                            0.04, // تكيف الحجم
+                        weight: FontWeight.w800,
+                      ),
+                      CustomText(
+                        text: "Jordan Car Part",
+                        size: MediaQuery.of(context).size.width * 0.045,
+                        weight: FontWeight.w700,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Divider(),
+                ),
+                if (isLoading) LinearProgressIndicator(color: button),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GestureDetector(
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: red,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 20.0,
+                                  right: 20,
+                                  top: 5,
+                                  bottom: 3,
+                                ),
+                                child: CustomText(
+                                  text: "الرجوع الى التطبيق",
+                                  size: 18,
+                                  color: white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Image.asset(
+                            "assets/images/10.png",
+                            height: 30,
+                            width: 30,
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomePage(page: 1),
+                          ));
+                    },
+                  ),
+                ),
+                _buildDrawerButton(
+                  text: "الصفحة الشخصية",
+                  icon: "assets/images/person_drawer.png",
+                  onTap: () {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    final traderProvider = Provider.of<ProfileTraderProvider>(
+                        context,
+                        listen: false);
+                    final trader1 = traderProvider.trader;
+
+                    if (trader1 != null) {
+
+
+                      setState(() {
+                        isLoading = false;
+                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TraderProfilePage(trader: trader1),
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                  },
+                ),
+                _buildDrawerButton(
+                  text: "أنضم كتاجر",
+                  icon: "assets/images/handshake.png",
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => TraderPage()));
+                  },
+                ),
+
+                _buildDrawerButton(
+                  text: "رؤيتنا",
+                  icon: "assets/images/light-bulb.png",
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => OurViewPage()));
+                  },
+                ),
+                _buildDrawerButton(
+                  text: "طلب تسعير",
+                  icon: "assets/images/4home.png",
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PricingRequestPage()));
+                  },
+                ),
+                _buildDrawerButton(
+                  text: "الأسماء التنبؤية للقطع",
+                  icon: "assets/images/parts2.png",
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PredictivePartsPage()));
+                  },
+                ),
+                _buildDrawerButton(
+                  text: "تواصل معنا",
+                  icon: "assets/images/support.png",
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => ContactPage()));
+                  },
+                ),
+
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      "assets/images/logo-05.png",
-                      alignment: Alignment.center,
-                      height: 90,
-                      width: double.infinity,
-                    ),
-                    CustomText(
-                      text: "قطع سيارات الاردن",
-                      size: 14,
-                      weight: FontWeight.w800,
-                      textDirection: TextDirection.rtl,
-                    ),
-                    CustomText(
-                      text: "Jordan Car Part",
-                      size: 16,
-                      weight: FontWeight.w700,
-                      textDirection: TextDirection.ltr,
-                    ),
+                    _buildSocialButton("tel:962795888268", "assets/images/call.png"),
+                    SizedBox(width: 20),
+                    _buildSocialButton(
+                        "https://api.whatsapp.com/send/?phone=962796888501",
+                        'assets/svg/whatsapp.svg'),
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-                child: Divider(),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: 20.0,
-                                right: 20,
-                                top: 5,
-                                bottom: 3,
-                              ),
-                              child: CustomText(
-                                text: "الرجوع الى التطبيق",
-                                size: 18,
-                                color: white,
-                              ),
-                            ),
-                          ),
+                        CustomText(
+                          text: "السبت - الخميس",
+                          size: 12,
+                          color: Colors.grey[700],
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Image.asset(
-                          "assets/images/10.png",
-                          height: 30,
-                          width: 30,
+                        SizedBox(width: 4),
+                        CustomText(
+                          text: "أوقات عمل التوصيل",
+                          size: 12,
+                          weight: FontWeight.bold,
+                          color: black,
                         ),
                       ],
                     ),
-                  ),
-                  onTap: () {
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomePage(),
-                        ));
-                  },
+                    SizedBox(height: 4),
+                    CustomText(
+                      text: "9:00 صباحاً - 5:00 مساءً",
+                      size: 12,
+                      color: Colors.grey[700],
+                      textDirection: TextDirection.rtl,
+                    )
+                  ],
                 ),
-              ),
-              Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomText(
-                              text: "الصفحة الشخصية",
-                              size: 16,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Image.asset(
-                              "assets/images/person_drawer.png",
-                              height: 30,
-                              width: 30,
-                            ),
-                          ],
-                        ),
-                      ),
-                      onTap: () {
-                        setState(() {
-                          isLoading = true;
-                        });
-                        final traderProvider =
-                            Provider.of<ProfileTraderProvider>(context,
-                                listen: false);
-                        final trader1 = traderProvider.trader;
+                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildLogoutButton(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar:  BottomNavigationBar(
+        iconSize: 30,
+        currentIndex: currentTab,
+        onTap: (index) {
+          setState(() {
+            currentTab = index;
+            _updateCurrentTab(user.user_id);
+          });
+        },
+        backgroundColor: Colors.white,
+        selectedItemColor: red,
+        unselectedItemColor: Colors.grey,
+        selectedLabelStyle: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          fontFamily: "Tajawal",
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.normal,
+          fontFamily: "Tajawal",
+        ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Image(
+              image: AssetImage("assets/images/06.png"),
+              width: 25,
+              height: 25,
+            ),
+            activeIcon: Image(
+              image: AssetImage("assets/images/07.png"),
+              width: 25,
+              height: 25,
+            ),
+            label: "تعديل",
+          ),
+          BottomNavigationBarItem(
+            icon: Image(
+              image: AssetImage("assets/images/home.png"),
+              width: 25,
+              height: 25,
+            ),
+            activeIcon: Image(
+              image: AssetImage("assets/images/red home.png"),
+              width: 25,
+              height: 25,
+            ),
+            label: "الرئيسية",
+          ),
+          BottomNavigationBarItem(
+            icon: Image(
+              image: AssetImage("assets/images/15.png"), // الطلبات
+              width: 25,
+              height: 25,
+            ),
+            activeIcon: Image(
+              image: AssetImage("assets/images/16.png"),
+              width: 25,
+              height: 25,
+            ),
+            label: "الطلبيات",
+          ),
+        ],
+      ),
+    );
+  }
 
-                        if (trader1 != null) {
-                          print("User First Name: ${trader1.fName}");
-                          print("User Last Name: ${trader1.lName}");
-                          print("Store: ${trader1.store}");
-                          print("Phone: ${trader1.phone}");
-                          print("Full Address: ${trader1.full_address}");
-                          print("Master Items: ${trader1.master}");
-                          print("Parts Types: ${trader1.parts_type}");
-                          print("Activity Types: ${trader1.activity_type}");
+  Widget _buildSocialButton(String url, String iconPath) {
+    return GestureDetector(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      },
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.05,
+        width: MediaQuery.of(context).size.height * 0.05,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+        child: Center(
+          child: iconPath.endsWith('.svg')
+              ? SvgPicture.asset(
+            iconPath,
+            height: 30,
+            width: 30,
+            colorFilter: ColorFilter.mode(black, BlendMode.srcIn),
+          )
+              : Image.asset(iconPath, height: 30, width: 30),
+        ),
+      ),
+    );
+  }
+  Widget _buildSocialButton2(String url, String iconPath) {
+    return GestureDetector(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      },
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.05,
+        width: MediaQuery.of(context).size.height * 0.05,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+        child: Center(
+          child: iconPath.endsWith('.svg')
+              ? SvgPicture.asset(
+            iconPath,
+            height: 55,
+            width: 55,
+            colorFilter: ColorFilter.mode(black, BlendMode.srcIn),
+          )
+              : Image.asset(iconPath, height: 50, width: 50),
+        ),
+      ),
+    );
+  }
 
-                          setState(() {
-                            isLoading = false;
-                          });
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  TraderProfilePage(trader: trader1),
-                            ),
-                          );
-                        } else {
-                          setState(() {
-                            isLoading = false;
-                          });
-                          print("User not found in Provider");
-                        }
-                      },
+  Widget _buildLogoutButton() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.4,
+      height: MediaQuery.of(context).size.height * 0.06,
+      child: MaterialButton(
+        onPressed: () async {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return StatefulBuilder(
+                builder: (BuildContext context, setState) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ),
-                  if (isLoading)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: LinearProgressIndicator(),
-                    ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomText(
-                          text: "أنضم كتاجر",
-                          size: 16,
-                        ),
-                        SizedBox(width: 10),
-                        Image.asset(
-                          "assets/images/handshake.png",
-                          height: 30,
-                          width: 30,
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TraderPage(),
-                        ));
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomText(
-                          text: "رؤيتنا",
-                          size: 16,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Image.asset(
-                          "assets/images/light-bulb.png",
-                          height: 30,
-                          width: 30,
-                          fit: BoxFit.fill,
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OurViewPage(),
-                        ));
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomText(
-                          text: "تواصل معنا",
-                          size: 16,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Image.asset(
-                          "assets/images/support.png",
-                          height: 30,
-                          width: 30,
-                          fit: BoxFit.fill,
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ContactPage(),
-                        ));
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Image.asset(
-                    "assets/images/facebook.png",
-                    height: 30,
-                    width: 30,
-                  ),
-                  SizedBox(
-                    width: 25,
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      await launchUrl(
-                        Uri.parse(
-                            "https://api.whatsapp.com/send/?phone=962796888501"),
-                        mode: LaunchMode.inAppBrowserView,
-                      );
-                    },
                     child: Container(
-                      height: 35,
-                      width: 30,
+                      width: MediaQuery.of(context).size.width * 0.9,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
+                        color: Color.fromRGBO(255, 255, 255, 1),
                       ),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          'assets/svg/insta.svg',
-                          height: 30,
-                          width: 30,
-                          colorFilter: ColorFilter.mode(black, BlendMode.srcIn),
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                              height:
+                              MediaQuery.of(context).size.height * 0.03),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomText(
+                                text: "هل انت متأكد من تسجيل الخروج ؟",
+                                color: black,
+                                size: 15,
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                              height:
+                              MediaQuery.of(context).size.height * 0.03),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                  Color.fromRGBO(153, 153, 160, 0.63),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: CustomText(
+                                  text: "لا",
+                                  color: white,
+                                  size: 15,
+                                ),
+                              ),
+                              SizedBox(
+                                  width:
+                                  MediaQuery.of(context).size.width * 0.03),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final prefs =
+                                  await SharedPreferences.getInstance();
+                                  String? token = prefs.getString('token');
+                                  _removeFcmToken(token!);
+                                  await prefs.clear();    await prefs.remove('vehicle_brand');
+                                  await prefs.remove('vehicle_model');
+                                  await prefs.remove('vehicle_year');
+                                  await prefs.remove('vehicle_fuelType');
+                                  await prefs.remove('vehicle_engineSize');
+                                  await prefs.setBool('rememberMe', false);
+                                  await prefs.remove('phone');
+                                  await prefs.remove('password');
+                                  await prefs.remove('userId');
+                                  await prefs.remove('name');
+                                  await prefs.remove('type');
+                                  await prefs.remove('city');
+                                  List<String> notifications =
+                                      prefs.getStringList('notifications') ??
+                                          [];
+                                  await prefs.setStringList(
+                                      'notifications', notifications);
+                                  await prefs.setInt('isOrderAllowed', 0);
+                                  final profileProvider =
+                                  Provider.of<ProfileProvider>(context,
+                                      listen: false);
+                                  profileProvider.resetFields();
+                                  final OrderProvider1 =
+                                  Provider.of<OrderProvider>(context,
+                                      listen: false);
+                                  OrderProvider1.clearOrders();
+                                  final orderDetailsProvider =
+                                  Provider.of<OrderDetailsProvider>(context,
+                                      listen: false);
+                                  orderDetailsProvider.clear();
+                                  final editProductProvider =
+                                  Provider.of<EditProductProvider>(context,
+                                      listen: false);
+                                  editProductProvider.clear();
+                                  final deliveryModel =
+                                  Provider.of<DeliveryModelOrange>(context,
+                                      listen: false);
+                                  deliveryModel.clear();
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginPage()),
+                                        (Route<dynamic> route) => false,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: red,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: CustomText(
+                                  text: "نعم",
+                                  color: grey,
+                                  size: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                              height:
+                              MediaQuery.of(context).size.height * 0.03),
+                        ],
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: size.width * 0.12,
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: size.height * 0.2,
-              ),
+                  );
+                },
+              );
+            },
+          );
+        },
+        height: 45,
+        minWidth: 50,
+        color: Color.fromRGBO(195, 29, 29, 1),
+        child: CustomText(
+          text: "تسجيل الخروج",
+          size: 16,
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.symmetric(vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _removeFcmToken(String token) async {
+    final String apiUrl = "https://jordancarpart.com/Api/clear_fcm_token.php";
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "token": token,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data["status"] == "success") {
+
+        } else {
+
+        }
+      } else {
+
+      }
+    } catch (e) {
+
+    }
+  }
+
+
+
+  void _updateCurrentTab(String userId) {
+    setState(() {
+      _updateCurrentWidget();
+    });
+  }
+
+  Widget _buildDrawerButton(
+      {required String text,
+        required String icon,
+        Color? color,
+        required VoidCallback onTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
               Container(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Container(
-                        width: size.width * 0.4,
-                        child: MaterialButton(
-                          onPressed: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.clear();
-                            await prefs.setBool('rememberMe', false);
-                            await prefs.remove('phone');
-                            await prefs.remove('password');
-                            await prefs.remove('userId');
-                            await prefs.remove('name');
-                            await prefs.remove('type');
-                            await prefs.remove('city');
-                            List<String> notifications =
-                                prefs.getStringList('notifications') ?? [];
-                            await prefs.setStringList(
-                                'notifications', notifications);
-                            await prefs.setInt('isOrderAllowed', 0);
-                            final profileProvider =
-                                Provider.of<ProfileProvider>(context,
-                                    listen: false);
-                            profileProvider.resetFields();
-                            final OrderProvider1 = Provider.of<OrderProvider>(
-                                context,
-                                listen: false);
-                            OrderProvider1.clearOrders();
-                            final orderDetailsProvider =
-                                Provider.of<OrderDetailsProvider>(context,
-                                    listen: false);
-                            orderDetailsProvider.clear();
-                            final editProductProvider =
-                                Provider.of<EditProductProvider>(context,
-                                    listen: false);
-                            editProductProvider.clear();
-                            final deliveryModel =
-                                Provider.of<DeliveryModelOrange>(context,
-                                    listen: false);
-                            deliveryModel.clear();
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginPage()),
-                              (Route<dynamic> route) => false,
-                            );
-                          },
-                          height: 45,
-                          minWidth: 50,
-                          color: Color.fromRGBO(195, 29, 29, 1),
-                          child: CustomText(
-                            text: "تسجيل الخروج",
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                      ),
+                height: MediaQuery.of(context).size.height * 0.05,
+                decoration: BoxDecoration(
+                  color: color ?? Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Padding(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    child: CustomText(
+                      text: text,
+                      size: MediaQuery.of(context).size.width * 0.04,
+                      color: color != null ? white : black,
                     ),
-                  ],
+                  ),
                 ),
               ),
+              Image.asset(icon,
+                  height: MediaQuery.of(context).size.height * 0.03),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: white,
-          border: Border(
-            top: BorderSide(
-              width: 1,
-              color: words.withOpacity(0.1),
-            ),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: MaterialButton(
-                onPressed: () {
-                  setState(() {
-                    current = EditStockWidget();
-                    currentTab = 1;
-                  });
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width * 0.02),
-                      child: Image.asset(
-                        currentTab == 1
-                            ? 'assets/images/07.png'
-                            : 'assets/images/06.png',
-                        width: MediaQuery.of(context).size.width * 0.1,
-                      ),
-                    ),
-                    CustomText(
-                      text: 'تعديل البضاعة',
-                      color: currentTab == 1 ? red : Colors.grey,
-                      weight: FontWeight.bold,
-                      size: 15,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              // Use Expanded or Flexible here
-              child: MaterialButton(
-                height: MediaQuery.of(context).size.height * 0.06,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AddProductTraderPage()),
-                  );
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width * 0.02),
-                      child: Image.asset(
-                        'assets/images/01.png',
-                        width: MediaQuery.of(context).size.width * 0.1,
-                        height: MediaQuery.of(context).size.height * 0.05,
-                      ),
-                    ),
-                    CustomText(
-                      text: 'أضافة قطعة',
-                      color: Colors.grey,
-                      weight: FontWeight.bold,
-                      size: 15,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              // Use Expanded or Flexible here
-              child: MaterialButton(
-                height: MediaQuery.of(context).size.height * 0.06,
-                onPressed: () {
-                  setState(() {
-                    current = TraderOrderWidget(user.user_id);
-                    currentTab = 0;
-                  });
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width * 0.02),
-                      child: Image.asset(
-                        currentTab == 0
-                            ? 'assets/images/16.png'
-                            : 'assets/images/15.png',
-                        width: MediaQuery.of(context).size.width * 0.1,
-                        height: MediaQuery.of(context).size.height * 0.05,
-                      ),
-                    ),
-                    CustomText(
-                      text: 'الطلبيات',
-                      color: currentTab == 0 ? red : Colors.grey,
-                      size: 15,
-                      weight: FontWeight.bold,
-                    ),
-                  ],
-                ),
-              ),
+    );
+  }
+
+  Widget _buildBottomNavItem(
+      BuildContext context, String text, String icon, VoidCallback onTap,
+      {bool isActive = false}) {
+    return Expanded(
+      child: MaterialButton(
+        onPressed: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(icon, width: 30),
+            SizedBox(height: 5),
+            CustomText(
+              text: text,
+              size: getResponsiveFontSize(context, 12),
+              color: isActive ? red : Colors.grey,
+              weight: FontWeight.bold,
             ),
           ],
         ),
       ),
     );
+  }
+
+  double getResponsiveFontSize(BuildContext context, double fontSize) {
+    return fontSize * MediaQuery.of(context).size.width / 400;
   }
 }

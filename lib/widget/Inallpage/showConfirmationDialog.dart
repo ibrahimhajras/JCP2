@@ -6,15 +6,20 @@ void showConfirmationDialog({
   required String message,
   required String confirmText,
   required Function() onConfirm,
-  String? cancelText, // نجعل cancelText اختياريًا
+  String? cancelText,
   Function()? onCancel,
+  preventDismissal = false
 }) {
   showDialog(
     context: context,
+    barrierDismissible: !preventDismissal, // ✅ استخدمه هنا
     builder: (BuildContext context) {
       return StatefulBuilder(
+
         builder: (BuildContext context, setState) {
+
           return Dialog(
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -50,7 +55,7 @@ void showConfirmationDialog({
                             if (onCancel != null) {
                               onCancel();
                             }
-                            Navigator.of(context).pop();
+                            Navigator.of(context).pop(); // إغلاق الـ Dialog بعد الضغط على إلغاء
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey,
@@ -65,11 +70,12 @@ void showConfirmationDialog({
                         ),
                       if (cancelText != null && cancelText.isNotEmpty)
                         SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.03),
+                          width: MediaQuery.of(context).size.width * 0.03,
+                        ),
                       ElevatedButton(
                         onPressed: () {
                           onConfirm();
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(); // إغلاق الـ Dialog بعد الضغط على "تحديث الآن"
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: red,
@@ -94,3 +100,4 @@ void showConfirmationDialog({
     },
   );
 }
+

@@ -9,10 +9,9 @@ class ProfileTraderProvider with ChangeNotifier {
   // تحديث بيانات التاجر
   void setTrader(JoinTraderModel trader) {
     _trader = trader;
-    notifyListeners(); // تحديث المستمعين عند تغيير البيانات
+    notifyListeners();
   }
 
-  // إعادة تعيين بيانات التاجر (تسجيل خروج أو مسح البيانات)
   void clearTrader() {
     _trader = null;
     notifyListeners();

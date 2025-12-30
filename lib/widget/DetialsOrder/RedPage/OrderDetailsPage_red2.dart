@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jcp/style/custom_text.dart';
+import '../../../screen/home/homeuser.dart';
 import '../../../style/colors.dart';
 
 class OrderDetailsPage2 extends StatefulWidget {
@@ -17,7 +18,7 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
   @override
   void initState() {
     super.initState();
-    print(widget.items);
+
   }
 
   @override
@@ -26,55 +27,12 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
 
     return Scaffold(
       backgroundColor: white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              height: size.height * 0.20,
-              width: size.width,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomRight,
-                  end: Alignment.topLeft,
-                  colors: [
-                    primary1,
-                    primary2,
-                    primary3,
-                  ],
-                ),
-                image: DecorationImage(
-                  image: AssetImage("assets/images/card.png"),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomText(
-                      text: "تفاصيل الطلب",
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                    SizedBox(width: size.width * 0.2),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 15),
-            Container(
+      body: Column(
+        children: [
+          _buildHeader(size),
+          SizedBox(height: 15),
+          SingleChildScrollView(
+            child: Container(
               height: size.height * 0.77,
               child: Center(
                 child: Column(
@@ -125,16 +83,17 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                         child: SingleChildScrollView(
                           child: Column(
                             children: widget.items.map(
-                              (e) {
+                                  (e) {
                                 String? imageUrl;
                                 if (e["itemimg64"] != null &&
                                     e["itemimg64"].isNotEmpty) {
                                   imageUrl = e["itemimg64"];
-                                  print(imageUrl.toString().length);
+
+
                                 }
                                 return Padding(
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
+                                  const EdgeInsets.symmetric(vertical: 5),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
@@ -157,7 +116,8 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                           color: black,
                                         ),
                                         subtitle: CustomText(
-                                          text: e["itemlink"] ?? '',
+                                          text: e["itemlink"] ??
+                                              'لا يوجد رابط للقطعة',
                                           size: 14,
                                           color: red,
                                         ),
@@ -170,31 +130,31 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                         ),
                                         subtitle: imageUrl != null
                                             ? Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(30),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.3),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 5,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Image.network(
-                                                  "https://jordancarpart.com$imageUrl",
-                                                  height: 250,
-                                                  width: 350,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )
-                                            : CustomText(
-                                                text: "No Image Available",
-                                                size: 14,
-                                                color: Colors.red,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                            BorderRadius.circular(30),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(0.3),
+                                                spreadRadius: 2,
+                                                blurRadius: 5,
                                               ),
+                                            ],
+                                          ),
+                                          child: Image.network(
+                                            "$imageUrl",
+                                            height: 250,
+                                            width: 350,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                            : CustomText(
+                                          text: "لا يوجد صورة",
+                                          size: 14,
+                                          color: Colors.red,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -209,7 +169,47 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                 ),
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(Size size) {
+    return Expanded(
+      flex: 1,
+      child: Container(
+        height: size.height * 0.20,
+        width: size.width,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [primary1, primary2, primary3]),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              CustomText(
+                text: "تفاصيل الطلب",
+                color: Colors.white,
+                size: size.width * 0.06,
+              ),
+              SizedBox(width: size.width * 0.2),
+              Padding(
+                padding: const EdgeInsets.only(right: 15),
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(page: 2),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.arrow_forward_ios_rounded, color: white),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

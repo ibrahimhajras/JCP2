@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jcp/screen/auth/ResetPasswordPage.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import '../../style/custom_text.dart';
@@ -20,7 +21,7 @@ class OtpPageForgwe extends StatefulWidget {
 
 class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
   List<TextEditingController> otpControllers =
-      List.generate(6, (index) => TextEditingController());
+  List.generate(6, (index) => TextEditingController());
   List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
   bool isLoading = false;
 
@@ -160,16 +161,16 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
                 minWidth: size.width * 0.9,
                 color: Color.fromRGBO(195, 29, 29, 1),
                 child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
+                    ? RotatingImagePage()
                     : Text(
-                        "تحقق",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.width * 0.045,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Tajawal",
-                        ),
-                      ),
+                  "تحقق",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: size.width * 0.045,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Tajawal",
+                  ),
+                ),
                 padding: EdgeInsets.symmetric(
                     vertical: size.height * 0.015,
                     horizontal: size.width * 0.12),
@@ -193,15 +194,12 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
     });
 
     String enteredOtp =
-        otpControllers.map((controller) => controller.text).join();
+    otpControllers.map((controller) => controller.text).join();
 
     final prefs = await SharedPreferences.getInstance();
     String? otpFromPrefs = prefs.getString('otp');
-    print(enteredOtp + " otp message by user");
-    print(otpFromPrefs.toString() + " otp message by API");
 
     if (otpFromPrefs == enteredOtp) {
-      print("OTP صحيح");
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

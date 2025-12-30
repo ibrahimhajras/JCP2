@@ -12,39 +12,34 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> loadProducts(String userId) async {
     try {
-      _products = await fetchProducts(userId);
       _calculateTotalPriceAmountAndCheckboxItems();
       notifyListeners();
     } catch (e) {
-      print('Error loading products: $e');
+
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchProducts(String userId) async {
+  Future<int> fetchTotalParts(String userId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
     final url = Uri.parse(
-        'http://jordancarpart.com/Api/getproduct2.php?user_id=$userId&token=$token');
-    final response = await http.get(
-      url,
-      headers: {
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      'http://jordancarpart.com/Api/get_total_parts.php?user_id=$userId&token=$token',
     );
+
+    final response = await http.get(url);
+
+
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = json.decode(response.body);
-      if (jsonResponse['success'] == true) {
-        List<dynamic> data = jsonResponse['data'];
-        return data.cast<Map<String, dynamic>>();
+
+      if (jsonResponse.containsKey('total')) {
+        return jsonResponse['total'] as int;
       } else {
-        throw Exception('Failed to load products: ${jsonResponse['message']}');
+        throw Exception('Key "total" not found in response: ${response.body}');
       }
     } else {
-      throw Exception(
-          'Failed to load products. Status code: ${response.statusCode}');
+      throw Exception('Failed to load total. Status code: ${response.statusCode}');
     }
   }
 
@@ -54,8 +49,10 @@ class ProductProvider with ChangeNotifier {
       if (product.containsKey('checkboxData') &&
           product['checkboxData'] != null &&
           product['checkboxData'] is List) {
-        _totalCheckboxDataItems += (product['checkboxData'].length as int);
+        _totalCheckboxDataItems += (product['checkboxData'] as List).length;
       }
     }
+    notifyListeners(); // <- أضف هذا إذا لم يكن موجودًا
   }
+
 }

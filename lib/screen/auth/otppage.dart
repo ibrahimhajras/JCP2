@@ -1,14 +1,22 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
 import 'package:jcp/screen/auth/login.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
+import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:http/http.dart' as http;
 import '../../style/custom_text.dart';
+import '../../utils/otp_rate_limiter.dart';
 import '../../widget/Inallpage/dialogs.dart';
+import '../../model/UserModel.dart';
+import '../../provider/ProfileProvider.dart';
+import '../home/homeuser.dart';
 
 class OtpPage extends StatefulWidget {
   final String phone;
@@ -16,15 +24,17 @@ class OtpPage extends StatefulWidget {
   final String lname;
   final String password;
   final String city;
+  final String AddressDetail;
 
-  const OtpPage({
-    Key? key,
-    required this.phone,
-    required this.fname,
-    required this.lname,
-    required this.password,
-    required this.city,
-  }) : super(key: key);
+  const OtpPage(
+      {Key? key,
+        required this.phone,
+        required this.fname,
+        required this.lname,
+        required this.password,
+        required this.city,
+        required this.AddressDetail})
+      : super(key: key);
 
   @override
   State<OtpPage> createState() => _OtpPageState();
@@ -32,7 +42,9 @@ class OtpPage extends StatefulWidget {
 
 class _OtpPageState extends State<OtpPage> with CodeAutoFill {
   List<TextEditingController> otpControllers =
-      List.generate(6, (index) => TextEditingController());
+  List.generate(6, (index) => TextEditingController());
+  List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
+
   bool isLoading = false;
   Timer? _timer;
   int _start = 60;
@@ -43,14 +55,21 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
   void initState() {
     super.initState();
     generateAndStoreOtp();
-    listenForCode(); // تفعيل الاستماع للكود
+    listenForCode();
     startTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      focusNodes[0].requestFocus();
+      FocusScope.of(context).requestFocus(focusNodes[0]);
+    });
   }
 
   @override
   void dispose() {
     for (var controller in otpControllers) {
       controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
     }
     _timer?.cancel();
     super.dispose();
@@ -89,27 +108,44 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
     generatedOtp = generateOTP();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('otp', generatedOtp);
+
+    print('🔐 OTP Generated: $generatedOtp');
+
     String msg =
-        "شكرًا لك على أنضمامك إلى قطع سيارات الاردن تم إرسال الرمز بنجاح ${generatedOtp}";
-    Uri apiUrl = Uri.parse(
-        'http://82.212.81.40:8080/websmpp/websms?user=JCParts21&pass=123A@Neu%23&text=$msg&type=4&mno=962+${widget.phone}&sid=JCP-Jordan');
+        "شكرًا لك على أنضمامك إلى قطع سيارات الأردن. تم إرسال الرمز بنجاح ${generatedOtp}.";
+
+    Uri apiUrl = Uri.parse('https://jordancarpart.com/Api/auth/send_sms.php');
+
     try {
-      final response = await http.get(apiUrl);
+      final response = await http.post(
+        apiUrl,
+        body: {'phone': widget.phone, 'message': msg},
+      );
+
       setState(() {
         isLoading = false;
       });
-      print(response.body.toString());
+
       if (response.statusCode == 200) {
-        print("تم إرسال OTP بنجاح.");
+        final responseData = json.decode(response.body);
+
+        if (responseData["status"] == "success") {
+        } else {
+          showConfirmationDialog(
+            context: context,
+            message: 'حدث خطأ أثناء إرسال OTP.',
+            confirmText: 'حسناً',
+            onConfirm: () {},
+            cancelText: '',
+          );
+        }
       } else {
         showConfirmationDialog(
           context: context,
           message: 'حدث خطأ أثناء إرسال OTP.',
           confirmText: 'حسناً',
-          onConfirm: () {
-            // يمكن تركه فارغًا لأنه مجرد رسالة معلوماتية
-          },
-          cancelText: '', // لا حاجة لزر إلغاء
+          onConfirm: () {},
+          cancelText: '',
         );
       }
     } catch (e) {
@@ -118,11 +154,9 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
       });
       showConfirmationDialog(
         context: context,
-        message: 'حدث خطأ أثناء إرسال OTP: $e',
+        message: 'حدث خطأ أثناء إرسال OTP.',
         confirmText: 'حسناً',
-        onConfirm: () {
-          // يمكن تركه فارغاً
-        },
+        onConfirm: () {},
         cancelText: '',
       );
     }
@@ -163,7 +197,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                     SizedBox(height: size.height * 0.02),
                     CustomText(
                       text:
-                          "لقد أرسلنا رمزاً مكوناً من 6 أرقام إلى رقم هاتفك المسجل. يرجى إدخال هذا الرمز لإكمال عملية التسجيل الخاصة بك.",
+                      "لقد أرسلنا رمزاً مكوناً من 6 أرقام إلى رقم هاتفك المسجل. يرجى إدخال هذا الرمز لإكمال عملية التسجيل الخاصة بك.",
                       color: Colors.grey,
                       size: size.width * 0.04,
                       weight: FontWeight.w400,
@@ -179,50 +213,55 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                         children: List.generate(6, (index) {
                           return Flexible(
                             child: SizedBox(
-                                width: size.width * 0.9,
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8),
-                                  child: TextFormField(
-                                    controller: otpControllers[index],
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    maxLength: 1,
-                                    decoration: InputDecoration(
-                                      counterText: '',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide:
-                                            BorderSide(color: red, width: 2),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide:
-                                            BorderSide(color: red, width: 2),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: BorderSide(
-                                            color: Colors.black12, width: 1),
-                                      ),
-                                      hintText: "-",
-                                      hintStyle: TextStyle(
-                                          color: Colors.grey.shade600),
-                                      contentPadding: EdgeInsets.symmetric(
-                                          vertical: size.height * 0.030),
+                              width: size.width * 0.9,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: TextFormField(
+                                  controller: otpControllers[index],
+                                  focusNode: focusNodes[index],
+                                  // تعيين FocusNode
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  maxLength: 1,
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                      BorderSide(color: red, width: 2),
                                     ),
-                                    onChanged: (value) {
-                                      if (value.length == 1) {
-                                        if (index < 5) {
-                                          FocusScope.of(context).nextFocus();
-                                        } else {
-                                          _verifyOtp();
-                                        }
-                                      } else if (value.isEmpty && index > 0) {
-                                        FocusScope.of(context).previousFocus();
-                                      }
-                                    },
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                      BorderSide(color: red, width: 2),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                          color: Colors.black12, width: 1),
+                                    ),
+                                    hintText: "-",
+                                    hintStyle:
+                                    TextStyle(color: Colors.grey.shade600),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        vertical: size.height * 0.030),
                                   ),
-                                )),
+                                  onChanged: (value) {
+                                    if (value.length == 1) {
+                                      if (index < 5) {
+                                        FocusScope.of(context).requestFocus(
+                                            focusNodes[index + 1]);
+                                      } else {
+                                        _verifyOtp();
+                                      }
+                                    } else if (value.isEmpty && index > 0) {
+                                      FocusScope.of(context)
+                                          .requestFocus(focusNodes[index - 1]);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
                           );
                         }),
                       ),
@@ -233,16 +272,16 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                       minWidth: size.width * 0.9,
                       color: Color.fromRGBO(195, 29, 29, 1),
                       child: isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
+                          ? RotatingImagePage()
                           : Text(
-                              "متابعة",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.width * 0.045,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "Tajawal",
-                              ),
-                            ),
+                        "متابعة",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: size.width * 0.045,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Tajawal",
+                        ),
+                      ),
                       padding: EdgeInsets.symmetric(
                           vertical: size.height * 0.015,
                           horizontal: size.width * 0.12),
@@ -260,19 +299,19 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                         color: Colors.red,
                         fontSize: size.width * 0.045,
                         fontWeight: FontWeight.bold,
+                        fontFamily: "Tajawal",
                       ),
                     ),
                     SizedBox(height: size.height * 0.03),
                     GestureDetector(
                       onTap: canResendOtp ? _resendOtp : null,
-                      child: Text(
-                        "إرسال رسالة SMS مجدداً",
-                        style: TextStyle(
-                          color: canResendOtp ? red : Colors.grey,
-                          fontSize: size.width * 0.045,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
+                      child: CustomText(
+                        text: "مجددًا SMS إرسال رسالة",
+                        color: canResendOtp ? Colors.red : Colors.grey,
+                        size: size.width * 0.045,
+                        weight: FontWeight.bold,
+                        decoration: TextDecoration.none,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
@@ -290,6 +329,33 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
       isLoading = true;
     });
 
+    // Check OTP rate limit
+    final limitCheck = await OtpRateLimiter.checkOtpLimit(widget.phone);
+
+    if (limitCheck['success'] == true && limitCheck['allowed'] == false) {
+      setState(() {
+        isLoading = false;
+      });
+
+      String message = 'لقد تجاوزت الحد المسموح من محاولات إرسال رمز التحقق';
+      if (limitCheck['remaining_seconds'] != null) {
+        message +=
+        '\n\nيمكنك المحاولة مرة أخرى بعد\n${OtpRateLimiter.formatRemainingTime(limitCheck['remaining_seconds'])}';
+      }
+
+      showConfirmationDialog(
+        context: context,
+        message: message,
+        confirmText: 'حسناً',
+        onConfirm: () {},
+        cancelText: '',
+      );
+      return;
+    }
+
+    // Log OTP attempt
+    await OtpRateLimiter.logOtpAttempt(widget.phone);
+
     await generateAndStoreOtp();
     startTimer();
     setState(() {
@@ -303,22 +369,21 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
     });
 
     String enteredOtp =
-        otpControllers.map((controller) => controller.text).join();
+    otpControllers.map((controller) => controller.text).join();
 
     final prefs = await SharedPreferences.getInstance();
     String? otpFromPrefs = prefs.getString('otp');
-    print(enteredOtp + " otp message by user");
-
-    print(otpFromPrefs.toString() + " otp message by API");
 
     if (otpFromPrefs == enteredOtp) {
-      print("OTP صحيح");
-      Uri apiUrl = Uri.parse('https://jordancarpart.com/Api/rigester.php'
-          '?phone=${widget.phone}'
-          '&type=1'
-          '&password=${widget.password}'
-          '&city=${widget.city}'
-          '&name=${Uri.encodeComponent("${widget.fname} ${widget.lname}")}');
+      Uri apiUrl = Uri.parse(
+        'https://jordancarpart.com/Api/auth/rigester.php'
+            '?phone=${widget.phone}'
+            '&type=1'
+            '&password=${widget.password}'
+            '&city=${widget.city}'
+            '&name=${Uri.encodeComponent("${widget.fname} ${widget.lname}")}'
+            '&addressDetail=${Uri.encodeComponent(widget.AddressDetail)}',
+      );
 
       final response = await http.get(
         apiUrl,
@@ -326,19 +391,20 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
           'Content-Type': 'application/json',
         },
       );
+
       if (response.statusCode == 200) {
-        print("تم التسجيل بنجاح");
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
-        );
+        final responseData = json.decode(response.body);
+
+        if (responseData['status'] == 'success') {
+          // Auto-login after successful registration
+          await _autoLogin();
+        } else {}
       } else {
         AppDialogs.showErrorDialog(context, "لم يتم التسجيل حاول في ما بعد");
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
+              (Route<dynamic> route) => false,
         );
       }
       setState(() {
@@ -358,12 +424,116 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
     }
   }
 
+  Future<void> _autoLogin() async {
+    try {
+      final url =
+          'https://jordancarpart.com/Api/auth/login.php?phone=${widget.phone}&password=${widget.password}';
+
+      final response = await http.get(Uri.parse(url));
+      final responseData = json.decode(response.body);
+
+      if (responseData['status'] == 'success') {
+        final userData = responseData['user'];
+        UserModel user = UserModel.fromJson(userData);
+
+        final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+        profileProvider.setuser_id(user.userId);
+        profileProvider.setphone(user.phone);
+        profileProvider.setname(user.name);
+        profileProvider.setpassword(user.password);
+        profileProvider.settype(user.type);
+        profileProvider.setcity(user.city);
+        profileProvider.setcreatedAt(user.createdAt);
+        profileProvider.settoken(user.token);
+        profileProvider.setaddressDetail(user.addressDetail);
+
+        // Save to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('rememberMe', true);
+        await prefs.setString('phone', user.phone);
+        await prefs.setString('password', user.password);
+        await prefs.setString('userId', user.userId);
+        await prefs.setString('name', user.name);
+        await prefs.setString('type', user.type);
+        await prefs.setString('city', user.city);
+        await prefs.setString('addressDetail', user.addressDetail);
+        await prefs.setString('time', user.createdAt.toIso8601String());
+        await prefs.setString('token', user.token);
+
+        // Subscribe to FCM topic
+        await FirebaseMessaging.instance.subscribeToTopic("User");
+
+        // Update FCM token
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        messaging.getToken().then((token) {
+          if (token != null) {
+            _updateFCMToken(user.userId, token);
+          }
+        });
+
+        // Navigate to home
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage(page: 1)),
+              (Route<dynamic> route) => false,
+        );
+      } else {
+        // If auto-login fails, show success message and go to login
+        showConfirmationDialog(
+          context: context,
+          message: "تم إنشاء الحساب بنجاح",
+          confirmText: "حسناً",
+          onConfirm: () {
+            Navigator.pop(context);
+            Future.delayed(Duration(milliseconds: 100), () {
+              Navigator.of(context, rootNavigator: true).pushReplacement(
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            });
+          },
+          cancelText: '',
+        );
+      }
+    } catch (e) {
+      // If auto-login fails, show success message and go to login
+      showConfirmationDialog(
+        context: context,
+        message: "تم إنشاء الحساب بنجاح",
+        confirmText: "حسناً",
+        onConfirm: () {
+          Navigator.pop(context);
+          Future.delayed(Duration(milliseconds: 100), () {
+            Navigator.of(context, rootNavigator: true).pushReplacement(
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
+          });
+        },
+        cancelText: '',
+      );
+    }
+  }
+
+  void _updateFCMToken(String userId, String fcmToken) async {
+    final url = Uri.parse('https://jordancarpart.com/Api/update_fcm_token.php');
+    await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_id': userId,
+        'fcm_token': fcmToken,
+      }),
+    );
+  }
+
   @override
   void codeUpdated() {
     setState(() {
       for (int i = 0;
-          i < generatedOtp.length && i < otpControllers.length;
-          i++) {
+      i < generatedOtp.length && i < otpControllers.length;
+      i++) {
         otpControllers[i].text = generatedOtp[i];
       }
     });
