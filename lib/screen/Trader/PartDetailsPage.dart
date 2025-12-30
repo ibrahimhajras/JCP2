@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
+import '../../widget/KeyboardActionsUtil.dart';
 import 'package:jcp/style/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
