@@ -1016,7 +1016,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       decoration: BoxDecoration(
                         color: !isForAllCars
-                            ? red.withValues(alpha: 0.1)
+                            ? red.withOpacity(0.1)
                             : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
@@ -1065,7 +1065,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withValues(alpha: 0.1)
+                            ? green.withOpacity(0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
