@@ -8,6 +8,8 @@ import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:jcp/widget/KeyboardActionsUtil.dart';
 import '../../model/UserModel.dart';
 import '../../style/appbar.dart';
 import '../../style/colors.dart';
@@ -35,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
 
   TextEditingController phone = TextEditingController();
   TextEditingController password = TextEditingController();
+  final FocusNode phoneFocus = FocusNode();
 
   @override
   void initState() {
@@ -152,52 +155,57 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             color: grey,
-            child: IntlPhoneField(
-              onTap: () {
-                setState(() {
-                  phoneHint = "";
-                });
-              },
-              disableLengthCheck: true,
-              showDropdownIcon: false,
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.start,
-              decoration: InputDecoration(
-                hintText: phoneHint,
-                border: InputBorder.none,
-                labelStyle: const TextStyle(
+            child: KeyboardActions(
+              config: KeyboardActionsUtil.buildConfig(context, phoneFocus),
+              tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+              child: IntlPhoneField(
+                focusNode: phoneFocus,
+                onTap: () {
+                  setState(() {
+                    phoneHint = "";
+                  });
+                },
+                disableLengthCheck: true,
+                showDropdownIcon: false,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.start,
+                decoration: InputDecoration(
+                  hintText: phoneHint,
+                  border: InputBorder.none,
+                  labelStyle: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w100,
+                    fontSize: 16,
+                  ),
+                  hintStyle: const TextStyle(
+                    color: Color.fromRGBO(153, 153, 153, 1),
+                    fontSize: 18,
+                    fontFamily: "Tajawal",
+                    fontWeight: FontWeight.w100,
+                  ),
+                  contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
+                ),
+                flagsButtonMargin: const EdgeInsets.only(right: 5),
+                disableAutoFillHints: true,
+                textAlignVertical: TextAlignVertical.center,
+                initialCountryCode: 'JO',
+                controller: phone,
+                style: const TextStyle(
                   color: Colors.black,
-                  fontWeight: FontWeight.w100,
+                  fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
-                hintStyle: const TextStyle(
-                  color: Color.fromRGBO(153, 153, 153, 1),
-                  fontSize: 18,
-                  fontFamily: "Tajawal",
-                  fontWeight: FontWeight.w100,
-                ),
-                contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
+                onChanged: (phone) {
+                  String x = phone.completeNumber;
+                  if (phone.number.isEmpty) {
+                    setState(() {
+                      phoneHint = "79xxxxxxxxx";
+                    });
+                  } else if (phone.number[0] == '0') {
+                    x = x.replaceFirst("0", "");
+                  }
+                },
               ),
-              flagsButtonMargin: const EdgeInsets.only(right: 5),
-              disableAutoFillHints: true,
-              textAlignVertical: TextAlignVertical.center,
-              initialCountryCode: 'JO',
-              controller: phone,
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              onChanged: (phone) {
-                String x = phone.completeNumber;
-                if (phone.number.isEmpty) {
-                  setState(() {
-                    phoneHint = "79xxxxxxxxx";
-                  });
-                } else if (phone.number[0] == '0') {
-                  x = x.replaceFirst("0", "");
-                }
-              },
             ),
           ),
         ),
