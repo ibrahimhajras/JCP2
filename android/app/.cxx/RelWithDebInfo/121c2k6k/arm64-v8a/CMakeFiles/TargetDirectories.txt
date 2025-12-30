@@ -1,0 +1,2 @@
+C:/Users/ibrahim/AndroidStudioProjects/JCP_android/android/app/.cxx/RelWithDebInfo/121c2k6k/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/ibrahim/AndroidStudioProjects/JCP_android/android/app/.cxx/RelWithDebInfo/121c2k6k/arm64-v8a/CMakeFiles/rebuild_cache.dir

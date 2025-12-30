@@ -1,0 +1,1 @@
+C:\Users\ibrahim\AndroidStudioProjects\JCP_android\build\app\intermediates\cxx\RelWithDebInfo\121c2k6k\obj\armeabi-v7a

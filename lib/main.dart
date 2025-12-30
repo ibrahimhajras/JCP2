@@ -25,7 +25,6 @@ GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -46,6 +45,16 @@ void main() async {
 Future<void> _initFirebaseLater() async {
   try {
     await Firebase.initializeApp();
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    print('User granted permission: ${settings.authorizationStatus}');
     await FirebaseMessaging.instance.subscribeToTopic("all");
   } catch (e) {
     Future.delayed(const Duration(seconds: 10), _initFirebaseLater);

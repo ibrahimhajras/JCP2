@@ -801,6 +801,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                   disableLengthCheck: true,
                   keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
                   textAlign: TextAlign.start,
                   decoration: InputDecoration(
                     hintText: phoneHint,
@@ -833,6 +834,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     } else if (phoneNumber.number[0] == '0') {
                       x = x.replaceFirst("0", "");
                     }
+                  },
+                  onSubmitted: (value) {
+                    phoneFocus.unfocus();
                   },
                 ),
               ),

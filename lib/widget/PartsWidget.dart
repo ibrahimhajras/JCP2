@@ -92,14 +92,10 @@ class _PartsWidgetState extends State<PartsWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Container(
-        height: 65,
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-        child: Row(
+    return Container(
+      height: 65,
+      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+      child: Row(
           mainAxisAlignment: widget.showDelete
               ? MainAxisAlignment.spaceBetween
               : MainAxisAlignment.end,
@@ -135,8 +131,8 @@ class _PartsWidgetState extends State<PartsWidget> {
 
                   final containsList = widget.suggestions
                       .where((item) =>
-                  !item.toLowerCase().startsWith(query) &&
-                      item.toLowerCase().contains(query))
+                          !item.toLowerCase().startsWith(query) &&
+                          item.toLowerCase().contains(query))
                       .toList();
 
                   final filteredList = [ ...containsList,...startsWithList,];
@@ -169,121 +165,121 @@ class _PartsWidgetState extends State<PartsWidget> {
                       width: double.infinity,
                       child: optionsList.length <= 4
                           ? ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: optionsList.length,
-                        itemBuilder: (context, index) {
-                          final option = optionsList[index];
-                          return InkWell(
-                            onTap: () => onSelected(option),
-                            child: Container(
-                              height: 60,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey[300]!,
-                                    width: 0.5,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: optionsList.length,
+                              itemBuilder: (context, index) {
+                                final option = optionsList[index];
+                                return InkWell(
+                                  onTap: () => onSelected(option),
+                                  child: Container(
+                                    height: 60,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey[300]!,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: CustomText(
+                                        text: option,
+                                        textDirection: TextDirection.rtl,
+                                        size: 16,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: CustomText(
-                                  text: option,
-                                  textDirection: TextDirection.rtl,
-                                  size: 16,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      )
+                                );
+                              },
+                            )
                           : ListWheelScrollView.useDelegate(
-                        itemExtent: 60,
-                        physics: BouncingScrollPhysics(),
-                        useMagnifier: false,
-                        magnification: 1.0,
-                        perspective: 0.0002,
-                        childDelegate: optionsList.length > 4
-                            ? ListWheelChildLoopingListDelegate(
-                          children: optionsList.map((option) {
-                            return InkWell(
-                              onTap: () => onSelected(option),
-                              child: Container(
-                                height: 50,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey[300]!,
-                                      width: 0.5,
+                              itemExtent: 60,
+                              physics: BouncingScrollPhysics(),
+                              useMagnifier: false,
+                              magnification: 1.0,
+                              perspective: 0.0002,
+                              childDelegate: optionsList.length > 4
+                                  ? ListWheelChildLoopingListDelegate(
+                                      children: optionsList.map((option) {
+                                        return InkWell(
+                                          onTap: () => onSelected(option),
+                                          child: Container(
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Colors.grey[300]!,
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: CustomText(
+                                                text: option,
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                                size: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    )
+                                  : ListWheelChildListDelegate(
+                                      children: optionsList.map((option) {
+                                        return InkWell(
+                                          onTap: () => onSelected(option),
+                                          child: Container(
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 12,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Colors.grey[300]!,
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: CustomText(
+                                                text: option,
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                                size: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
                                     ),
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: CustomText(
-                                    text: option,
-                                    textDirection:
-                                    TextDirection.rtl,
-                                    size: 16,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        )
-                            : ListWheelChildListDelegate(
-                          children: optionsList.map((option) {
-                            return InkWell(
-                              onTap: () => onSelected(option),
-                              child: Container(
-                                height: 50,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey[300]!,
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: CustomText(
-                                    text: option,
-                                    textDirection:
-                                    TextDirection.rtl,
-                                    size: 16,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
+                            ),
                     ),
                   );
                 },
                 fieldViewBuilder: (
-                    BuildContext context,
-                    TextEditingController textEditingController,
-                    FocusNode fieldFocusNode,
-                    VoidCallback onFieldSubmitted,
-                    ) {
+                  BuildContext context,
+                  TextEditingController textEditingController,
+                  FocusNode fieldFocusNode,
+                  VoidCallback onFieldSubmitted,
+                ) {
                   return TextFormField(
                     key: widget.scrollKey,
                     // textEditingController passed from RawAutocomplete is the one we provided (widget.part)
@@ -329,7 +325,6 @@ class _PartsWidgetState extends State<PartsWidget> {
             ),
           ],
         ),
-      ),
     );
   }
 }
