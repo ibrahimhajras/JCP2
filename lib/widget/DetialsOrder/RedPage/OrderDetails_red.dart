@@ -131,14 +131,28 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         }
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تم حفظ الصور بنجاح')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: CustomText(
+          text: 'تم حفظ الصور بنجاح',
+          color: Colors.white,
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: red,
+      ));
       imageProvider.resetImages();
 
       // Refresh logic could be added here if needed
       await _fetchOrderItems();
 
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء الحفظ')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: CustomText(
+          text: 'حدث خطأ أثناء الحفظ',
+          color: Colors.white,
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: red,
+      ));
     } finally {
       setState(() {
         _isUploading = false;

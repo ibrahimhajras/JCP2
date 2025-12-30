@@ -232,39 +232,186 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
         if (responseData['success'] == true) {
           loadPendingParts();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                "تم رفض الدعوة بنجاح",
-                style: TextStyle(fontFamily: "Tajawal"),
+            SnackBar(
+              content: CustomText(
+                text: "تم رفض الدعوة بنجاح",
+                color: Colors.white,
+                textAlign: TextAlign.center,
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: red,
             ),
           );
         }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "خطأ في رفض الدعوة",
-            style: TextStyle(fontFamily: "Tajawal"),
+        SnackBar(
+          content: CustomText(
+            text: "خطأ في رفض الدعوة",
+            color: Colors.white,
+            textAlign: TextAlign.center,
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _requestPartImage(Map<String, dynamic> part) async {
+    try {
+      final user = Provider.of<ProfileProvider>(context, listen: false);
+      final response = await http.post(
+        Uri.parse('https://jordancarpart.com/Api/trader/requestPartImage.php'),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: jsonEncode({
+          'invitation_id': part['id'],
+          'trader_id': user.user_id,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(utf8.decode(response.bodyBytes));
+        if (responseData['success'] == true) {
+          setState(() {
+            part['is_image_requested'] = 1;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: CustomText(
+                text: "تم إرسال طلب الصورة بنجاح",
+                color: Colors.white,
+                textAlign: TextAlign.center,
+              ),
+              backgroundColor: red,
+            ),
+          );
+        } else {
+          throw Exception(responseData['message']);
+        }
+      } else {
+        throw Exception("Server error: ${response.statusCode}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: CustomText(
+            text: "خطأ في إرسال الطلب",
+            color: Colors.white,
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: red,
         ),
       );
     }
   }
 
   void _showDeclineConfirmation(Map<String, dynamic> part) {
-    showConfirmationDialog(
+    bool hasImage = part['image_path'] != null && part['image_path'].toString().isNotEmpty;
+    bool isImageRequested = part['is_image_requested'] == 1 || part['is_image_requested'] == true;
+
+    showDialog(
       context: context,
-      message: "هل أنت متأكد من عدم توفر هذه القطعة في المتجر لديك؟",
-      confirmText: "نعم",
-      cancelText: "لا",
-      onConfirm: () {
-        _updateInvitationStatus(part['id'], 'declined');
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                const Text(
+                  "هل أنت متأكد من عدم توفر هذه القطعة في المتجر لديك؟",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontFamily: "Tajawal",
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // زر لا (إلغاء)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                          ),
+                          child: const Text(
+                            "لا",
+                            style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: "Tajawal"),
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        // زر نعم (رفض)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            _updateInvitationStatus(part['id'], 'declined');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                          ),
+                          child: const Text(
+                            "نعم",
+                            style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: "Tajawal"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (!hasImage && !isImageRequested) ...[
+                      const SizedBox(height: 12),
+                      // زر طلب صورة (يظهر فقط إذا لم تكن هناك صورة ولم يسبق طلبه)
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _requestPartImage(part);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                        ),
+                        child: const Text(
+                          "طلب صورة",
+                          style: TextStyle(color: Colors.white, fontSize: 13, fontFamily: "Tajawal"),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
       },
-      onCancel: () {},
     );
   }
 
@@ -455,7 +602,7 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
                                           );
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: red, // A different color for distinction
+                                          backgroundColor: orange, // A different color for distinction
                                           foregroundColor: Colors.white,
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(
