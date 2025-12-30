@@ -136,7 +136,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
 
     currentTab = (widget.page >= 0 && widget.page <= 2) ? widget.page : 1;
 
@@ -171,55 +170,6 @@ class _HomePageState extends State<HomePage> {
         );
       });
     }
-=======
-    current = HomeWidget(
-      run: (value) {
-        setState(() {});
-      },
-    );
-    currentTab = 1;
-    _fetchDataAndSave();
-    _loadVerificationValue();
-  }
-
-  Future<void> _fetchDataAndSave() async {
-    const url = 'https://jordancarpart.com/Api/applyupload.php';
-
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        if (responseData['data'] != null &&
-            responseData['data'] is List &&
-            responseData['data'].isNotEmpty) {
-          final verification =
-          responseData['data'][0]['verification'];
-          if (verification is int) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setInt('verification', verification);
-            print("verification" + verification.toString());
-            setState(() {
-              verificationValue = verification;
-            });
-          }
-        }
-      } else {
-        throw Exception('Failed to fetch data: ${response.statusCode}');
-      }
-    } catch (e) {} finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _loadVerificationValue() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      verificationValue = prefs.getInt('verification');
-      isLoading = false;
-    });
->>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
   }
 
   Future<void> _loadVerificationValue() async {
@@ -234,18 +184,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
-    if (isLoading) {
-      return Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-<<<<<<< HEAD
     return WillPopScope(
       onWillPop: () async {
         final now = DateTime.now();
@@ -274,12 +214,6 @@ class _HomePageState extends State<HomePage> {
         resizeToAvoidBottomInset: false,
         key: _key,
         endDrawer: Drawer(
-=======
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      key: _key,
-      endDrawer: Drawer(
->>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
           backgroundColor: white,
           width: MediaQuery.of(context).size.width * 0.75,
           child: SafeArea(
@@ -423,7 +357,6 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     ),
-<<<<<<< HEAD
                   _buildDrawerButton(
                     text: "الأسماء التنبؤية للقطع",
                     icon: "assets/images/parts2.png",
@@ -460,142 +393,6 @@ class _HomePageState extends State<HomePage> {
                   Column(
                     children: [
                       Row(
-=======
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomText(
-                                text: "رؤيتنا",
-                                size: 16,
-                              ),
-                              SizedBox(width: 10),
-                              Image.asset(
-                                "assets/images/light-bulb.png",
-                                height: 30,
-                                width: 30,
-                                fit: BoxFit.fill,
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OurViewPage(),
-                              ));
-                        },
-                      ),
-                    ),
-                    verificationValue == 0 ? SizedBox() :
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomText(
-                                text: "طلب تسعير",
-                                size: 16,
-                              ),
-                              SizedBox(width: 10),
-                              Image.asset(
-                                "assets/images/4home.png",
-                                height: 30,
-                                width: 30,
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PricingRequestPage(),
-                              ));
-                        },
-                      ),
-                    ),
-
-
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomText(
-                                text: "تواصل معنا",
-                                size: 16,
-                              ),
-                              SizedBox(width: 10),
-                              Image.asset(
-                                "assets/images/support.png",
-                                height: 30,
-                                width: 30,
-                                fit: BoxFit.fill,
-                              ),
-                            ],
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ContactPage(),
-                              ));
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Image.asset(
-                          "assets/images/facebook.png",
-                          height: 30,
-                          width: 30,
-                        ),
-                        SizedBox(width: 25),
-                        GestureDetector(
-                          onTap: () async {
-                            await launchUrl(
-                              Uri.parse(
-                                  "https://api.whatsapp.com/send/?phone=962796888501"),
-                              mode: LaunchMode.inAppBrowserView,
-                            );
-                          },
-                          child: Container(
-                            height: 30,
-                            width: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Center(
-                              child: SvgPicture.asset(
-                                'assets/svg/whatsapp.svg',
-                                height: 30,
-                                width: 30,
-                                colorFilter:
-                                    ColorFilter.mode(black, BlendMode.srcIn),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: size.width * 0.12),
-                      ],
-                    ),
-                    SizedBox(height: size.height * 0.2),
-                    Container(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
->>>>>>> de8c1005f811b10c67d167d840a715d08ced7e80
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CustomText(
