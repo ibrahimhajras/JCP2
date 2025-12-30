@@ -344,12 +344,6 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
-            if (isLoading) _buildLoadingOverlay(),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget buildInputFields(Size size) {
     return Column(
