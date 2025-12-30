@@ -399,24 +399,29 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-    return Column(
-      children: [
-        _buildHeader(size, user), // الهيدر
-        Expanded(
-          child: Column(
-            children: [
-              _buildDropdownRow(),
-              _buildSearchField(size),
-              EditStockTitleWidget(
-                totalItems: _totalItems,
-              ),
-              Expanded(
-                child: _buildProductList(size, user.user_id),
-              ),
-            ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Column(
+        children: [
+          _buildHeader(size, user), // الهيدر
+          Expanded(
+            child: Column(
+              children: [
+                _buildDropdownRow(),
+                _buildSearchField(size),
+                EditStockTitleWidget(
+                  totalItems: _totalItems,
+                ),
+                Expanded(
+                  child: _buildProductList(size, user.user_id),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -720,7 +725,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                                 "بحث تنبؤي",
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.black54,
+                                  color: Colors.grey,
                                   fontFamily: "Tajawal",
                                 ),
                               ),
