@@ -16,6 +16,7 @@ import '../../utils/otp_rate_limiter.dart';
 // Import the math package for Random
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:jcp/widget/KeyboardActionsUtil.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -773,31 +774,8 @@ class _RegisterPageState extends State<RegisterPage> {
             child: SizedBox(
               height: 47,
               child: KeyboardActions(
-                config: KeyboardActionsConfig(
-                  actions: [
-                    KeyboardActionsItem(
-                      focusNode: phoneFocus,
-                      toolbarButtons: [
-                            (node) => CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: const Text(
-                            "تم",
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Tajawal",
-                            ),
-                          ),
-                          onPressed: () {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              node.unfocus();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                config: KeyboardActionsUtil.buildConfig(context, phoneFocus),
+                tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
                 child: IntlPhoneField(
                   focusNode: phoneFocus,
                   onTap: () {
