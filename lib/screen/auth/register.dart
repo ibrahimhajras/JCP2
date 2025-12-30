@@ -344,6 +344,12 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+            if (isLoading) _buildLoadingOverlay(),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget buildInputFields(Size size) {
     return Column(
@@ -836,7 +842,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -1012,6 +1017,8 @@ class StreetFieldWidget extends StatefulWidget {
 }
 
 class _StreetFieldWidgetState extends State<StreetFieldWidget> {
+  late String currentHintText;
+
   @override
   void initState() {
     super.initState();
