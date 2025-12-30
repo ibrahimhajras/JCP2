@@ -143,7 +143,7 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
                 ),
               ),
 
-              SizedBox(height: size.height * 0.3),
+              SizedBox(height: size.height * 0.05),
               MaterialButton(
                 height: size.height * 0.07,
                 minWidth: size.width * 0.9,
