@@ -15,53 +15,18 @@ class NotificationPermissionHandler {
 
     if (status.isDenied || status.isPermanentlyDenied) {
       // Permission has been denied or permanently denied.
+      // Native system dialog will not show up again on iOS.
       // Show custom dialog with "Go to Settings".
       _showSettingsDialog(context);
     } else {
       // status is notDetermined (never asked).
-      // Show explanation dialog first.
-      _showExplanationDialog(context);
+      // Show native system prompt directly.
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     }
-  }
-
-  static void _showExplanationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: CustomText(
-          text: "تفعيل التنبيهات",
-          size: 18,
-          fontWeight: FontWeight.bold,
-        ),
-        content: CustomText(
-          text: "يرجى تفعيل التنبيهات للحصول على آخر التحديثات والطلبات الجديدة فور وصولها.",
-          size: 16,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: CustomText(text: "لاحقاً", color: Colors.grey),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-                alert: true,
-                badge: true,
-                sound: true,
-              );
-              
-              if (settings.authorizationStatus == AuthorizationStatus.denied) {
-                // User denied it in the system dialog.
-                // Next time they click, it will trigger the settings dialog.
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: red),
-            child: CustomText(text: "تفعيل", color: Colors.white),
-          ),
-        ],
-      ),
-    );
   }
 
   static void _showSettingsDialog(BuildContext context) {
