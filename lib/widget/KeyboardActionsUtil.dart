@@ -33,7 +33,7 @@ class KeyboardActionsUtil {
     return KeyboardActionsConfig(
       keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
       keyboardBarColor: Colors.grey[200],
-      nextFocus: false,
+      nextFocus: true,
       actions: [
         buildDoneItem(focusNode),
       ],
