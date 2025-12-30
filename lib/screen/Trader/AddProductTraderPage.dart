@@ -27,8 +27,6 @@ import 'package:http/http.dart' as http;
 import '../../widget/Inallpage/showConfirmationDialog.dart'
     show showConfirmationDialog;
 import '../../widget/update.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:jcp/widget/KeyboardActionsUtil.dart';
 
 class ArabicAssetPickerTextDelegate extends AssetPickerTextDelegate {
   const ArabicAssetPickerTextDelegate();
@@ -305,12 +303,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
   List.generate(5, (_) => TextEditingController());
-  final List<FocusNode> warrantyFocusNodes =
-  List.generate(5, (_) => FocusNode());
-  final List<FocusNode> markFocusNodes =
-  List.generate(5, (_) => FocusNode());
-  final List<FocusNode> noteFocusNodes =
-  List.generate(5, (_) => FocusNode());
   List<int?> selectedNumbers = List.filled(5, null);
 
   final List<bool> checkboxStates = List.generate(5, (_) => false);
@@ -388,55 +380,47 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: KeyboardActions(
-                          config: KeyboardActionsUtil.buildConfig(context, [
-                            warrantyFocusNodes[index],
-                            markFocusNodes[index],
-                            noteFocusNodes[index],
-                          ]),
-                          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
-                          child: SingleChildScrollView(
-                            child: Container(
-                              constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width * 0.9,
+                        child: SingleChildScrollView(
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.9,
+                            ),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 7,
+                                color: words,
                               ),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 7,
-                                  color: words,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                                color: const Color.fromRGBO(255, 255, 255, 1),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  buildFields(index, sizeFactor),
-                                  Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: CustomText(
-                                        text: "تم",
-                                        color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color.fromRGBO(255, 255, 255, 1),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                buildFields(index, sizeFactor),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: CustomText(
+                                      text: "تم",
+                                      color: Colors.white,
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: red,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 8,
-                                        ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -819,7 +803,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: !isForAllCars
-                            ? red.withOpacity(0.1)
+                            ? red.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
@@ -868,7 +852,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withOpacity(0.1)
+                            ? green.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -1219,7 +1203,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       CustomText(text: "الكفالة", size: sizeFactor * 10),
                       TextFormField(
                         controller: warrantyControllers[index],
-                        focusNode: warrantyFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         keyboardType: TextInputType.number,
@@ -1260,7 +1243,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       TextFormField(
                         controller: markControllers[index],
-                        focusNode: markFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         decoration: InputDecoration(
@@ -1324,7 +1306,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               ),
               child: TextFormField(
                 controller: noteControllers[index],
-                focusNode: noteFocusNodes[index],
                 maxLines: 3,
                 maxLength: 50,
                 textDirection: TextDirection.rtl,
