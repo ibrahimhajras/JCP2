@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../widget/Inallpage/CustomButton.dart';
 import '../../widget/Inallpage/showConfirmationDialog.dart';
+import '../../widget/NotificationPermissionHandler.dart';
 
 class PricingRequestPage extends StatefulWidget {
   const PricingRequestPage({super.key});
@@ -391,13 +392,14 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
           hasActiveBill = true;
           billId = responseJson['bill_id'];
           dueAmount = double.tryParse(message) ?? 0.0;
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PayPage(
+                    orderId: int.parse(userProvider.user_id), billId: billId!),
+              ));
+          NotificationPermissionHandler.checkAndRequestPermission(context);
         });
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PayPage(
-                  orderId: int.parse(userProvider.user_id), billId: billId!),
-            ));
       } else {
         showConfirmationDialog(
           context: context,
