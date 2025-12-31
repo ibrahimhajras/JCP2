@@ -21,7 +21,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-GlobalKey<ScaffoldMessengerState>();
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,27 +38,12 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  runApp(const OverlaySupport.global(child: MyApp()));
-  _initFirebaseLater();
-}
-
-Future<void> _initFirebaseLater() async {
   try {
     await Firebase.initializeApp();
-    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-    print('User granted permission: ${settings.authorizationStatus}');
-    await FirebaseMessaging.instance.subscribeToTopic("all");
   } catch (e) {
-    Future.delayed(const Duration(seconds: 10), _initFirebaseLater);
+    print('Firebase init failed: $e');
   }
+  runApp(const OverlaySupport.global(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -87,7 +72,6 @@ class MyApp extends StatelessWidget {
         scaffoldMessengerKey: scaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
         title: 'Car Parts',
-
         builder: (context, child) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(
@@ -99,31 +83,79 @@ class MyApp extends StatelessWidget {
             child: child!,
           );
         },
-
         theme: ThemeData(
           fontFamily: 'Tajawal',
           primarySwatch: Colors.red,
           scaffoldBackgroundColor: Colors.white,
           iconTheme: const IconThemeData(color: Colors.black),
-
           textTheme: const TextTheme(
-            displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'Tajawal', height: 1.2),
-            displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'Tajawal', height: 1.2),
-            displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'Tajawal', height: 1.2),
-            headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Tajawal', height: 1.2),
-            headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Tajawal', height: 1.2),
-            headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Tajawal', height: 1.2),
-            titleLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'Tajawal', height: 1.2),
-            titleMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Tajawal', height: 1.2),
-            titleSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, fontFamily: 'Tajawal', height: 1.2),
-            bodyLarge: TextStyle(fontSize: 16, fontFamily: 'Tajawal', height: 1.3),
-            bodyMedium: TextStyle(fontSize: 14, fontFamily: 'Tajawal', height: 1.3),
-            bodySmall: TextStyle(fontSize: 12, fontFamily: 'Tajawal', height: 1.3),
-            labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'Tajawal', height: 1.2),
-            labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, fontFamily: 'Tajawal', height: 1.2),
-            labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, fontFamily: 'Tajawal', height: 1.2),
+            displayLarge: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            displayMedium: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            displaySmall: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            headlineLarge: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            headlineMedium: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            headlineSmall: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            titleLarge: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            titleMedium: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            titleSmall: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            bodyLarge:
+                TextStyle(fontSize: 16, fontFamily: 'Tajawal', height: 1.3),
+            bodyMedium:
+                TextStyle(fontSize: 14, fontFamily: 'Tajawal', height: 1.3),
+            bodySmall:
+                TextStyle(fontSize: 12, fontFamily: 'Tajawal', height: 1.3),
+            labelLarge: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            labelMedium: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Tajawal',
+                height: 1.2),
+            labelSmall: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Tajawal',
+                height: 1.2),
           ),
-
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               textStyle: const TextStyle(
@@ -134,7 +166,6 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-
           appBarTheme: const AppBarTheme(
             titleTextStyle: TextStyle(
               fontSize: 20,
@@ -144,7 +175,6 @@ class MyApp extends StatelessWidget {
               height: 1.2,
             ),
           ),
-
           inputDecorationTheme: const InputDecorationTheme(
             labelStyle: TextStyle(
               fontSize: 14,
@@ -157,7 +187,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-
         home: const LoadingPage(),
       ),
     );

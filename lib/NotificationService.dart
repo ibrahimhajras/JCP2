@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -21,25 +21,11 @@ import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/screen/Drawer/ContactPage.dart';
 
 class NotificationService {
-  FirebaseMessaging? _firebaseMessaging;
-
-  NotificationService() {
-    _initFirebaseSafely();
-  }
-
-  Future<void> _initFirebaseSafely() async {
-    try {
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp();
-      }
-
-      _firebaseMessaging = FirebaseMessaging.instance;
-    } catch (e) {
-    }
-  }
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  NotificationService();
 
   Future<void> requestPermissionNotification() async {
-    NotificationSettings settings = await _firebaseMessaging!.requestPermission(
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -52,14 +38,11 @@ class NotificationService {
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
     } else if (settings.authorizationStatus ==
         AuthorizationStatus.provisional) {
-    } else {
-    }
+    } else {}
   }
 
   void fcmConfig(BuildContext context) {
-
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-
       String? title = message.notification?.title ?? 'عنوان غير متوفر';
       String? body = message.notification?.body ?? 'نص غير متوفر';
       String? messageId = message.messageId ?? DateTime.now().toString();
@@ -77,7 +60,6 @@ class NotificationService {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-
       String? type = message.data['type'];
       String? orderId = message.data['orderid'];
 
@@ -86,7 +68,7 @@ class NotificationService {
       }
       if (type == 'trader_order_received') {
         fetchAndNavigateToTraderOrderDetails(context, orderId.toString());
-      }else if (type == 'pricing') {
+      } else if (type == 'pricing') {
         navigateToOrderDetails(orderId);
       } else if (type == 'pricing2') {
         handleNewOrderprivate(orderId!);
@@ -94,17 +76,16 @@ class NotificationService {
         handleNewOrder(orderId!);
       } else if (type == 'stock_empty') {
         if (navigatorKey.currentState != null) {
-          navigatorKey.currentState!.push(
-              MaterialPageRoute(
-                builder: (context) => OutOfStockPage(),
-              ));
+          navigatorKey.currentState!.push(MaterialPageRoute(
+            builder: (context) => OutOfStockPage(),
+          ));
         }
       } else if (type == 'invitation' || type == 'pending_parts') {
         if (navigatorKey.currentState != null) {
           // الذهاب لصفحة التاجر الرئيسية ثم فتح PendingPartsPage
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => TraderInfoPage()),
-                (route) => false,
+            (route) => false,
           );
           await Future.delayed(const Duration(milliseconds: 300));
           if (navigatorKey.currentState != null) {
@@ -117,8 +98,9 @@ class NotificationService {
         if (navigatorKey.currentState != null) {
           // الذهاب لصفحة التاجر مع فتح تاب الطلبات (index 2)
           navigatorKey.currentState!.pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const TraderInfoPage(initialTab: 2)),
-                (route) => false,
+            MaterialPageRoute(
+                builder: (context) => const TraderInfoPage(initialTab: 2)),
+            (route) => false,
           );
         }
       } else if (type == 'contact_us') {
@@ -127,28 +109,28 @@ class NotificationService {
             MaterialPageRoute(
               builder: (context) => HomePage(page: 3, openContactPage: true),
             ),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'home') {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'private') {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 0)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'orders') {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 2)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'see_photo' && orderId != null) {
@@ -163,13 +145,14 @@ class NotificationService {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-                (route) => false,
+            (route) => false,
           );
         }
       }
     });
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
+
   Future<void> fetchAndNavigateToTraderOrderDetails(
       BuildContext context, String order) async {
     try {
@@ -189,7 +172,6 @@ class NotificationService {
 
       Navigator.pop(context);
 
-
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -206,7 +188,6 @@ class NotificationService {
       );
     }
   }
-
 
   void showSnackBar(String message) {
     // Convert literal \n to actual newlines for proper display
@@ -258,7 +239,7 @@ class NotificationService {
     List<String> storedNotifications =
         prefs.getStringList('notifications') ?? [];
     Set<String> existingIds =
-    storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+        storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
 
     if (!existingIds.contains(messageId)) {
       storedNotifications.add(jsonEncode({
@@ -267,8 +248,7 @@ class NotificationService {
         'isRead': false,
       }));
       await prefs.setStringList('notifications', storedNotifications);
-    } else {
-    }
+    } else {}
   }
 
   Future<void> _storeNotification(String id, String body) async {
@@ -276,7 +256,7 @@ class NotificationService {
     List<String> storedNotifications =
         prefs.getStringList('notifications') ?? [];
     Set<String> existingIds =
-    storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+        storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
 
     if (!existingIds.contains(id)) {
       storedNotifications.add(jsonEncode({
@@ -285,8 +265,7 @@ class NotificationService {
         'isRead': false,
       }));
       await prefs.setStringList('notifications', storedNotifications);
-    } else {
-    }
+    } else {}
   }
 
   //------------------------------------------
@@ -337,7 +316,7 @@ class NotificationService {
       }).toList();
 
       Map<String, dynamic> orderData =
-      await fetchOrderItemsOrangePrivate(orderId);
+          await fetchOrderItemsOrangePrivate(orderId);
 
       await navigatorKey.currentState!.push(
         MaterialPageRoute(
@@ -429,7 +408,7 @@ class NotificationService {
     if (orderId != null) {
       try {
         Map<String, dynamic> orderData =
-        await fetchOrderItemsOrange(orderId.toString(), 1);
+            await fetchOrderItemsOrange(orderId.toString(), 1);
         List<dynamic> orderItems2 = [];
 
         final response = await http.get(
@@ -453,7 +432,8 @@ class NotificationService {
 
           navigatorKey.currentState?.push(
             MaterialPageRoute(
-              builder: (context) => OrderDetailsPage_Orange(status: true,
+              builder: (context) => OrderDetailsPage_Orange(
+                status: true,
                 order1: order1, // ✅ Now it's a List<dynamic>
                 orderItems: orderItems,
                 nameproduct: orderItems2.isNotEmpty
@@ -462,12 +442,9 @@ class NotificationService {
               ),
             ),
           );
-        } else {
-        }
-      } catch (e) {
-      }
-    } else {
-    }
+        } else {}
+      } catch (e) {}
+    } else {}
   }
 
   Future<Map<String, dynamic>> fetchOrderItemsOrange(
@@ -539,6 +516,6 @@ class NotificationService {
       }
     }
   }
-  void _createLocalNotification(String id, String title, String body) {
-  }
+
+  void _createLocalNotification(String id, String title, String body) {}
 }
