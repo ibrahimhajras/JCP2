@@ -17,6 +17,7 @@ import 'package:jcp/provider/ProfileProvider.dart';
 import 'provider/ProfileTraderProvider.dart';
 import 'provider/TextInputState.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
@@ -37,7 +38,11 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print('Firebase init failed: $e');
+  }
   runApp(const OverlaySupport.global(child: MyApp()));
 }
 
