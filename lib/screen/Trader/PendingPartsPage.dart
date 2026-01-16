@@ -53,7 +53,7 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
         final responseData = jsonDecode(utf8.decode(response.bodyBytes));
         if (responseData['success'] == true) {
           final recentInvitations =
-          responseData['data']['recent_invitations'] as List;
+              responseData['data']['recent_invitations'] as List;
 
           final pendingInvitations = recentInvitations
               .where((invitation) => invitation['status'] == 'pending')
@@ -69,7 +69,7 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
 
   void _scrollListener() {
     if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 100 &&
+            _scrollController.position.maxScrollExtent - 100 &&
         !_isFetchingMore &&
         _hasMore) {
       loadPendingParts(loadMore: true);
@@ -102,11 +102,11 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
 
       if (response.statusCode == 200) {
         final responseData =
-        jsonDecode(utf8.decode(response.bodyBytes)); // ✅ UTF-8 fix
+            jsonDecode(utf8.decode(response.bodyBytes)); // ✅ UTF-8 fix
 
         if (responseData['success'] == true) {
           final recentInvitations =
-          responseData['data']['recent_invitations'] as List;
+              responseData['data']['recent_invitations'] as List;
 
           final pendingInvitations = recentInvitations
               .where((invitation) => invitation['status'] == 'pending')
@@ -228,7 +228,7 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
       );
       if (response.statusCode == 200) {
         final responseData =
-        jsonDecode(utf8.decode(response.bodyBytes)); // ✅ UTF-8 fix
+            jsonDecode(utf8.decode(response.bodyBytes)); // ✅ UTF-8 fix
         if (responseData['success'] == true) {
           loadPendingParts();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -271,7 +271,7 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
           'trader_id': user.user_id,
         }),
       );
-      print(response.body);
+
       if (response.statusCode == 200) {
         final responseData = jsonDecode(utf8.decode(response.bodyBytes));
         if (responseData['success'] == true) {
@@ -435,224 +435,224 @@ class _PendingPartsPageState extends State<PendingPartsPage> {
             child: isLoading
                 ? Center(child: RotatingImagePage())
                 : pendingParts.isEmpty
-                ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.build_outlined,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomText(
-                    text: "لا توجد قطع معلقة للتسعير",
-                    color: Colors.grey,
-                    size: 16,
-                  ),
-                ],
-              ),
-            )
-                : ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount:
-              pendingParts.length + (_isFetchingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == pendingParts.length && _isFetchingMore) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: RotatingImagePage(),
-                    ),
-                  );
-                }
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.build_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            CustomText(
+                              text: "لا توجد قطع معلقة للتسعير",
+                              color: Colors.grey,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(16),
+                        itemCount:
+                            pendingParts.length + (_isFetchingMore ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == pendingParts.length && _isFetchingMore) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Center(
+                                child: RotatingImagePage(),
+                              ),
+                            );
+                          }
 
-                final part = pendingParts[index];
-                return Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomText(
-                            text: part['part_name'] ?? 'غير محدد',
-                            color: Colors.black,
-                            size: 16,
-                            weight: FontWeight.bold,
-                            textDirection: TextDirection.rtl,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onLongPress: () {
-                        _showDeclineConfirmation(part);
-                      },
-                      child: Card(
-                        color: const Color(0xFFF6F6F6),
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                          final part = pendingParts[index];
+                          return Column(
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
                                 children: [
-                                  CustomText(
-                                    color: const Color(0xFF8D8D92),
-                                    text: [
-                                      part['car_name'],
-                                      part['car_category'],
-                                      part['fuel_type'],
-                                      part['car_year'],
-                                      part['engine_size'],
-                                    ]
-                                        .where((e) =>
-                                    e != null &&
-                                        e
-                                            .toString()
-                                            .trim()
-                                            .isNotEmpty &&
-                                        e != "N/A")
-                                        .join(' '),
+                                  Expanded(
+                                    child: CustomText(
+                                      text: part['part_name'] ?? 'غير محدد',
+                                      color: Colors.black,
+                                      size: 16,
+                                      weight: FontWeight.bold,
+                                      textDirection: TextDirection.rtl,
+                                    ),
                                   ),
                                 ],
                               ),
-                              if (part['chassis_number'] != null &&
-                                  part['chassis_number']
-                                      .toString()
-                                      .trim()
-                                      .isNotEmpty &&
-                                  part['chassis_number'] != "N/A")
-                                Padding(
-                                  padding:
-                                  const EdgeInsets.only(top: 4.0),
-                                  child: Center(
-                                    child: CustomText(
-                                      text:
-                                      "${part['chassis_number']}",
-                                      color: const Color(0xFF8D8D92),
-                                      size: 13,
-                                      weight: FontWeight.bold,
-                                    ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onLongPress: () {
+                                  _showDeclineConfirmation(part);
+                                },
+                                child: Card(
+                                  color: const Color(0xFFF6F6F6),
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  elevation: 2,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ),
-                              const SizedBox(height: 4),
-                              Center(
-                                child: CustomText(
-                                  text: part['invitation_date'] ??
-                                      'غير محدد',
-                                  color: Colors.grey[600],
-                                  size: 12,
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 100,
-                                    height: 30,
-                                    margin:
-                                    const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 8),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  PartDetailsPage(
-                                                      part: part)),
-                                        ).then((value) {
-                                          loadPendingParts();
-                                        });
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: green,
-                                        foregroundColor: Colors.white,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(
-                                              12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            CustomText(
+                                              color: const Color(0xFF8D8D92),
+                                              text: [
+                                                part['car_name'],
+                                                part['car_category'],
+                                                part['fuel_type'],
+                                                part['car_year'],
+                                                part['engine_size'],
+                                              ]
+                                                  .where((e) =>
+                                                      e != null &&
+                                                      e
+                                                          .toString()
+                                                          .trim()
+                                                          .isNotEmpty &&
+                                                      e != "N/A")
+                                                  .join(' '),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      child: CustomText(
-                                        text: "تسعير",
-                                        color: Colors.white,
-                                        size: 15,
-                                        weight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  if (part['image_path'] != null &&
-                                      part['image_path']
-                                          .toString()
-                                          .isNotEmpty)
-                                    Container(
-                                      width: 100,
-                                      height: 30,
-                                      margin:
-                                      const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 8),
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) =>
-                                                FullScreenImageViewer(
-                                                  imageUrl:
-                                                  'https://jordancarpart.com/Api/${part['image_path']}',
-                                                ),
-                                          );
-                                        },
-                                        style:
-                                        ElevatedButton.styleFrom(
-                                          backgroundColor: orange,
-                                          // A different color for distinction
-                                          foregroundColor:
-                                          Colors.white,
-                                          elevation: 0,
-                                          shape:
-                                          RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(
-                                                12),
+                                        if (part['chassis_number'] != null &&
+                                            part['chassis_number']
+                                                .toString()
+                                                .trim()
+                                                .isNotEmpty &&
+                                            part['chassis_number'] != "N/A")
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 4.0),
+                                            child: Center(
+                                              child: CustomText(
+                                                text:
+                                                    "${part['chassis_number']}",
+                                                color: const Color(0xFF8D8D92),
+                                                size: 13,
+                                                weight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        const SizedBox(height: 4),
+                                        Center(
+                                          child: CustomText(
+                                            text: part['invitation_date'] ??
+                                                'غير محدد',
+                                            color: Colors.grey[600],
+                                            size: 12,
                                           ),
                                         ),
-                                        child: CustomText(
-                                          text: "صورة",
-                                          color: Colors.white,
-                                          size: 14,
-                                          weight: FontWeight.bold,
-                                        ),
-                                      ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: 100,
+                                              height: 30,
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 8),
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            PartDetailsPage(
+                                                                part: part)),
+                                                  ).then((value) {
+                                                    loadPendingParts();
+                                                  });
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: green,
+                                                  foregroundColor: Colors.white,
+                                                  elevation: 0,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                  ),
+                                                ),
+                                                child: CustomText(
+                                                  text: "تسعير",
+                                                  color: Colors.white,
+                                                  size: 15,
+                                                  weight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            if (part['image_path'] != null &&
+                                                part['image_path']
+                                                    .toString()
+                                                    .isNotEmpty)
+                                              Container(
+                                                width: 100,
+                                                height: 30,
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 8),
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          FullScreenImageViewer(
+                                                        imageUrl:
+                                                            'https://jordancarpart.com/Api/${part['image_path']}',
+                                                      ),
+                                                    );
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: orange,
+                                                    // A different color for distinction
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    elevation: 0,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                    ),
+                                                  ),
+                                                  child: CustomText(
+                                                    text: "صورة",
+                                                    color: Colors.white,
+                                                    size: 14,
+                                                    weight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        )
+                                      ],
                                     ),
-                                ],
-                              )
+                                  ),
+                                ),
+                              ),
                             ],
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                    ),
-                  ],
-                );
-              },
-            ),
           ),
         ],
       ),
