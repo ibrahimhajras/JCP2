@@ -454,7 +454,7 @@ class _LoginPageState extends State<LoginPage> {
       final response = await http.get(Uri.parse(url));
       final responseData = json.decode(response.body);
 
-       print(response.body);
+      print(response.body);
       if (responseData['status'] == 'success') {
         final userData = responseData['user'];
         UserModel user = UserModel.fromJson(userData);
@@ -463,7 +463,7 @@ class _LoginPageState extends State<LoginPage> {
           await FirebaseMessaging.instance.subscribeToTopic("Driver");
 
           final profileProvider =
-              Provider.of<ProfileProvider>(context, listen: false);
+          Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
           profileProvider.setphone(user.phone);
           profileProvider.setname(user.name);
@@ -515,7 +515,7 @@ class _LoginPageState extends State<LoginPage> {
           );
         } else if (user.type == "1" || user.type == "2") {
           final profileProvider =
-              Provider.of<ProfileProvider>(context, listen: false);
+          Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
           profileProvider.setphone(user.phone);
           profileProvider.setname(user.name);

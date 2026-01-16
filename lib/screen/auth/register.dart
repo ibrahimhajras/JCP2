@@ -14,6 +14,9 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import '../../utils/otp_rate_limiter.dart';
 // Import the math package for Random
+import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:jcp/widget/KeyboardActionsUtil.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
@@ -31,6 +34,12 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController confirmPassword = TextEditingController();
   TextEditingController street = TextEditingController();
   bool _isChecked = false;
+  final FocusNode fNameFocus = FocusNode();
+  final FocusNode lNameFocus = FocusNode();
+  final FocusNode phoneFocus = FocusNode();
+  final FocusNode streetFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
+  final FocusNode confirmPasswordFocus = FocusNode();
 
   final _key = GlobalKey<ScaffoldState>();
   bool ob = true;
@@ -91,17 +100,17 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       // Check OTP rate limit first
       final limitCheck = await OtpRateLimiter.checkOtpLimit(phone);
-      
+
       if (limitCheck['success'] == true && limitCheck['allowed'] == false) {
         setState(() {
           isLoading = false;
         });
-        
+
         String message = 'لقد تجاوزت الحد المسموح من محاولات إرسال رمز التحقق';
         if (limitCheck['remaining_seconds'] != null) {
           message += '\n\nيمكنك المحاولة مرة أخرى بعد\n${OtpRateLimiter.formatRemainingTime(limitCheck['remaining_seconds'])}';
         }
-        
+
         showConfirmationDialog(
           context: context,
           message: message,
@@ -163,9 +172,19 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       key: _key,
       backgroundColor: white,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
+      body: KeyboardActions(
+        config: KeyboardActionsUtil.buildConfig(context, [
+          fNameFocus,
+          lNameFocus,
+          phoneFocus,
+          streetFocus,
+          passwordFocus,
+          confirmPasswordFocus,
+        ]),
+        tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
             Container(
               child: Column(
                 children: [
@@ -193,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         showConfirmationDialog(
                           context: context,
                           message:
-                              'يجب أن يكون رقم الهاتف مكونًا من 9 أرقام ويبدأ بالرقم 7',
+                          'يجب أن يكون رقم الهاتف مكونًا من 9 أرقام ويبدأ بالرقم 7',
                           confirmText: 'حسناً',
                           onConfirm: () {},
                           cancelText: '',
@@ -204,7 +223,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         showConfirmationDialog(
                           context: context,
                           message:
-                              'كلمة المرور وتأكيد كلمة المرور غير متطابقتين. يرجى التأكد من تطابقهما',
+                          'كلمة المرور وتأكيد كلمة المرور غير متطابقتين. يرجى التأكد من تطابقهما',
                           confirmText: 'حسناً',
                           onConfirm: () {},
                           cancelText: '',
@@ -215,7 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         showConfirmationDialog(
                           context: context,
                           message:
-                              'يرجى الموافقة على الشروط والأحكام قبل المتابعة',
+                          'يرجى الموافقة على الشروط والأحكام قبل المتابعة',
                           confirmText: 'حسناً',
                           onConfirm: () {},
                           cancelText: '',
@@ -235,7 +254,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             showConfirmationDialog(
                               context: context,
                               message:
-                                  '.رقم الهاتف مسجل مسبقًا. يرجى استخدام رقم آخر',
+                              '.رقم الهاتف مسجل مسبقًا. يرجى استخدام رقم آخر',
                               confirmText: 'حسناً',
                               onConfirm: () {},
                               cancelText: '',
@@ -249,7 +268,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             showConfirmationDialog(
                               context: context,
                               message:
-                                  '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+                              '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
                               confirmText: 'حسناً',
                               onConfirm: () {},
                             );
@@ -258,7 +277,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           showConfirmationDialog(
                             context: context,
                             message:
-                                '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+                            '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
                             confirmText: 'حسناً',
                             onConfirm: () {},
                           );
@@ -267,7 +286,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         showConfirmationDialog(
                           context: context,
                           message:
-                              '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+                          '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
                           confirmText: 'حسناً',
                           onConfirm: () {},
                         );
@@ -323,6 +342,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -335,7 +355,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child:
-                    buildTextField(lname, "إسم العائلة", lNameHint, (newHint) {
+                buildTextField(lname, "إسم العائلة", lNameFocus, lNameHint, (newHint) {
                   setState(() {
                     lNameHint = newHint;
                   });
@@ -346,7 +366,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child:
-                    buildTextField(fname, "الإسم الاول", fNameHint, (newHint) {
+                buildTextField(fname, "الإسم الاول", fNameFocus, fNameHint, (newHint) {
                   setState(() {
                     fNameHint = newHint;
                   });
@@ -366,11 +386,12 @@ class _RegisterPageState extends State<RegisterPage> {
         StreetFieldWidget(
           hintText: "المنطقة - الشارع - رقم البناية",
           controller: street,
+          focusNode: streetFocus,
         ),
         Padding(
           padding: const EdgeInsets.all(15.0),
           child:
-              buildPasswordField(password, "كلمة المرور", passHint, ob, (val) {
+          buildPasswordField(password, "كلمة المرور", passwordFocus, passHint, ob, (val) {
             setState(() {
               ob = val;
             });
@@ -379,12 +400,12 @@ class _RegisterPageState extends State<RegisterPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 15.0),
           child: buildPasswordField(
-              confirmPassword, "تأكيد كلمة المرور", passConfirmHint, ob1,
-              (val) {
-            setState(() {
-              ob1 = val;
-            });
-          }),
+              confirmPassword, "تأكيد كلمة المرور", confirmPasswordFocus, passConfirmHint, ob1,
+                  (val) {
+                setState(() {
+                  ob1 = val;
+                });
+              }),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -452,14 +473,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                             child: SingleChildScrollView(
                                               child: Column(
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     "شروط وأحكام استخدام تطبيق قطع سيارات الأردن المملوك لدى شركة بيت المهندسين لتسويق قطع السيارات",
                                                     style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                      FontWeight.bold,
                                                       fontFamily: "Tajawal",
                                                     ),
                                                   ),
@@ -471,23 +492,23 @@ class _RegisterPageState extends State<RegisterPage> {
                                                       fontFamily: "Tajawal",
                                                     ),
                                                     textAlign:
-                                                        TextAlign.justify,
+                                                    TextAlign.justify,
                                                   ),
                                                   SizedBox(height: 16),
                                                   Container(
                                                     decoration: BoxDecoration(
                                                       color: Colors.grey[200],
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              8.0),
+                                                      BorderRadius.circular(
+                                                          8.0),
                                                     ),
                                                     padding:
-                                                        const EdgeInsets.all(
-                                                            16.0),
+                                                    const EdgeInsets.all(
+                                                        16.0),
                                                     child: Column(
                                                       crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
+                                                      CrossAxisAlignment
+                                                          .start,
                                                       children: [
                                                         ..._buildTerms(),
                                                       ],
@@ -503,7 +524,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                               backgroundColor: red,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(8),
+                                                BorderRadius.circular(8),
                                               ),
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 32, vertical: 12),
@@ -679,23 +700,24 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         SizedBox(height: 8),
         ...items.map((item) => Text(
-              item,
-              style: TextStyle(
-                fontSize: 14,
-                fontFamily: "Tajawal",
-              ),
-            )),
+          item,
+          style: TextStyle(
+            fontSize: 14,
+            fontFamily: "Tajawal",
+          ),
+        )),
         SizedBox(height: 16),
       ],
     );
   }
 
   Widget buildTextField(
-    TextEditingController controller,
-    String labelText,
-    String initialHintText,
-    Function(String) updateHint,
-  ) {
+      TextEditingController controller,
+      String labelText,
+      FocusNode focusNode,
+      String initialHintText,
+      Function(String) updateHint,
+      ) {
     String hintText = initialHintText;
 
     return StatefulBuilder(
@@ -723,6 +745,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   border: InputBorder.none,
                   hintText: hintText,
                 ),
+                focusNode: focusNode,
                 onTap: () {
                   setState(() {
                     updateHint("");
@@ -767,53 +790,57 @@ class _RegisterPageState extends State<RegisterPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             color: grey,
-            child: IntlPhoneField(
-              onTap: () {
-                setState(() {
-                  phoneHint = "";
-                });
-              },
-              disableLengthCheck: true,
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.start,
-              decoration: InputDecoration(
-                hintText: phoneHint,
-                border: InputBorder.none,
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+            child: SizedBox(
+              height: 47,
+                child: IntlPhoneField(
+                  focusNode: phoneFocus,
+                  onTap: () {
+                    setState(() {
+                      phoneHint = "";
+                    });
+                  },
+                  disableLengthCheck: true,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  textAlign: TextAlign.start,
+                  decoration: InputDecoration(
+                    hintText: phoneHint,
+                    border: InputBorder.none,
+                    hintStyle: const TextStyle(
+                      color: Color.fromRGBO(153, 153, 160, 1),
+                      fontSize: 18,
+                      fontFamily: "Tajawal",
+                      fontWeight: FontWeight.w100,
+                    ),
+                    contentPadding:
+                    const EdgeInsets.only(top: 3.0, left: 12.0),
+                  ),
+                  flagsButtonMargin: const EdgeInsets.only(right: 5),
+                  disableAutoFillHints: true,
+                  textAlignVertical: TextAlignVertical.center,
+                  initialCountryCode: 'JO',
+                  controller: phone,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  onChanged: (phoneNumber) {
+                    String x = phoneNumber.completeNumber;
+                    if (phoneNumber.number.isEmpty) {
+                      setState(() {
+                        phoneHint = "79xxxxxxxxx";
+                      });
+                    } else if (phoneNumber.number[0] == '0') {
+                      x = x.replaceFirst("0", "");
+                    }
+                  },
+                  onSubmitted: (value) {
+                    phoneFocus.unfocus();
+                  },
                 ),
-                hintStyle: TextStyle(
-                  color: Color.fromRGBO(153, 153, 160, 1),
-                  fontSize: 18,
-                  fontFamily: "Tajawal",
-                  fontWeight: FontWeight.w100,
-                ),
-                contentPadding: EdgeInsets.only(top: 3.0, left: 12.0),
               ),
-              flagsButtonMargin: EdgeInsets.only(right: 5),
-              disableAutoFillHints: true,
-              textAlignVertical: TextAlignVertical.center,
-              initialCountryCode: 'JO',
-              controller: phone,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              onChanged: (phone) {
-                String x = phone.completeNumber;
-                if (phone.number.isEmpty) {
-                  setState(() {
-                    phoneHint = "79xxxxxxxxx";
-                  });
-                } else if (phone.number[0] == '0') {
-                  x = x.replaceFirst("0", "");
-                }
-              },
             ),
-          ),
         ],
       ),
     );
@@ -882,12 +909,13 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget buildPasswordField(
-    TextEditingController controller,
-    String labelText,
-    String hintText,
-    bool obscureText,
-    Function(bool) toggleVisibility,
-  ) {
+      TextEditingController controller,
+      String labelText,
+      FocusNode focusNode,
+      String hintText,
+      bool obscureText,
+      Function(bool) toggleVisibility,
+      ) {
     return StatefulBuilder(
       builder: (context, setState) {
         return Column(
@@ -910,6 +938,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: TextFormField(
                   controller: controller,
+                  focusNode: focusNode,
                   textAlign: TextAlign.end,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -973,11 +1002,13 @@ class _RegisterPageState extends State<RegisterPage> {
 class StreetFieldWidget extends StatefulWidget {
   final String hintText;
   final TextEditingController controller;
+  final FocusNode focusNode;
 
   const StreetFieldWidget({
     Key? key,
     required this.hintText,
     required this.controller,
+    required this.focusNode,
   }) : super(key: key);
 
   @override
@@ -985,18 +1016,16 @@ class StreetFieldWidget extends StatefulWidget {
 }
 
 class _StreetFieldWidgetState extends State<StreetFieldWidget> {
-  late FocusNode _focusNode;
   late String currentHintText;
 
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode();
     currentHintText = widget.hintText;
 
-    _focusNode.addListener(() {
+    widget.focusNode.addListener(() {
       setState(() {
-        if (_focusNode.hasFocus) {
+        if (widget.focusNode.hasFocus) {
           currentHintText = '';
         } else if (widget.controller.text.isEmpty) {
           currentHintText = widget.hintText;
@@ -1007,7 +1036,6 @@ class _StreetFieldWidgetState extends State<StreetFieldWidget> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -1035,7 +1063,7 @@ class _StreetFieldWidgetState extends State<StreetFieldWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: TextFormField(
                 controller: widget.controller,
-                focusNode: _focusNode,
+                focusNode: widget.focusNode,
                 textAlign: TextAlign.end,
                 decoration: InputDecoration(
                   border: InputBorder.none,
