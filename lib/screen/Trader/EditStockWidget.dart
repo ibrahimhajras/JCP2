@@ -19,6 +19,8 @@ import 'package:image/image.dart' as img;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
+import 'package:jcp/widget/KeyboardActionsUtil.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 
 class EditStockWidget extends StatefulWidget {
   const EditStockWidget({super.key});
@@ -39,7 +41,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       final decoded = img.decodeImage(bytes);
       if (decoded != null) {
         final resized = img.copyResize(decoded, width: 500, height: 500);
-         return base64Encode(img.encodeJpg(resized, quality: 85));
+        return base64Encode(img.encodeJpg(resized, quality: 85));
       }
       return base64Encode(bytes);
     }
@@ -68,32 +70,38 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     if (resizedImages.length == 2) {
       // صورتين جنب بعض - مع خلفية بيضاء
       mergedImage = img.Image(width: targetSize * 2, height: targetSize * 2);
-      
+
       // ملء الخلفية باللون الأبيض
       img.fill(mergedImage, color: img.ColorRgb8(255, 255, 255));
-      
+
       // وضع الصورتين في النص عمودياً
       int centerY = (targetSize * 2 - targetSize) ~/ 2;
       img.compositeImage(mergedImage, resizedImages[0], dstX: 0, dstY: centerY);
-      img.compositeImage(mergedImage, resizedImages[1], dstX: targetSize, dstY: centerY);
+      img.compositeImage(mergedImage, resizedImages[1],
+          dstX: targetSize, dstY: centerY);
     } else if (resizedImages.length == 3) {
       // 3 صور - 2 فوق و 1 تحت بالنص
       mergedImage = img.Image(width: targetSize * 2, height: targetSize * 2);
-      
+
       // ملء الخلفية باللون الأبيض
       img.fill(mergedImage, color: img.ColorRgb8(255, 255, 255));
-      
+
       img.compositeImage(mergedImage, resizedImages[0], dstX: 0, dstY: 0);
-      img.compositeImage(mergedImage, resizedImages[1], dstX: targetSize, dstY: 0);
+      img.compositeImage(mergedImage, resizedImages[1],
+          dstX: targetSize, dstY: 0);
       int centerX = (targetSize * 2 - targetSize) ~/ 2;
-      img.compositeImage(mergedImage, resizedImages[2], dstX: centerX, dstY: targetSize);
+      img.compositeImage(mergedImage, resizedImages[2],
+          dstX: centerX, dstY: targetSize);
     } else {
       // 4 صور - grid 2x2
       mergedImage = img.Image(width: targetSize * 2, height: targetSize * 2);
       img.compositeImage(mergedImage, resizedImages[0], dstX: 0, dstY: 0);
-      img.compositeImage(mergedImage, resizedImages[1], dstX: targetSize, dstY: 0);
-      img.compositeImage(mergedImage, resizedImages[2], dstX: 0, dstY: targetSize);
-      img.compositeImage(mergedImage, resizedImages[3], dstX: targetSize, dstY: targetSize);
+      img.compositeImage(mergedImage, resizedImages[1],
+          dstX: targetSize, dstY: 0);
+      img.compositeImage(mergedImage, resizedImages[2],
+          dstX: 0, dstY: targetSize);
+      img.compositeImage(mergedImage, resizedImages[3],
+          dstX: targetSize, dstY: targetSize);
     }
 
     final jpgBytes = img.encodeJpg(mergedImage, quality: 85);
@@ -329,7 +337,6 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       String newNumber,
       String newNote,
       String? newImageBase64) async {
-
     final url = Uri.parse('https://jordancarpart.com/Api/updateproduct.php');
 
     try {
@@ -352,10 +359,10 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       );
 
       print(utf8.decode(response.bodyBytes));
-      
+
       if (response.statusCode == 200) {
         final responseData = json.decode(utf8.decode(response.bodyBytes));
-        
+
         if (responseData['success'] == true) {
           // Perform refresh immediately without dialog
           setState(() {
@@ -366,32 +373,32 @@ class _EditStockWidgetState extends State<EditStockWidget> {
           });
           return true;
         } else {
-             showConfirmationDialog(
+          showConfirmationDialog(
             context: context,
-            message: "فشل التحديث: ${responseData['message'] ?? 'خطأ غير معروف'}",
+            message:
+                "فشل التحديث: ${responseData['message'] ?? 'خطأ غير معروف'}",
             confirmText: "حسناً",
             onConfirm: () {},
           );
           return false;
         }
-       
       } else {
-         showConfirmationDialog(
-            context: context,
-            message: "فشل الاتصال بالخادم. رمز الخطأ: ${response.statusCode}",
-            confirmText: "حسناً",
-            onConfirm: () {},
-          );
-          return false;
+        showConfirmationDialog(
+          context: context,
+          message: "فشل الاتصال بالخادم. رمز الخطأ: ${response.statusCode}",
+          confirmText: "حسناً",
+          onConfirm: () {},
+        );
+        return false;
       }
     } catch (e) {
-       showConfirmationDialog(
-            context: context,
-            message: "حدث خطأ: $e",
-            confirmText: "حسناً",
-            onConfirm: () {},
-          );
-          return false;
+      showConfirmationDialog(
+        context: context,
+        message: "حدث خطأ: $e",
+        confirmText: "حسناً",
+        onConfirm: () {},
+      );
+      return false;
     }
   }
 
@@ -399,24 +406,29 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-    return Column(
-      children: [
-        _buildHeader(size, user), // الهيدر
-        Expanded(
-          child: Column(
-            children: [
-              _buildDropdownRow(),
-              _buildSearchField(size),
-              EditStockTitleWidget(
-                totalItems: _totalItems,
-              ),
-              Expanded(
-                child: _buildProductList(size, user.user_id),
-              ),
-            ],
+
+    return KeyboardActions(
+      config: KeyboardActionsUtil.buildConfig(context, [searchFocus]),
+      tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+      child: Column(
+        children: [
+          _buildHeader(size, user), // الهيدر
+          Expanded(
+            child: Column(
+              children: [
+                _buildDropdownRow(),
+                _buildSearchField(size),
+                EditStockTitleWidget(
+                  totalItems: _totalItems,
+                ),
+                Expanded(
+                  child: _buildProductList(size, user.user_id),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -657,7 +669,8 @@ class _EditStockWidgetState extends State<EditStockWidget> {
           Expanded(
             flex: 4,
             child: Center(
-              child: Autocomplete<String>(
+              child: RawAutocomplete<String>(
+                focusNode: searchFocus,
                 optionsBuilder: (TextEditingValue textEditingValue) {
                   if (textEditingValue.text.isEmpty) {
                     return const Iterable<String>.empty();
@@ -702,44 +715,45 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                           setState(() {
                             search.text = value;
                             searchQuery = value.toLowerCase().trim();
-                            borderColor =
-                                parts.contains(value.trim()) ? green : Colors.grey;
+                            borderColor = parts.contains(value.trim())
+                                ? green
+                                : Colors.grey;
                           });
                         },
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: const Color(0xFFF8F9FA),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
-
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 10),
                           prefixIcon: search.text.isEmpty
                               ? const Padding(
-                            padding: EdgeInsets.only(right: 12),
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                "بحث تنبؤي",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                  fontFamily: "Tajawal",
-                                ),
-                              ),
-                            ),
-                          )
+                                  padding: EdgeInsets.only(right: 12),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      "بحث تنبؤي",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black54,
+                                        fontFamily: "Tajawal",
+                                      ),
+                                    ),
+                                  ),
+                                )
                               : null,
-
                           prefixIconConstraints: const BoxConstraints(
                             minWidth: 0,
                             minHeight: 0,
                           ),
-
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: borderColor, width: 1),
+                            borderSide:
+                                BorderSide(color: borderColor, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: borderColor, width: 2),
+                            borderSide:
+                                BorderSide(color: borderColor, width: 2),
                           ),
                         ),
                         style: const TextStyle(
@@ -801,7 +815,6 @@ class _EditStockWidgetState extends State<EditStockWidget> {
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -940,12 +953,16 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                               // تحديد اللون بناءً على الحالة
                               bool hasImage = checkboxItem['img'] != null &&
                                   checkboxItem['img'].toString().isNotEmpty;
-                              bool isComplete = hasImage; // Only check for image
-                              
-                              // Debug: print image status
-                              print('Product: ${product['name']}, Has Image: $hasImage, img value: ${checkboxItem['img']}');
+                              bool isComplete =
+                                  hasImage; // Only check for image
 
-                              int amount = int.tryParse(checkboxItem['amount'].toString()) ?? 0;
+                              // Debug: print image status
+                              print(
+                                  'Product: ${product['name']}, Has Image: $hasImage, img value: ${checkboxItem['img']}');
+
+                              int amount = int.tryParse(
+                                      checkboxItem['amount'].toString()) ??
+                                  0;
 
                               Color textColor;
                               if (amount <= 0) {
@@ -1157,13 +1174,13 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                                     children: [
                                       CustomText(text: "العلامة التجارية"),
                                       CustomText(
-                                        text: _getMarkValue(checkboxItem['mark']),
+                                        text:
+                                            _getMarkValue(checkboxItem['mark']),
                                         color: words,
                                       ),
                                     ],
                                   ),
                                 ),
-
                               ],
                             ),
                             const SizedBox(height: 25),
@@ -1179,8 +1196,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                                     } else if (snapshot.hasError ||
                                         !snapshot.hasData ||
                                         snapshot.data!.isEmpty) {
-                                      return CustomText(
-                                          text: "لا توجد صورة");
+                                      return CustomText(text: "لا توجد صورة");
                                     } else {
                                       return _buildImageRow(
                                         "",
@@ -1238,6 +1254,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       },
     );
   }
+
   String _getMarkValue(dynamic mark) {
     if (mark == null) return "غير محدد";
     if (mark.toString().trim().isEmpty) return "غير محدد";
@@ -1334,7 +1351,6 @@ class _EditStockWidgetState extends State<EditStockWidget> {
         bool isLoading = false;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            
             Future<void> _pickImage(ImageSource source) async {
               if (source == ImageSource.camera) {
                 var status = await Permission.camera.status;
@@ -1351,40 +1367,41 @@ class _EditStockWidgetState extends State<EditStockWidget> {
               }
 
               if (_selectedImages.length >= 4) {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("يمكنك إضافة 4 صور كحد أقصى")),
-                  );
-                  return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("يمكنك إضافة 4 صور كحد أقصى")),
+                );
+                return;
               }
 
               if (source == ImageSource.gallery) {
-                 int remaining = 4 - _selectedImages.length;
-                 final List<AssetEntity>? result = await AssetPicker.pickAssets(
-                    context,
-                    pickerConfig: AssetPickerConfig(
-                      maxAssets: remaining,
-                      requestType: RequestType.image,
-                      themeColor: red, // Ensure 'red' is available or use Colors.red
-                      textDelegate: const ArabicAssetPickerTextDelegate(),
-                    ),
-                 );
+                int remaining = 4 - _selectedImages.length;
+                final List<AssetEntity>? result = await AssetPicker.pickAssets(
+                  context,
+                  pickerConfig: AssetPickerConfig(
+                    maxAssets: remaining,
+                    requestType: RequestType.image,
+                    themeColor:
+                        red, // Ensure 'red' is available or use Colors.red
+                    textDelegate: const ArabicAssetPickerTextDelegate(),
+                  ),
+                );
 
-                 if (result != null && result.isNotEmpty) {
-                    setState(() {
-                       for (var asset in result) {
-                         // We need to wait for file, but this is inside setState which is sync.
-                         // Better to do async work outside setState.
-                         // However, for simplicity in this structure:
-                         asset.file.then((file) {
-                           if (file != null && mounted) {
-                              setState(() {
-                                _selectedImages.add(file);
-                              });
-                           }
-                         });
-                       }
-                    });
-                 }
+                if (result != null && result.isNotEmpty) {
+                  setState(() {
+                    for (var asset in result) {
+                      // We need to wait for file, but this is inside setState which is sync.
+                      // Better to do async work outside setState.
+                      // However, for simplicity in this structure:
+                      asset.file.then((file) {
+                        if (file != null && mounted) {
+                          setState(() {
+                            _selectedImages.add(file);
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
               } else {
                 final XFile? image = await _picker.pickImage(source: source);
                 if (image != null) {
@@ -1400,332 +1417,421 @@ class _EditStockWidgetState extends State<EditStockWidget> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              insetPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                   SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      width: 5, // Slightly thinner border for elegance
-                      color: words, 
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CustomText(
-                        text: "تعديل ${checkboxItem['name']}",
-                        size: 16, // Smaller title
-                        weight: FontWeight.bold,
-                        color: green,
-                      ),
-
-                      Row(
-                        children: [
-                          Expanded(child: _buildCompactLabelField("العدد", 
-                              DropdownButtonFormField<int>(
-                                dropdownColor: Colors.white,
-                                value: selectedNumber,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedNumber = value;
-                                    numberController.text = value.toString();
-                                  });
-                                },
-                                items: List.generate(50,(i) => DropdownMenuItem(value: i + 1,child: Center(child: Text("${i + 1}",style: const TextStyle(fontSize: 12))))),
-                                decoration: _compactInputDecoration(),
-                                isExpanded: true,
-                              )
-                          )),
-                          const SizedBox(width: 5),
-                          Expanded(child: _buildCompactLabelField("الكفالة (أيام)", 
-                             TextFormField(
-                                controller: warrantyController,
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
-                                decoration: _compactInputDecoration(),
-                                style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
-                              )
-                          )),
-                          const SizedBox(width: 5),
-                          Expanded(child: _buildCompactLabelField("العلامة",
-                             TextFormField(
-                                controller: markController,
-                                textAlign: TextAlign.center,
-                                decoration: _compactInputDecoration(),
-                                style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
-                              )
-                          )),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      Row(
-                        children: [
-                          Expanded(child: _buildCompactLabelField("السعر",
-                              TextField(
-                                controller: priceController,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                decoration: _compactInputDecoration(),
-                                style: const TextStyle(fontSize: 12),
-                              )
-                          )),
-                          const SizedBox(width: 5),
-                          Expanded(child: _buildCompactLabelField("الكمية", 
-                              TextField(
-                                controller: amountController,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                decoration: _compactInputDecoration(),
-                                style: const TextStyle(fontSize: 12),
-                              )
-                          )),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                           Padding(
-                             padding: const EdgeInsets.only(right: 4.0, bottom: 2),
-                             child: Text("الملاحظات", style: TextStyle(fontSize: 12, fontFamily: 'Tajawal', color: Colors.grey[700])),
-                           ),
-                           TextFormField(
-                            controller: noteController,
-                            maxLines: 2,
-                            textDirection: TextDirection.rtl,
-                            textAlign: TextAlign.right,
-                            decoration: _compactInputDecoration().copyWith(
-                              hintText: "إضافة ملاحظة...",
-                              hintStyle: const TextStyle(fontSize: 10, color: Colors.grey),
-                            ),
-                            style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      GestureDetector(
-                        onTap: () {
-                          if (_selectedImages.length >= 4) {
-                             ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("الحد الأقصى 4 صور")),
-                              );
-                              return;
-                          }
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return CupertinoAlertDialog(
-                                title: CustomText(text: "اختر الصورة"),
-                                content: CustomText(text: "الهاتف أو الكاميرا"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await _pickImage(ImageSource.camera);
-                                    },
-                                    child: Icon(Icons.photo_camera,
-                                        size: 25, color: red),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await _pickImage(ImageSource.gallery);
-                                    },
-                                    child:  Icon(Icons.image,
-                                        size: 25, color: red),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: Column(
-                          children: [
-                             // Image Display Area
-                             _selectedImages.isNotEmpty
-                                     ? SizedBox(
-                                      height: 70,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: _selectedImages.asMap().entries.map((entry) {
-                                          int index = entry.key;
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                            child: Stack(
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  child: Image.file(_selectedImages[index],
-                                                      height: 60, width: 60, fit: BoxFit.cover),
-                                                ),
-                                                Positioned(
-                                                  top: 0,
-                                                  right: 0,
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _selectedImages.removeAt(index);
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      color: Colors.white.withOpacity(0.7),
-                                                      child: const Icon(Icons.close, color: Colors.red, size: 16),
-                                                    ),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    )
-                                : Container(
-                                      height: 60, 
-                                      width: 60,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.grey.shade300),
-                                      ),
-                                      child: (checkboxItem['img'] != null && checkboxItem['img'].toString().isNotEmpty)
-                                          ? ClipRRect(
-                                              borderRadius: BorderRadius.circular(8),
-                                              child: Image.network(
-                                                'http://jordancarpart.com/${checkboxItem['img']}',
-                                                fit: BoxFit.cover,
-                                                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                                  if (loadingProgress == null) return child;
-                                                  return Center(
-                                                    child: SizedBox(
-                                                      width: 20,
-                                                      height: 20,
-                                                      child: RotatingImagePage(),
-                                                    ),
-                                                  );
-                                                },
-                                                errorBuilder: (c, e, s) => const Icon(
-                                                    Icons.camera_alt,
-                                                    size: 30,
-                                                    color: Colors.grey),
-                                              ),
-                                            )
-                                          : const Icon(Icons.camera_alt,
-                                              size: 30, color: Colors.grey),
-                                    ),
-                                    
-                             const SizedBox(height: 5),
-                             if (_selectedImages.length < 4)
-                                Row(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                      Icon(Icons.add_a_photo, color: Colors.grey[600], size: 20),
-                                      const SizedBox(width: 5),
-                                      Text("اضافة صور (${_selectedImages.length}/4)", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                                   ],
-                                )
-                          ],
+                  SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 5, // Slightly thinner border for elegance
+                          color: words,
                         ),
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
                       ),
-                      const SizedBox(height: 10),
-
-                      // Compact Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              showConfirmationDialog(
+                          CustomText(
+                            text: "تعديل ${checkboxItem['name']}",
+                            size: 16, // Smaller title
+                            weight: FontWeight.bold,
+                            color: green,
+                          ),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: _buildCompactLabelField(
+                                      "العدد",
+                                      DropdownButtonFormField<int>(
+                                        dropdownColor: Colors.white,
+                                        value: selectedNumber,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedNumber = value;
+                                            numberController.text =
+                                                value.toString();
+                                          });
+                                        },
+                                        items: List.generate(
+                                            50,
+                                            (i) => DropdownMenuItem(
+                                                value: i + 1,
+                                                child: Center(
+                                                    child: Text("${i + 1}",
+                                                        style: const TextStyle(
+                                                            fontSize: 12))))),
+                                        decoration: _compactInputDecoration(),
+                                        isExpanded: true,
+                                      ))),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                  child: _buildCompactLabelField(
+                                      "الكفالة (أيام)",
+                                      TextFormField(
+                                        controller: warrantyController,
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.number,
+                                        decoration: _compactInputDecoration(),
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Tajawal'),
+                                      ))),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                  child: _buildCompactLabelField(
+                                      "العلامة",
+                                      TextFormField(
+                                        controller: markController,
+                                        textAlign: TextAlign.center,
+                                        decoration: _compactInputDecoration(),
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Tajawal'),
+                                      ))),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: _buildCompactLabelField(
+                                      "السعر",
+                                      TextField(
+                                        controller: priceController,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        decoration: _compactInputDecoration(),
+                                        style: const TextStyle(fontSize: 12),
+                                      ))),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                  child: _buildCompactLabelField(
+                                      "الكمية",
+                                      TextField(
+                                        controller: amountController,
+                                        keyboardType: TextInputType.number,
+                                        textAlign: TextAlign.center,
+                                        decoration: _compactInputDecoration(),
+                                        style: const TextStyle(fontSize: 12),
+                                      ))),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    right: 4.0, bottom: 2),
+                                child: Text("الملاحظات",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: 'Tajawal',
+                                        color: Colors.grey[700])),
+                              ),
+                              TextFormField(
+                                controller: noteController,
+                                maxLines: 2,
+                                textDirection: TextDirection.rtl,
+                                textAlign: TextAlign.right,
+                                decoration: _compactInputDecoration().copyWith(
+                                  hintText: "إضافة ملاحظة...",
+                                  hintStyle: const TextStyle(
+                                      fontSize: 10, color: Colors.grey),
+                                ),
+                                style: const TextStyle(
+                                    fontSize: 12, fontFamily: 'Tajawal'),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          GestureDetector(
+                            onTap: () {
+                              if (_selectedImages.length >= 4) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text("الحد الأقصى 4 صور")),
+                                );
+                                return;
+                              }
+                              showDialog(
                                 context: context,
-                                message: "تأكيد التعديلات؟",
-                                confirmText: "حفظ",
-                                onConfirm: () async {
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  String newPrice = priceController.text;
-                                  String newAmount = amountController.text;
-                                  String newNumber = selectedNumber != null
-                                      ? selectedNumber.toString()
-                                      : numberController.text;
-                                      
-                                  String? newImageBase64;
-                                  if (_selectedImages.isNotEmpty) {
-                                    newImageBase64 = await _mergeImages(_selectedImages);
-                                  }
-                                  
-                                  bool success = await saveChanges(
-                                      product['id'].toString(),
-                                      checkboxItem,
-                                      newPrice,
-                                      newAmount,
-                                      markController.text,
-                                      warrantyController.text.isEmpty ? "0" : warrantyController.text,
-                                      newNumber,
-                                      noteController.text,
-                                      newImageBase64);
-                                      
-                                  if (mounted) {
-                                     setState(() {
-                                       isLoading = false;
-                                     });
-                                     if (success) {
-                                       Navigator.of(context).pop();
-                                     }
-                                  }
-                                },
-                                cancelText: "إلغاء",
-                                onCancel: () {
-                                  Navigator.of(context).pop();
+                                builder: (BuildContext context) {
+                                  return CupertinoAlertDialog(
+                                    title: CustomText(text: "اختر الصورة"),
+                                    content:
+                                        CustomText(text: "الهاتف أو الكاميرا"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          await _pickImage(ImageSource.camera);
+                                        },
+                                        child: Icon(Icons.photo_camera,
+                                            size: 25, color: red),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          await _pickImage(ImageSource.gallery);
+                                        },
+                                        child: Icon(Icons.image,
+                                            size: 25, color: red),
+                                      ),
+                                    ],
+                                  );
                                 },
                               );
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(195, 29, 29, 1),
-                              minimumSize: const Size(100, 35),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            child: Column(
+                              children: [
+                                // Image Display Area
+                                _selectedImages.isNotEmpty
+                                    ? SizedBox(
+                                        height: 70,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: _selectedImages
+                                              .asMap()
+                                              .entries
+                                              .map((entry) {
+                                            int index = entry.key;
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4.0),
+                                              child: Stack(
+                                                children: [
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    child: Image.file(
+                                                        _selectedImages[index],
+                                                        height: 60,
+                                                        width: 60,
+                                                        fit: BoxFit.cover),
+                                                  ),
+                                                  Positioned(
+                                                    top: 0,
+                                                    right: 0,
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          _selectedImages
+                                                              .removeAt(index);
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        color: Colors.white
+                                                            .withOpacity(0.7),
+                                                        child: const Icon(
+                                                            Icons.close,
+                                                            color: Colors.red,
+                                                            size: 16),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      )
+                                    : Container(
+                                        height: 60,
+                                        width: 60,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Colors.grey.shade300),
+                                        ),
+                                        child: (checkboxItem['img'] != null &&
+                                                checkboxItem['img']
+                                                    .toString()
+                                                    .isNotEmpty)
+                                            ? ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: Image.network(
+                                                  'http://jordancarpart.com/${checkboxItem['img']}',
+                                                  fit: BoxFit.cover,
+                                                  loadingBuilder:
+                                                      (BuildContext context,
+                                                          Widget child,
+                                                          ImageChunkEvent?
+                                                              loadingProgress) {
+                                                    if (loadingProgress == null)
+                                                      return child;
+                                                    return Center(
+                                                      child: SizedBox(
+                                                        width: 20,
+                                                        height: 20,
+                                                        child:
+                                                            RotatingImagePage(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  errorBuilder: (c, e, s) =>
+                                                      const Icon(
+                                                          Icons.camera_alt,
+                                                          size: 30,
+                                                          color: Colors.grey),
+                                                ),
+                                              )
+                                            : const Icon(Icons.camera_alt,
+                                                size: 30, color: Colors.grey),
+                                      ),
+
+                                const SizedBox(height: 5),
+                                if (_selectedImages.length < 4)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add_a_photo,
+                                          color: Colors.grey[600], size: 20),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                          "اضافة صور (${_selectedImages.length}/4)",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600])),
+                                    ],
+                                  )
+                              ],
                             ),
-                            child: const Text("حفظ", style: TextStyle(fontSize: 13, color: Colors.white, fontFamily: 'Tajawal')),
                           ),
-                          const SizedBox(width: 20),
-                          ElevatedButton(
-                            onPressed: () async {
-                              bool? deleteResult = await _confirmDelete(
-                                  context, product, checkboxItem);
-                              if (deleteResult == true) {
-                                Navigator.of(context).pop();
-                                if (mounted) {
-                                  setState(() {
-                                     final user = Provider.of<ProfileProvider>(context, listen: false);
-                                    _productListFuture = fetchProducts(user.user_id.toString(), title, title1, title5, title4.toLowerCase() == "gasoline" ? "Gasoline" : title4.toLowerCase(), title2, title3, page: _currentPage);
-                                  });
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                              minimumSize: const Size(80, 35),
-                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                            child: const Text("حذف", style: TextStyle(fontSize: 13, color: Colors.white, fontFamily: 'Tajawal')),
+                          const SizedBox(height: 10),
+
+                          // Compact Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  showConfirmationDialog(
+                                    context: context,
+                                    message: "تأكيد التعديلات؟",
+                                    confirmText: "حفظ",
+                                    onConfirm: () async {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
+                                      String newPrice = priceController.text;
+                                      String newAmount = amountController.text;
+                                      String newNumber = selectedNumber != null
+                                          ? selectedNumber.toString()
+                                          : numberController.text;
+
+                                      String? newImageBase64;
+                                      if (_selectedImages.isNotEmpty) {
+                                        newImageBase64 =
+                                            await _mergeImages(_selectedImages);
+                                      }
+
+                                      bool success = await saveChanges(
+                                          product['id'].toString(),
+                                          checkboxItem,
+                                          newPrice,
+                                          newAmount,
+                                          markController.text,
+                                          warrantyController.text.isEmpty
+                                              ? "0"
+                                              : warrantyController.text,
+                                          newNumber,
+                                          noteController.text,
+                                          newImageBase64);
+
+                                      if (mounted) {
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        if (success) {
+                                          Navigator.of(context).pop();
+                                        }
+                                      }
+                                    },
+                                    cancelText: "إلغاء",
+                                    onCancel: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromRGBO(195, 29, 29, 1),
+                                  minimumSize: const Size(100, 35),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: const Text("حفظ",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                        fontFamily: 'Tajawal')),
+                              ),
+                              const SizedBox(width: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  bool? deleteResult = await _confirmDelete(
+                                      context, product, checkboxItem);
+                                  if (deleteResult == true) {
+                                    Navigator.of(context).pop();
+                                    if (mounted) {
+                                      setState(() {
+                                        final user =
+                                            Provider.of<ProfileProvider>(
+                                                context,
+                                                listen: false);
+                                        _productListFuture = fetchProducts(
+                                            user.user_id.toString(),
+                                            title,
+                                            title1,
+                                            title5,
+                                            title4.toLowerCase() == "gasoline"
+                                                ? "Gasoline"
+                                                : title4.toLowerCase(),
+                                            title2,
+                                            title3,
+                                            page: _currentPage);
+                                      });
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey,
+                                  minimumSize: const Size(80, 35),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: const Text("حذف",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                        fontFamily: 'Tajawal')),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              if (isLoading)
+                  if (isLoading)
                     Positioned.fill(
                       child: Container(
                         color: Colors.black45,
@@ -1754,7 +1860,11 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   Widget _buildCompactLabelField(String label, Widget child) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, fontFamily: 'Tajawal', fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11,
+                fontFamily: 'Tajawal',
+                fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
         child,
       ],
@@ -1882,6 +1992,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     );
   }
 }
+
 class ArabicAssetPickerTextDelegate extends AssetPickerTextDelegate {
   const ArabicAssetPickerTextDelegate();
 
