@@ -18,7 +18,7 @@ class FullScreenImageViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      elevation: 0,
+      elevation: 0, 
       insetPadding: const EdgeInsets.all(0),
       child: Container(
         color: Colors.transparent,
@@ -39,7 +39,7 @@ class FullScreenImageViewer extends StatelessWidget {
                   ),
                 ),
               ),
-
+              
               // Image area - no closing on tap
               GestureDetector(
                 onTap: () {
@@ -48,34 +48,34 @@ class FullScreenImageViewer extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    imageFile != null
-                        ? Image.file(
-                      imageFile!,
-                      fit: BoxFit.contain,
-                    )
-                        : Image.network(
-                      imageUrl!,
-                      fit: BoxFit.contain,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: RotatingImagePage());
-                      },
-                      errorBuilder: (BuildContext context, Object error,
-                          StackTrace? stackTrace) {
-                        return const Center(
-                          child: Text(
-                            'خطأ في تحميل الصورة',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontFamily: "Tajawal",
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-
+                    imageFile != null 
+                      ? Image.file(
+                          imageFile!,
+                          fit: BoxFit.contain,
+                        )
+                      : Image.network(
+                          imageUrl!,
+                          fit: BoxFit.contain,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(child: RotatingImagePage());
+                          },
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return const Center(
+                              child: Text(
+                                'خطأ في تحميل الصورة',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontFamily: "Tajawal",
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    
                     // Watermark Overlay
                     IgnorePointer(
                       child: Opacity(
@@ -84,16 +84,16 @@ class FullScreenImageViewer extends StatelessWidget {
                           'assets/svg/logo-04.svg',
                           width: MediaQuery.of(context).size.width * 0.5,
                           colorFilter: const ColorFilter.mode(
-                              Colors.white,
-                              BlendMode.srcIn
-                          ),
+                            Colors.white, 
+                            BlendMode.srcIn
+                          ), 
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-
+              
               // Bottom tap area to close
               Expanded(
                 flex: 1,

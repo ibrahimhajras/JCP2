@@ -88,11 +88,14 @@ class _TraderPageState extends State<TraderPage> {
       'productTypes': y.keys.toList(),
     };
 
+    
+
     if (formData['name'] == null ||
         formData['phone'] == null ||
         formData['city'] == null ||
         formData['offerPrice'] == null ||
         formData['businessSize'] == null) {
+      
       return;
     }
 
@@ -111,8 +114,14 @@ class _TraderPageState extends State<TraderPage> {
       );
 
       if (response.statusCode == 200) {
-      } else {}
-    } catch (e) {}
+
+        
+      } else {
+        
+      }
+    } catch (e) {
+      
+    }
   }
 
   @override
@@ -129,8 +138,7 @@ class _TraderPageState extends State<TraderPage> {
                 height: size.height * 0.20,
                 width: size.width,
                 decoration: BoxDecoration(
-                  gradient:
-                      LinearGradient(colors: [primary1, primary2, primary3]),
+                  gradient: LinearGradient(colors: [primary1, primary2, primary3]),
                 ),
                 child: Center(
                   child: Row(
@@ -148,8 +156,7 @@ class _TraderPageState extends State<TraderPage> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          icon: Icon(Icons.arrow_forward_ios_rounded,
-                              color: white),
+                          icon: Icon(Icons.arrow_forward_ios_rounded, color: white),
                         ),
                       ),
                     ],
@@ -469,7 +476,8 @@ class _TraderPageState extends State<TraderPage> {
               color: Color.fromRGBO(195, 29, 29, 1),
               child: CustomText(
                 text: "رجوع",
-                color: Colors.white,
+                color:
+                    Colors.white,
                 size: size.width * 0.045,
               ),
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
@@ -507,14 +515,16 @@ class _TraderPageState extends State<TraderPage> {
               textAlign: TextAlign.end,
               controller: name,
               decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: nameHint, // عرض الـ hint هنا
-                  contentPadding: EdgeInsets.symmetric(horizontal: 6.5)),
+                border: InputBorder.none,
+                hintText: nameHint, // عرض الـ hint هنا
+                contentPadding: EdgeInsets.symmetric(horizontal: 6.5)
+              ),
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
                 fontSize: 16,
                 fontFamily: "Tajawal",
+
               ),
               onTap: () {
                 setState(() {
@@ -618,8 +628,8 @@ class _TraderPageState extends State<TraderPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             color: grey,
-            child: DropdownButtonFormField<String>(
-              dropdownColor: Colors.white,
+            child: DropdownButtonFormField<String>(              dropdownColor: Colors.white,
+
               padding: EdgeInsets.only(right: 5),
               alignment: Alignment.center,
               decoration: InputDecoration(

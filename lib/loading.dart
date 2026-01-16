@@ -60,24 +60,24 @@ class _LoadingPageState extends State<LoadingPage>
 
     _connectivitySubscription =
         Connectivity().onConnectivityChanged.listen((result) {
-          bool hasNet = false;
-          if (result is List) {
-            hasNet = result.any((item) => item != ConnectivityResult.none);
-          } else if (result is ConnectivityResult) {
-            hasNet = result != ConnectivityResult.none;
-          }
+      bool hasNet = false;
+      if (result is List) {
+        hasNet = result.any((item) => item != ConnectivityResult.none);
+      } else if (result is ConnectivityResult) {
+        hasNet = result != ConnectivityResult.none;
+      }
 
-          if (hasNet && !_hasInternet) {
-            setState(() {
-              _hasInternet = true;
-            });
-            checkUserPreferences(context);
-          } else if (!hasNet && _hasInternet) {
-            setState(() {
-              _hasInternet = false;
-            });
-          }
+      if (hasNet && !_hasInternet) {
+        setState(() {
+          _hasInternet = true;
         });
+        checkUserPreferences(context);
+      } else if (!hasNet && _hasInternet) {
+        setState(() {
+          _hasInternet = false;
+        });
+      }
+    });
 
     _timer = Timer(const Duration(milliseconds: 2500), () {
       checkUserPreferences(context);
@@ -135,12 +135,12 @@ class _LoadingPageState extends State<LoadingPage>
     try {
       final url = Uri.parse(
         'https://jordancarpart.com/Api/trader/getTraderInfo2.php'
-            '?user_id=$userId&phone=$userPhone',
+        '?user_id=$userId&phone=$userPhone',
       );
 
       final response = await http.get(url).timeout(
-        const Duration(seconds: 15),
-      );
+            const Duration(seconds: 15),
+          );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -317,7 +317,7 @@ class _LoadingPageState extends State<LoadingPage>
       bool rememberMe = prefs.getBool('rememberMe') ?? false;
 
       RemoteMessage? initialMessage =
-      await FirebaseMessaging.instance.getInitialMessage();
+          await FirebaseMessaging.instance.getInitialMessage();
 
       if (rememberMe) {
         String userId = prefs.getString('userId') ?? '';
@@ -338,7 +338,7 @@ class _LoadingPageState extends State<LoadingPage>
               showCustomDialog(
                 context: context,
                 message:
-                'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
+                    'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
                 confirmText: 'حسناً',
               );
             } else if (userType == 4) {
@@ -354,7 +354,7 @@ class _LoadingPageState extends State<LoadingPage>
                   ? DateTime.parse(createdAtString)
                   : DateTime.now();
               final profileProvider =
-              Provider.of<ProfileProvider>(context, listen: false);
+                  Provider.of<ProfileProvider>(context, listen: false);
               profileProvider.setuser_id(userId);
               profileProvider.setphone(phone);
               profileProvider.setpassword(password);
@@ -391,7 +391,7 @@ class _LoadingPageState extends State<LoadingPage>
                   ? DateTime.parse(createdAtString)
                   : DateTime.now();
               final profileProvider =
-              Provider.of<ProfileProvider>(context, listen: false);
+                  Provider.of<ProfileProvider>(context, listen: false);
               profileProvider.setuser_id(userId);
               profileProvider.setphone(phone);
               profileProvider.setpassword(password);

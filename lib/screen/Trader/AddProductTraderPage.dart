@@ -442,12 +442,10 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 width: sizeFactor * 50,
                 height: sizeFactor * 50,
                 decoration: BoxDecoration(
-                  color:
-                      checkboxStates[index] ? Colors.white : Colors.grey[100],
+                  color: checkboxStates[index] ? Colors.white : Colors.grey[100],
                   borderRadius: BorderRadius.circular(sizeFactor * 10),
                   border: Border.all(
-                    color:
-                        checkboxStates[index] ? Colors.grey : Colors.grey[50]!,
+                    color: checkboxStates[index] ? Colors.grey : Colors.grey[50]!,
                     width: 1,
                   ),
                 ),
@@ -640,14 +638,14 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         traderCheck != null && traderCheck.isYearRangeRequired;
 
     // ✅ تحديد قيم السنوات النهائية
-    String finalToYear = titles[4]; // "إلى"
-    String finalFromYear = titles[5]; // "من"
+    String finalToYear = titles[4];  // "إلى"
+    String finalFromYear = titles[5];  // "من"
 
     // إذا كانت السنوات مخفية، استخدم سنة السيارة من الاختيار
     if (isYearRangeHidden && titles[2].isNotEmpty && titles[2] != "المركبة") {
       // استخراج السنة من اسم السيارة إذا كانت موجودة
       // أو استخدام قيمة افتراضية
-      finalToYear = titles[2]; // يمكن تعديلها حسب البنية
+      finalToYear = titles[2];  // يمكن تعديلها حسب البنية
       finalFromYear = titles[2];
     }
 
@@ -659,8 +657,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       'Category': titles[1],
       'fromYear': titles[2],
       'toYear': selectedEngineSizes,
-      'fuelType': finalToYear, // ✅ استخدام القيمة النهائية
-      'engineSize': finalFromYear, // ✅ استخدام القيمة النهائية
+      'fuelType': finalToYear,  // ✅ استخدام القيمة النهائية
+      'engineSize': finalFromYear,  // ✅ استخدام القيمة النهائية
       'checkboxData': [],
       'token': token,
       'is_for_all_cars':
@@ -822,8 +820,9 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                         horizontal: sizeFactor * 8,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            !isForAllCars ? red.withOpacity(0.1) : Colors.white,
+                        color: !isForAllCars
+                            ? red.withValues(alpha: 0.1)
+                            : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
                           width: !isForAllCars ? 2 : 1,
@@ -871,7 +870,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withOpacity(0.1)
+                            ? green.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -1375,8 +1374,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                           children: images.asMap().entries.map((entry) {
                             int imgIndex = entry.key;
                             return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
                               child: Stack(
                                 children: [
                                   ClipRRect(
@@ -1393,8 +1391,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                                     right: 0,
                                     child: GestureDetector(
                                       onTap: () {
-                                        imageProvider.removeImage(
-                                            index, imgIndex);
+                                        imageProvider.removeImage(index, imgIndex);
                                         completeField(index);
                                       },
                                       child: Container(
@@ -1435,8 +1432,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                             ),
                             const SizedBox(width: 10),
                             CustomText(
-                              text:
-                                  "إضافة (${images.length}/${ImageProviderNotifier.maxImagesPerIndex})",
+                              text: "إضافة (${images.length}/${ImageProviderNotifier.maxImagesPerIndex})",
                               color: red,
                               size: 14,
                             ),
@@ -1469,8 +1465,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
     if (!status.isGranted) return;
 
-    final imageProvider =
-        Provider.of<ImageProviderNotifier>(context, listen: false);
+    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     if (!imageProvider.canAddMore(index)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1494,8 +1489,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   Future<void> _pickMultipleImages(int index) async {
     // AssetPicker handles permissions automatically
 
-    final imageProvider =
-        Provider.of<ImageProviderNotifier>(context, listen: false);
+    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     final remaining = imageProvider.getRemainingSlots(index);
     if (remaining <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1587,8 +1581,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     return selectedSizes.join(", ");
   }
 
-  Widget buildDropdownRow(
-      List<List<String>> options, List<int> selectedIndices, double sizeFactor,
+  Widget buildDropdownRow(List<List<String>> options, List<int> selectedIndices,
+      double sizeFactor,
       {bool hideEngineSize = false, bool hideYearRange = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -1688,8 +1682,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       elevation: 1,
                       color: Colors.white,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1725,8 +1719,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
           // ✅ إخفاء dropdown السنوات إذا كان hideYearRange == true
           String currentValue = titles[selectedIndices[index]];
-          if (hideYearRange &&
-              (currentValue == "من" || currentValue == "إلى")) {
+          if (hideYearRange && (currentValue == "من" || currentValue == "إلى")) {
             return const SizedBox.shrink();
           }
 
@@ -2306,4 +2299,5 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
       ),
     );
   }
+
 }

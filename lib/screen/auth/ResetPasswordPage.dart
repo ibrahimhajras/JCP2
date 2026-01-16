@@ -56,14 +56,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 child: isLoading
                     ? RotatingImagePage()
                     : Text(
-                  "إعادة تعيين",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: size.width * 0.04, // Proportional size
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Tajawal",
-                  ),
-                ),
+                        "إعادة تعيين",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: size.width * 0.04, // Proportional size
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Tajawal",
+                        ),
+                      ),
                 padding: EdgeInsets.symmetric(
                     vertical: size.height * 0.015,
                     horizontal: size.width * 0.1),
@@ -99,7 +99,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         Card(
           shape: RoundedRectangleBorder(
             borderRadius:
-            BorderRadius.circular(size.width * 0.025), // Proportional size
+                BorderRadius.circular(size.width * 0.025), // Proportional size
           ),
           shadowColor: Colors.black,
           color: grey,
@@ -176,9 +176,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       });
 
       if (response.statusCode == 200) {
-
-
-
+        
+        
+        
         showDialog(
           context: context,
           builder: (_) => Dialog(
@@ -245,7 +245,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),
-                (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
           );
         });
       } else {

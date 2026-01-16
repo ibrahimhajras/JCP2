@@ -19,8 +19,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSize {
     this.shape,
     this.elevation,
   }) : super(
-    key: key,
-  );
+          key: key,
+        );
 
   @override
   Widget build(BuildContext context) {

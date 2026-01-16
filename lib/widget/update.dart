@@ -35,7 +35,7 @@ class Update {
       showConfirmationDialog(
         context: context,
         message:
-        "يوجد تحديث جديد للتطبيق. يرجى التحديث للاستفادة من الميزات الجديدة",
+            "يوجد تحديث جديد للتطبيق. يرجى التحديث للاستفادة من الميزات الجديدة",
         confirmText: "حدّث الآن",
         onConfirm: () {
           final url = Platform.isAndroid

@@ -52,10 +52,10 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
           );
         }
       } else {
-
+        
       }
     } catch (e) {
-
+      
     }
   }
 
@@ -93,8 +93,8 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
           );
           try {
             List<dynamic> items =
-            await fetchOrderItems(widget.order.id.toString(), 1);
-
+                await fetchOrderItems(widget.order.id.toString(), 1);
+            
             Navigator.pop(context);
             Navigator.push(
               context,
@@ -105,7 +105,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             );
           } catch (e) {
             Navigator.pop(context);
-
+            
           }
         }
         if (widget.order.state == 1 && widget.order.type != 1) {
@@ -118,7 +118,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
           );
           try {
             List<dynamic> rawItems =
-            await fetchOrderItems(widget.order.id.toString(), 2);
+                await fetchOrderItems(widget.order.id.toString(), 2);
             List<Map<String, dynamic>> items = rawItems.map((item) {
               return {
                 'itemname': item['itemname'],
@@ -136,7 +136,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             );
           } catch (e) {
             Navigator.pop(context);
-
+            
           }
         }
         if (widget.order.state == 2 && widget.order.type == 1) {
@@ -152,7 +152,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             List<dynamic> orderItems2 = [];
 
             Map<String, dynamic> orderData =
-            await fetchOrderItemsOrange(widget.order.id.toString(), 1);
+                await fetchOrderItemsOrange(widget.order.id.toString(), 1);
 
             final response = await http.get(
               Uri.parse(
@@ -161,7 +161,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
 
             if (response.statusCode == 200) {
               final Map<String, dynamic> jsonResponse =
-              json.decode(response.body);
+                  json.decode(response.body);
 
               if (jsonResponse['success'] == true &&
                   jsonResponse.containsKey('items')) {
@@ -196,7 +196,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             }
           } catch (e) {
             Navigator.pop(context);
-
+            
           }
         }
 
@@ -214,9 +214,9 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
 
             final billCheckResponse = await http.get(Uri.parse(
                 "https://jordancarpart.com/Api/Bills/get_bill_by_order.php?order_id=$orderId"));
-
+            
             final billData = jsonDecode(billCheckResponse.body);
-
+            
 
             if (billCheckResponse.statusCode == 200 &&
                 billData['success'] == true &&
@@ -238,7 +238,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             }
 
             List<dynamic> rawItems =
-            await fetchOrderItems(widget.order.id.toString(), 2);
+                await fetchOrderItems(widget.order.id.toString(), 2);
 
             List<Map<String, dynamic>> items = rawItems.map((item) {
               return {
@@ -249,7 +249,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             }).toList();
 
             Map<String, dynamic> orderData =
-            await fetchOrderItemsOrangePrivate(widget.order.id.toString());
+                await fetchOrderItemsOrangePrivate(widget.order.id.toString());
 
             Navigator.pop(context);
 
@@ -265,7 +265,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             );
           } catch (e) {
             Navigator.pop(context);
-
+            
           }
         }
 
@@ -281,7 +281,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
           );
           try {
             Map<String, dynamic> orderData =
-            await fetchOrderItemsFromUser(widget.order.id.toString());
+                await fetchOrderItemsFromUser(widget.order.id.toString());
             Navigator.pop(context);
             Navigator.push(
                 context,
@@ -292,7 +292,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
                 ));
           } catch (e) {
             Navigator.pop(context);
-
+            
           }
         }
         if (widget.order.state == 3 && widget.order.type != 1 ||
@@ -306,7 +306,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
           );
           try {
             List<dynamic> rawItems =
-            await fetchOrderItems(widget.order.id.toString(), 2);
+                await fetchOrderItems(widget.order.id.toString(), 2);
             List<Map<String, dynamic>> items = rawItems.map((item) {
               return {
                 'itemname': item['itemname'],
@@ -315,7 +315,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
               };
             }).toList();
             Map<String, dynamic> orderData =
-            await fetchOrderItemsOrangePrivate(widget.order.id.toString());
+                await fetchOrderItemsOrangePrivate(widget.order.id.toString());
             Navigator.pop(context);
             Navigator.push(
               context,
@@ -326,7 +326,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             );
           } catch (e) {
             Navigator.pop(context);
-
+            
           }
         }
       },
@@ -338,19 +338,19 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: widget.order.state == 1 ||
-                  widget.order.state == 4 ||
-                  widget.order.state == 5
+                      widget.order.state == 4 ||
+                      widget.order.state == 5
                   ? red
                   : widget.order.state == 2
-                  ? orange
-                  : widget.order.state == 3
-                  ? (widget.order.billStatus == null ||
-                  widget.order.isPaid
-                  ? green
-                  : orange)
-                  : widget.order.state == 6
-                  ? green
-                  : red,
+                      ? orange
+                      : widget.order.state == 3
+                          ? (widget.order.billStatus == null ||
+                                  widget.order.isPaid
+                              ? green
+                              : orange)
+                          : widget.order.state == 6
+                              ? green
+                              : red,
               width: 3,
             ),
           ),
@@ -364,19 +364,19 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
                     borderRadius: BorderRadius.circular(50),
                     border: Border.all(
                       color: widget.order.state == 1 ||
-                          widget.order.state == 4 ||
-                          widget.order.state == 5
+                              widget.order.state == 4 ||
+                              widget.order.state == 5
                           ? red
                           : widget.order.state == 2
-                          ? orange
-                          : widget.order.state == 3
-                          ? (widget.order.billStatus == null ||
-                          widget.order.isPaid
-                          ? green
-                          : orange)
-                          : widget.order.state == 6
-                          ? green
-                          : red,
+                              ? orange
+                              : widget.order.state == 3
+                                  ? (widget.order.billStatus == null ||
+                                          widget.order.isPaid
+                                      ? green
+                                      : orange)
+                                  : widget.order.state == 6
+                                      ? green
+                                      : red,
                       width: 3,
                     ),
                   ),
@@ -385,19 +385,19 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
                     child: Icon(
                       Icons.circle,
                       color: widget.order.state == 1 ||
-                          widget.order.state == 4 ||
-                          widget.order.state == 5
+                              widget.order.state == 4 ||
+                              widget.order.state == 5
                           ? red
                           : widget.order.state == 2
-                          ? orange
-                          : widget.order.state == 3
-                          ? (widget.order.billStatus == null ||
-                          widget.order.isPaid
-                          ? green
-                          : orange)
-                          : widget.order.state == 6
-                          ? green
-                          : red,
+                              ? orange
+                              : widget.order.state == 3
+                                  ? (widget.order.billStatus == null ||
+                                          widget.order.isPaid
+                                      ? green
+                                      : orange)
+                                  : widget.order.state == 6
+                                      ? green
+                                      : red,
                       size: 12,
                     ),
                   ),
@@ -415,11 +415,11 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
                           child: AutoSizeText(
                             widget.order.hasCarInfo
                                 ? '${widget.order.carBrand ?? ''} '
-                                '${widget.order.carModel ?? ''} '
-                                '${widget.order.carYear ?? ''} '
-                                '${_capitalizeFirst(widget.order.carFuelType ?? '')} '
-                                '${(widget.order.carEngineSize == null || widget.order.carEngineSize == "N/A" || widget.order.carEngineSize!.isEmpty) ? '' : widget.order.carEngineSize!}'
-                                .trim()
+                                        '${widget.order.carModel ?? ''} '
+                                        '${widget.order.carYear ?? ''} '
+                                        '${_capitalizeFirst(widget.order.carFuelType ?? '')} '
+                                        '${(widget.order.carEngineSize == null || widget.order.carEngineSize == "N/A" || widget.order.carEngineSize!.isEmpty) ? '' : widget.order.carEngineSize!}'
+                                    .trim()
                                 : 'معلومات السيارة غير متوفرة',
                             style: const TextStyle(
                               fontSize: 14,
@@ -463,9 +463,9 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
                     SizedBox(height: 2),
                     Row(
                       mainAxisAlignment: widget.order.state == 1 ||
-                          widget.order.state == 2 &&
-                              widget.order.type != 1 ||
-                          widget.order.state == 3 && widget.order.type != 1
+                              widget.order.state == 2 &&
+                                  widget.order.type != 1 ||
+                              widget.order.state == 3 && widget.order.type != 1
                           ? MainAxisAlignment.spaceBetween
                           : MainAxisAlignment.end,
                       children: [
@@ -543,7 +543,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -576,7 +576,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             'Failed to load order items, status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -595,7 +595,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-
+      
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
@@ -611,7 +611,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
         throw Exception('Failed to load order items, status');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -647,7 +647,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -657,7 +657,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
         'https://jordancarpart.com/Api/getacceptedorderfromuser.php?order_id=$orderId');
 
     try {
-
+      
 
       final response = await http.get(
         url,
@@ -671,7 +671,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
-
+        
 
         if (responseData.containsKey('hdr') &&
             responseData.containsKey('items')) {
@@ -688,7 +688,7 @@ class _OrderViewWidgetState extends State<OrderViewWidget> {
             'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }

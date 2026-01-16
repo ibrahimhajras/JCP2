@@ -105,7 +105,7 @@ class NotificationService {
           // الذهاب لصفحة التاجر الرئيسية ثم فتح PendingPartsPage
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => TraderInfoPage()),
-                (route) => false,
+            (route) => false,
           );
           await Future.delayed(const Duration(milliseconds: 300));
           if (navigatorKey.currentState != null) {
@@ -119,7 +119,7 @@ class NotificationService {
           // الذهاب لصفحة التاجر مع فتح تاب الطلبات (index 2)
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const TraderInfoPage(initialTab: 2)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'contact_us') {
@@ -128,28 +128,28 @@ class NotificationService {
             MaterialPageRoute(
               builder: (context) => HomePage(page: 3, openContactPage: true),
             ),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'home') {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'private') {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 0)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'orders') {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 2)),
-                (route) => false,
+            (route) => false,
           );
         }
       } else if (type == 'see_photo' && orderId != null) {
@@ -158,7 +158,7 @@ class NotificationService {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-                (route) => false,
+            (route) => false,
           );
           await Future.delayed(const Duration(milliseconds: 300));
           if (navigatorKey.currentState != null) {
@@ -173,7 +173,7 @@ class NotificationService {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-                (route) => false,
+            (route) => false,
           );
           await Future.delayed(const Duration(milliseconds: 300));
           if (navigatorKey.currentState != null) {
@@ -192,7 +192,7 @@ class NotificationService {
         if (navigatorKey.currentState != null) {
           navigatorKey.currentState!.pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-                (route) => false,
+            (route) => false,
           );
         }
       }
@@ -240,7 +240,7 @@ class NotificationService {
   void showSnackBar(String message) {
     // Convert literal \n to actual newlines for proper display
     String processedMessage = message.replaceAll(r'\n', '\n');
-
+    
     showSimpleNotification(
       Container(
         decoration: BoxDecoration(
@@ -287,7 +287,7 @@ class NotificationService {
     List<String> storedNotifications =
         prefs.getStringList('notifications') ?? [];
     Set<String> existingIds =
-    storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+        storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
 
     if (!existingIds.contains(messageId)) {
       storedNotifications.add(jsonEncode({
@@ -305,7 +305,7 @@ class NotificationService {
     List<String> storedNotifications =
         prefs.getStringList('notifications') ?? [];
     Set<String> existingIds =
-    storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+        storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
 
     if (!existingIds.contains(id)) {
       storedNotifications.add(jsonEncode({
@@ -366,7 +366,7 @@ class NotificationService {
       }).toList();
 
       Map<String, dynamic> orderData =
-      await fetchOrderItemsOrangePrivate(orderId);
+          await fetchOrderItemsOrangePrivate(orderId);
 
       await navigatorKey.currentState!.push(
         MaterialPageRoute(
@@ -458,7 +458,7 @@ class NotificationService {
     if (orderId != null) {
       try {
         Map<String, dynamic> orderData =
-        await fetchOrderItemsOrange(orderId.toString(), 1);
+            await fetchOrderItemsOrange(orderId.toString(), 1);
         List<dynamic> orderItems2 = [];
 
         final response = await http.get(
@@ -548,10 +548,10 @@ class NotificationService {
       // First check order state
       final stateResponse = await http.get(Uri.parse(
           'https://jordancarpart.com/Api/checkOrderInDatabase.php?order_id=$orderId'));
-
+      
       if (stateResponse.statusCode == 200) {
         final stateData = json.decode(stateResponse.body);
-
+        
         // Only proceed if order is in state 1 (red/pending)
         if (stateData['summary']?['order_state'] != 1) {
           if (navigatorKey.currentContext != null) {
@@ -567,7 +567,7 @@ class NotificationService {
           return;
         }
       }
-
+      
       final response = await http.get(Uri.parse(
           'https://jordancarpart.com/Api/getItemsFromOrders.php?flag=1&order_id=$orderId'));
       if (response.statusCode == 200) {

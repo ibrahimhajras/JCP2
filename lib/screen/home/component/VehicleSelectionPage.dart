@@ -304,7 +304,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: red.withOpacity(0.2),
+                  color: red.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -383,7 +383,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
             boxShadow: isCurrent
                 ? [
                     BoxShadow(
-                      color: red.withOpacity(0.5),
+                      color: red.withValues(alpha: 0.5),
                       blurRadius: 15,
                       spreadRadius: 3,
                     ),
@@ -391,7 +391,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                 : isActive
                     ? [
                         BoxShadow(
-                          color: red.withOpacity(0.3),
+                          color: red.withValues(alpha: 0.3),
                           blurRadius: 8,
                           spreadRadius: 1,
                         ),
@@ -495,7 +495,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: red.withOpacity(0.3),
+            color: red.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
             spreadRadius: 1,
@@ -513,7 +513,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
               height: circleSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
               ),
             ),
           ),
@@ -525,7 +525,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
               height: circleSize2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.07),
+                color: Colors.white.withValues(alpha: 0.07),
               ),
             ),
           ),
@@ -638,10 +638,10 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
         vertical: isSmallScreen ? 6.0 : 8.0,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -657,6 +657,8 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
       ),
     );
   }
+
+
 
   Widget _buildSelectionContent() {
     if (isLoadingBrands && currentStep == 0) {
@@ -740,7 +742,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: Colors.grey.withValues(alpha: 0.2),
                         blurRadius: 6,
                         offset: const Offset(0, 3),
                       ),
@@ -779,6 +781,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
   }
 
   Widget _buildChassisNumberInput() {
+
     final bool isChassisRequired = selectedCategory?.isChassisRequired ?? false;
     final String titleText =
         isChassisRequired ? 'رقم الشاصي (إجباري)' : 'رقم الشاصي (اختياري)';
@@ -889,7 +892,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
+                                color: Colors.grey.withValues(alpha: 0.2),
                                 blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
@@ -947,7 +950,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: green.withOpacity(0.3),
+                              color: green.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -1059,8 +1062,8 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
       child: InkWell(
         onTap: () => onSelected(category),
         borderRadius: BorderRadius.circular(16),
-        splashColor: red.withOpacity(0.2),
-        highlightColor: red.withOpacity(0.1),
+        splashColor: red.withValues(alpha: 0.2),
+        highlightColor: red.withValues(alpha: 0.1),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -1078,7 +1081,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
             ),
             boxShadow: [
               BoxShadow(
-                color: red.withOpacity(0.08),
+                color: red.withValues(alpha: 0.08),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
                 spreadRadius: 1,
@@ -1226,7 +1229,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: red.withOpacity(0.08),
+                                  color: red.withValues(alpha: 0.08),
                                   blurRadius: 15,
                                   offset: const Offset(0, 6),
                                 ),
@@ -1251,8 +1254,8 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                                 itemBuilder: (context, index) {
                                   return InkWell(
                                     onTap: () => onSelected(items[index]),
-                                    splashColor: red.withOpacity(0.1),
-                                    highlightColor: red.withOpacity(0.05),
+                                    splashColor: red.withValues(alpha: 0.1),
+                                    highlightColor: red.withValues(alpha: 0.05),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 24,
@@ -1291,8 +1294,8 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
       child: InkWell(
         onTap: () => onSelected(item),
         borderRadius: BorderRadius.circular(16),
-        splashColor: red.withOpacity(0.2),
-        highlightColor: red.withOpacity(0.1),
+        splashColor: red.withValues(alpha: 0.2),
+        highlightColor: red.withValues(alpha: 0.1),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -1310,7 +1313,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
             ),
             boxShadow: [
               BoxShadow(
-                color: red.withOpacity(0.08),
+                color: red.withValues(alpha: 0.08),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
                 spreadRadius: 1,
