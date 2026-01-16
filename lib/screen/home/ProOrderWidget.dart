@@ -73,11 +73,11 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
         final bytes = await _imageFile!.readAsBytes();
         setState(() {
           _base64Image = base64Encode(bytes);
-
-
+          
+          
         });
       } catch (e) {
-
+        
       }
     }
   }
@@ -112,7 +112,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-
+      
       Future.delayed(Duration(milliseconds: 500), () {
         _initializeStream();
         _fetchData();
@@ -126,12 +126,12 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnreadNotifications =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       check = hasUnreadNotifications;
@@ -186,13 +186,13 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
     await prefs.setInt('isOrderAllowed', 0);
 
     final profileProvider =
-    Provider.of<ProfileProvider>(context, listen: false);
+        Provider.of<ProfileProvider>(context, listen: false);
     profileProvider.resetFields();
 
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -357,35 +357,35 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
           _buildHeader(size),
           _limitationStream != null
               ? StreamBuilder<Map<String, dynamic>>(
-            stream: _limitationStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+                  stream: _limitationStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            SizedBox(height: size.height * 0.3),
+                            RotatingImagePage(),
+                          ],
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(child: CustomText(text: 'لا يوجد بيانات'));
+                    } else if (!snapshot.hasData) {
+                      return Center(child: CustomText(text: 'لا يوجد بيانات'));
+                    } else {
+                      final apiData = snapshot.data!;
+                      return _buildContentBasedOnApiData(size, user, apiData);
+                    }
+                  },
+                )
+              : Center(
                   child: Column(
                     children: [
                       SizedBox(height: size.height * 0.3),
                       RotatingImagePage(),
                     ],
                   ),
-                );
-              } else if (snapshot.hasError) {
-                return Center(child: CustomText(text: 'لا يوجد بيانات'));
-              } else if (!snapshot.hasData) {
-                return Center(child: CustomText(text: 'لا يوجد بيانات'));
-              } else {
-                final apiData = snapshot.data!;
-                return _buildContentBasedOnApiData(size, user, apiData);
-              }
-            },
-          )
-              : Center(
-            child: Column(
-              children: [
-                SizedBox(height: size.height * 0.3),
-                RotatingImagePage(),
-              ],
-            ),
-          )
+                )
         ],
       ),
     );
@@ -418,214 +418,214 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
           verificationValue == 0
               ? SizedBox()
               : Padding(
-            padding: EdgeInsets.all(size.width * 0.01),
-            child: Column(
-              children: [
-                Container(
-                  child: CustomText(
-                    text: "الطلب المجاني سيكون بعد 24 ساعة",
-                    size: size.width * 0.05,
+                  padding: EdgeInsets.all(size.width * 0.01),
+                  child: Column(
+                    children: [
+                      Container(
+                        child: CustomText(
+                          text: "الطلب المجاني سيكون بعد 24 ساعة",
+                          size: size.width * 0.05,
+                        ),
+                      ),
+                      SizedBox(height: size.height * 0.01),
+                      Consumer<CountdownProvider>(
+                        builder: (context, countdownProvider, child) {
+                          return CustomText(
+                            text: countdownProvider.countdownText,
+                            size: size.width * 0.05,
+                          );
+                        },
+                      ),
+                      SizedBox(height: size.height * 0.01),
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _scaleAnimation.value,
+                            child: Image.asset(
+                              'assets/images/alarm.png',
+                              width: size.width * 0.40,
+                              height: size.height * 0.20,
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: size.height * 0.03),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PricingRequestPage(),
+                                  ));
+                            },
+                            child: Container(
+                              child: Text(
+                                "تواصل معنا",
+                                style: TextStyle(
+                                  fontSize: size.width * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                  color: green,
+                                  fontFamily: "Tajawal",
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              "  إذا كنت بحاجه لتسعيرات متكررة   ",
+                              style: TextStyle(
+                                fontSize: size.width * 0.04,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF8D8D92),
+                                fontFamily: "Tajawal",
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: size.height * 0.03),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(size.width * 0.02),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(240, 240, 240, 1),
+                                  border: Border.all(
+                                    color: Color.fromRGBO(240, 240, 240, 1),
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "${limitOfOrder}",
+                                    style: TextStyle(
+                                      fontSize: size.width * 0.045,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      fontFamily: "Tajawal",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: size.width * 0.04),
+                              Text(
+                                "عدد الطلبات المدفوعه المتبقية",
+                                style: TextStyle(
+                                  fontSize: size.width * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Tajawal",
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: (limitOfOrder > 0)
+                                    ? () async {
+                                        showConfirmationDialog(
+                                          context: context,
+                                          message: 'هل أنت متأكد من التفعيل؟',
+                                          confirmText: 'تأكيد',
+                                          onConfirm: () async {
+                                            setState(() {
+                                              isLoading = true;
+                                            });
+
+                                            final url =
+                                                'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}&flag=0';
+                                            final headers = {
+                                              'Access-Control-Allow-Headers':
+                                                  '*',
+                                              'Access-Control-Allow-Origin':
+                                                  '*',
+                                              'Content-Type':
+                                                  'application/json; charset=UTF-8',
+                                            };
+
+                                            try {
+                                              final response = await http.get(
+                                                Uri.parse(url),
+                                                headers: headers,
+                                              );
+
+                                              if (response.statusCode == 200) {
+                                                await http.post(
+                                                  Uri.parse(
+                                                      'https://jordancarpart.com/Api/log_order_action.php'),
+                                                  headers: {
+                                                    'Content-Type':
+                                                        'application/json; charset=UTF-8',
+                                                  },
+                                                  body: jsonEncode({
+                                                    'user_id': user.user_id,
+                                                    'action': '0',
+                                                  }),
+                                                );
+
+                                                SharedPreferences prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                await prefs.setInt(
+                                                    'isOrderAllowed', 1);
+
+                                                setState(() {
+                                                  errorMessage = null;
+                                                });
+
+                                                await _checkForNotifications();
+                                                await _fetchData();
+                                                await _loadOrderAllowed();
+                                              }
+                                            } catch (e) {
+                                              
+                                            } finally {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            }
+                                          },
+                                          cancelText: "لا",
+                                        );
+                                      }
+                                    : null,
+                                child: isLoading
+                                    ? Center(child: RotatingImagePage())
+                                    : Center(
+                                        child: Text(
+                                          'تفعيل',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.04,
+                                            fontFamily: "Tajawal",
+                                          ),
+                                        ),
+                                      ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: limitOfOrder > 0
+                                      ? Colors.green
+                                      : Colors.grey,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: size.height * 0.01),
-                Consumer<CountdownProvider>(
-                  builder: (context, countdownProvider, child) {
-                    return CustomText(
-                      text: countdownProvider.countdownText,
-                      size: size.width * 0.05,
-                    );
-                  },
-                ),
-                SizedBox(height: size.height * 0.01),
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _scaleAnimation.value,
-                      child: Image.asset(
-                        'assets/images/alarm.png',
-                        width: size.width * 0.40,
-                        height: size.height * 0.20,
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: size.height * 0.03),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PricingRequestPage(),
-                            ));
-                      },
-                      child: Container(
-                        child: Text(
-                          "تواصل معنا",
-                          style: TextStyle(
-                            fontSize: size.width * 0.04,
-                            fontWeight: FontWeight.bold,
-                            color: green,
-                            fontFamily: "Tajawal",
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Text(
-                        "  إذا كنت بحاجه لتسعيرات متكررة   ",
-                        style: TextStyle(
-                          fontSize: size.width * 0.04,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF8D8D92),
-                          fontFamily: "Tajawal",
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: size.height * 0.03),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(size.width * 0.02),
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(240, 240, 240, 1),
-                            border: Border.all(
-                              color: Color.fromRGBO(240, 240, 240, 1),
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "${limitOfOrder}",
-                              style: TextStyle(
-                                fontSize: size.width * 0.045,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontFamily: "Tajawal",
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: size.width * 0.04),
-                        Text(
-                          "عدد الطلبات المدفوعه المتبقية",
-                          style: TextStyle(
-                            fontSize: size.width * 0.04,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Tajawal",
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: (limitOfOrder > 0)
-                              ? () async {
-                            showConfirmationDialog(
-                              context: context,
-                              message: 'هل أنت متأكد من التفعيل؟',
-                              confirmText: 'تأكيد',
-                              onConfirm: () async {
-                                setState(() {
-                                  isLoading = true;
-                                });
-
-                                final url =
-                                    'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}&flag=0';
-                                final headers = {
-                                  'Access-Control-Allow-Headers':
-                                  '*',
-                                  'Access-Control-Allow-Origin':
-                                  '*',
-                                  'Content-Type':
-                                  'application/json; charset=UTF-8',
-                                };
-
-                                try {
-                                  final response = await http.get(
-                                    Uri.parse(url),
-                                    headers: headers,
-                                  );
-
-                                  if (response.statusCode == 200) {
-                                    await http.post(
-                                      Uri.parse(
-                                          'https://jordancarpart.com/Api/log_order_action.php'),
-                                      headers: {
-                                        'Content-Type':
-                                        'application/json; charset=UTF-8',
-                                      },
-                                      body: jsonEncode({
-                                        'user_id': user.user_id,
-                                        'action': '0',
-                                      }),
-                                    );
-
-                                    SharedPreferences prefs =
-                                    await SharedPreferences
-                                        .getInstance();
-                                    await prefs.setInt(
-                                        'isOrderAllowed', 1);
-
-                                    setState(() {
-                                      errorMessage = null;
-                                    });
-
-                                    await _checkForNotifications();
-                                    await _fetchData();
-                                    await _loadOrderAllowed();
-                                  }
-                                } catch (e) {
-
-                                } finally {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
-                              },
-                              cancelText: "لا",
-                            );
-                          }
-                              : null,
-                          child: isLoading
-                              ? Center(child: RotatingImagePage())
-                              : Center(
-                            child: Text(
-                              'تفعيل',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.width * 0.04,
-                                fontFamily: "Tajawal",
-                              ),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: limitOfOrder > 0
-                                ? Colors.green
-                                : Colors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -702,25 +702,25 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
       onEdit: vehicleData != null
           ? () async {
 
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const VehicleSelectionPage(),
-          ),
-        );
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VehicleSelectionPage(),
+                ),
+              );
 
-        if (result != null && result is Map<String, dynamic>) {
-          setState(() {
-            vehicleData = Map<String, String>.from(result);
-            selectedVehicleBrand = vehicleData!['brand'];
-            selectedVehicleModel = vehicleData!['model'];
-            selectedVehicleYear = vehicleData!['year'];
-            selectedVehicleFuelType = vehicleData!['fuelType'];
-            selectedVehicleEngineSize = vehicleData!['engineSize'];
-            selectedVehicleChassisNumber = vehicleData!['chassisNumber'];
-          });
-        }
-      }
+              if (result != null && result is Map<String, dynamic>) {
+                setState(() {
+                  vehicleData = Map<String, String>.from(result);
+                  selectedVehicleBrand = vehicleData!['brand'];
+                  selectedVehicleModel = vehicleData!['model'];
+                  selectedVehicleYear = vehicleData!['year'];
+                  selectedVehicleFuelType = vehicleData!['fuelType'];
+                  selectedVehicleEngineSize = vehicleData!['engineSize'];
+                  selectedVehicleChassisNumber = vehicleData!['chassisNumber'];
+                });
+              }
+            }
           : null,
     );
   }
@@ -840,45 +840,45 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
           },
           child: _imageFile != null
               ? Center(
-            child: Container(
-              width: size.width * 0.5,
-              child: Card(
-                color: Colors.white,
-                elevation: 10,
-                shadowColor: Colors.black,
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: Image.file(
-                      _imageFile!,
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.cover,
+                  child: Container(
+                    width: size.width * 0.5,
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 10,
+                      shadowColor: Colors.black,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.file(
+                            _imageFile!,
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+                  child: Container(
+                    height: size.height * 0.1,
+                    width: size.width * 0.9,
+                    color: Color.fromRGBO(246, 246, 246, 1),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset("assets/images/photo.png"),
+                        CustomText(
+                          text: "اضافة صورة",
+                          color: Colors.grey,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
-            ),
-          )
-              : Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-            child: Container(
-              height: size.height * 0.1,
-              width: size.width * 0.9,
-              color: Color.fromRGBO(246, 246, 246, 1),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("assets/images/photo.png"),
-                  CustomText(
-                    text: "اضافة صورة",
-                    color: Colors.grey,
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ],
     );
@@ -933,7 +933,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
       "year": selectedVehicleYear ?? "N/A",
       "fuelType": selectedVehicleFuelType != null
           ? selectedVehicleFuelType![0].toLowerCase() +
-          selectedVehicleFuelType!.substring(1)
+              selectedVehicleFuelType!.substring(1)
           : "N/A",
       "engineSize": selectedVehicleEngineSize ?? "N/A",
       "chassisNumber": selectedVehicleChassisNumber ?? "N/A",
@@ -950,7 +950,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
       "token": token
     };
 
-
+    
 
     try {
       final response = await http.post(
@@ -972,7 +972,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
           int? isOrderAllowed = prefs.getInt('isOrderAllowed');
           if (isOrderAllowed == 1) {
             await prefs.setInt('isOrderAllowed', 0);
-
+            
           }
 
           await _checkForNotifications();
@@ -1048,7 +1048,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
                             context,
                             MaterialPageRoute(
                                 builder: (context) => HomePage(page: 2)),
-                                (Route<dynamic> route) => false,
+                            (Route<dynamic> route) => false,
                           );
                         },
                         height: 45,
@@ -1060,7 +1060,7 @@ class _ProOrderWidgetState extends State<ProOrderWidget>
                           size: 18,
                         ),
                         padding:
-                        EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),

@@ -169,7 +169,7 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child:
-                  Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+                      Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
                 ),
               ),
             ),
@@ -220,7 +220,7 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                         decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText:
-                            widget.trader.fName + " " + widget.trader.lName,
+                                widget.trader.fName + " " + widget.trader.lName,
                             contentPadding: EdgeInsets.only(right: 10)),
                         style: TextStyle(
                           color: Colors.black,
@@ -293,7 +293,7 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
                         textAlign: TextAlign.start,
                         decoration: InputDecoration(
                           hintText:
-                          widget.trader.phone.replaceFirst("+962", ""),
+                              widget.trader.phone.replaceFirst("+962", ""),
                           border: InputBorder.none,
                           labelStyle: TextStyle(
                             color: Colors.black,
@@ -939,9 +939,9 @@ class _TraderProfilePageState extends State<TraderProfilePage> {
 //       select.add("\u062a\u062c\u0627\u0631\u064a2");
 //       modifications2 = select.toString();
 //     }
-//
-//
-//
+//     
+//     
+//     
 //     String apiUrl =
 //         'https://jordancarpart.com/Api/updatemaketrader.php'
 //         '?phone=$phoneNumber'

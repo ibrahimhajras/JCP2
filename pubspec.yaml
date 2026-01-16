@@ -50,6 +50,7 @@ dependencies:
   keyboard_actions: ^4.1.0
   connectivity_plus: ^7.0.0
   wechat_assets_picker: ^9.4.1
+  webview_flutter: ^4.13.1
 
 
 

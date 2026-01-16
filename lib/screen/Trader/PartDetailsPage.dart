@@ -125,15 +125,15 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
   String hintText2 = "michelin";
 
   final List<TextEditingController> priceControllers =
-  List.generate(5, (_) => TextEditingController());
+      List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> amountControllers =
-  List.generate(5, (_) => TextEditingController());
+      List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> warrantyControllers =
-  List.generate(5, (_) => TextEditingController());
+      List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> markControllers =
-  List.generate(5, (_) => TextEditingController());
+      List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
-  List.generate(5, (_) => TextEditingController());
+      List.generate(5, (_) => TextEditingController());
   List<int?> selectedNumbers = List.filled(5, null);
   final picker = ImagePicker();
   final List<bool> checkboxStates = List.generate(5, (_) => false);
@@ -152,8 +152,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
               icon: Image.asset(
                 checkboxStates[index]
                     ? checkboxCompleted[index]
-                    ? 'assets/images/addgreen.png'
-                    : 'assets/images/addorange.png'
+                        ? 'assets/images/addgreen.png'
+                        : 'assets/images/addorange.png'
                     : 'assets/images/original.png',
                 width: sizeFactor * 30,
               ),
@@ -248,7 +248,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                           : amountControllers[index].text,
                       dropdownColor: Colors.white,
                       isExpanded: true,
-                      icon: const SizedBox(),
+                      icon: const SizedBox(), 
                       alignment: Alignment.center,
                       items: [
                         // خيار "متوفر" بقيمة 1000
@@ -387,7 +387,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         },
                         items: List.generate(
                           50,
-                              (i) => DropdownMenuItem(
+                          (i) => DropdownMenuItem(
                             value: i + 1,
                             child: Center(
                               child: CustomText(
@@ -651,7 +651,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
 
     // التحقق من الصورة (دائماً مطلوبة للون الأخضر) - الآن نتحقق من وجود صورة واحدة على الأقل
     final imageProvider =
-    Provider.of<ImageProviderNotifier>(context, listen: false);
+        Provider.of<ImageProviderNotifier>(context, listen: false);
     bool isImagePresent = imageProvider.imageFiles[index].isNotEmpty;
     if (!isImagePresent) {
       setState(() {
@@ -713,57 +713,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
     }
   }
 
-  Future<bool> _requestGalleryPermission() async {
-    if (Platform.isAndroid) {
-      // أندرويد 13+ (SDK 33) يستخدم READ_MEDIA_IMAGES
-      // أندرويد 12 وأقل يستخدم storage
-
-      // نحاول photos أولاً (أندرويد 13+)
-      var photosStatus = await Permission.photos.status;
-      if (photosStatus.isGranted) {
-        return true;
-      }
-
-      // نحاول storage (أندرويد 12 وأقل)
-      var storageStatus = await Permission.storage.status;
-      if (storageStatus.isGranted) {
-        return true;
-      }
-
-      // نطلب الصلاحيات
-      photosStatus = await Permission.photos.request();
-      if (photosStatus.isGranted) {
-        return true;
-      }
-
-      storageStatus = await Permission.storage.request();
-      if (storageStatus.isGranted) {
-        return true;
-      }
-
-      // إذا مرفوض بشكل نهائي
-      if (photosStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
-        if (mounted) _showPermissionDialog(context);
-      }
-
-      return false;
-    } else {
-      // iOS
-      var status = await Permission.photos.request();
-      if (status.isPermanentlyDenied) {
-        if (mounted) _showPermissionDialog(context);
-        return false;
-      }
-      return status.isGranted;
-    }
-  }
-
   Future<void> _pickMultipleImages(int index) async {
-    // التحقق من صلاحية الصور/الاستوديو
-    bool hasPermission = await _requestGalleryPermission();
-    if (!hasPermission) {
-      return;
-    }
+    // AssetPicker handles permissions internally
 
     final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     final remaining = imageProvider.getRemainingSlots(index);
@@ -864,7 +815,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         setState(() {});
 
         final engineProvider =
-        Provider.of<EngineSizeProvider>(context, listen: false);
+            Provider.of<EngineSizeProvider>(context, listen: false);
         await engineProvider.fetchEngineSizes();
 
         if (engineProvider.engineSizes.isNotEmpty && mounted) {
@@ -915,7 +866,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child:
-                  Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+                      Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
                 ),
               ),
             ),
@@ -1016,7 +967,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       decoration: BoxDecoration(
                         color: !isForAllCars
-                            ? red.withOpacity(0.1)
+                            ? red.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
@@ -1065,7 +1016,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withOpacity(0.1)
+                            ? green.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -1114,6 +1065,13 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         Provider.of<ProfileTraderProvider>(context, listen: false).trader;
     final hideEngineSize =
         traderData != null && traderData.isEngineSizeRequired;
+    final hideYearRange =
+        traderData != null && traderData.isYearRangeRequired;
+
+    // ✅ إخفاء الـ Row بالكامل إذا كانت كل العناصر مخفية
+    if (hideEngineSize && hideYearRange) {
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1233,28 +1191,31 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                 );
               },
             ),
-          Expanded(
-            child: _buildDropdown(
-              items: toYearList,
-              value: selectedToYear,
-              onChanged: (value) {
-                setState(() {
-                  selectedToYear = value!;
-                });
-              },
+          // إخفاء dropdown السنوات إذا كان isYearRangeRequired == true
+          if (!hideYearRange) ...[
+            Expanded(
+              child: _buildDropdown(
+                items: toYearList,
+                value: selectedToYear,
+                onChanged: (value) {
+                  setState(() {
+                    selectedToYear = value!;
+                  });
+                },
+              ),
             ),
-          ),
-          Expanded(
-            child: _buildDropdown(
-              items: fromYearList,
-              value: selectedFromYear,
-              onChanged: (value) {
-                setState(() {
-                  selectedFromYear = value!;
-                });
-              },
+            Expanded(
+              child: _buildDropdown(
+                items: fromYearList,
+                value: selectedFromYear,
+                onChanged: (value) {
+                  setState(() {
+                    selectedFromYear = value!;
+                  });
+                },
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -1356,9 +1317,9 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
     final trader = Provider.of<ProfileTraderProvider>(context).trader;
 
     return  GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+    onTap: () {
+      FocusScope.of(context).unfocus();
+    },
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Stack(
@@ -1375,38 +1336,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         _buildSectionTitle("المركبة"),
                         _buildVehicleInfo(),
                         _buildSectionTitle(widget.part['part_name']),
-                        if (widget.part['image_path'] != null &&
-                            widget.part['image_path'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Center(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => FullScreenImageViewer(
-                                      imageUrl: 'https://jordancarpart.com/Api/${widget.part['image_path']}',
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.image, color: Colors.white),
-                                label: CustomText(
-                                  text: "عرض صورة القطعة المطلوبة",
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
                         _buildDropdownRow(),
-                        // إظهار خيارات رقم الشاصي إذا كانت الفئة تتطلب رقم شاصي إجباري
                         if (widget.part['is_chassis_required'] == 1 ||
                             widget.part['is_chassis_required'] == '1')
                           _buildChassisOptionsWidget(sizeFactor),
@@ -1487,7 +1417,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
 
                               final traderCheck =
                                   Provider.of<ProfileTraderProvider>(context,
-                                      listen: false)
+                                          listen: false)
                                       .trader;
                               final isEngineSizeHidden = traderCheck != null &&
                                   traderCheck.isEngineSizeRequired;
@@ -1527,7 +1457,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                 color: Colors.black45,
                 dismissible: false,
               ),
-            if (isLoading)
+             if (isLoading)
               Center(
                 child: RotatingImagePage(),
               ),
@@ -1545,44 +1475,63 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    if (selectedFromYear == "من" || selectedToYear == "إلى") {
-      setState(() {
-        isLoading = false;
-      });
+    // التحقق من إعداد إخفاء السنوات
+    final traderCheck =
+        Provider.of<ProfileTraderProvider>(context, listen: false).trader;
+    final isYearRangeHidden =
+        traderCheck != null && traderCheck.isYearRangeRequired;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: CustomText(
-            text: ".يرجى اختيار من سنة وإلى سنة قبل الإضافة",
-            color: Colors.white,
+    // ✅ إذا كانت السنوات مخفية، استخدم سنة السيارة تلقائياً
+    String finalFromYear = selectedFromYear;
+    String finalToYear = selectedToYear;
+
+    if (isYearRangeHidden) {
+      String carYear = widget.part['car_year']?.toString() ?? '';
+      if (carYear.isNotEmpty) {
+        finalFromYear = carYear;
+        finalToYear = carYear;
+      }
+    } else {
+      // التحقق من السنوات فقط إذا كانت ظاهرة
+      if (selectedFromYear == "من" || selectedToYear == "إلى") {
+        setState(() {
+          isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: CustomText(
+              text: ".يرجى اختيار من سنة وإلى سنة قبل الإضافة",
+              color: Colors.white,
+            ),
+            backgroundColor: red,
           ),
-          backgroundColor: red,
-        ),
-      );
-      return;
-    }
+        );
+        return;
+      }
 
-    // التحقق من أن سنة السيارة ضمن النطاق المختار
-    int? carYear = int.tryParse(widget.part['car_year']?.toString() ?? '');
-    int fromYear = int.parse(selectedFromYear);
-    int toYear = int.parse(selectedToYear);
+      // التحقق من أن سنة السيارة ضمن النطاق المختار
+      int? carYear = int.tryParse(widget.part['car_year']?.toString() ?? '');
+      int fromYear = int.parse(selectedFromYear);
+      int toYear = int.parse(selectedToYear);
 
-    if (carYear != null && (carYear < fromYear || carYear > toYear)) {
-      setState(() {
-        isLoading = false;
-      });
+      if (carYear != null && (carYear < fromYear || carYear > toYear)) {
+        setState(() {
+          isLoading = false;
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: CustomText(
-            text:
-            "سنة السيارة ($carYear) ليست ضمن النطاق المحدد (من $fromYear إلى $toYear)",
-            color: Colors.white,
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: CustomText(
+              text:
+                  "سنة السيارة ($carYear) ليست ضمن النطاق المحدد (من $fromYear إلى $toYear)",
+              color: Colors.white,
+            ),
+            backgroundColor: red,
           ),
-          backgroundColor: red,
-        ),
-      );
-      return;
+        );
+        return;
+      }
     }
 
     // التحقق من أن حجم المحرك ضمن القائمة المختارة (فقط إذا كان الـ dropdown ظاهر)
@@ -1604,7 +1553,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
           SnackBar(
             content: CustomText(
               text:
-              "حجم محرك السيارة ($carEngineSize) ليس ضمن الأحجام المحددة",
+                  "حجم محرك السيارة ($carEngineSize) ليس ضمن الأحجام المحددة",
               color: Colors.white,
             ),
             backgroundColor: red,
@@ -1625,15 +1574,15 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
       'Category': widget.part['car_category'],
       'fromYear': widget.part['car_name'],
       'toYear': selectedEngineSizes,
-      'fuelType': selectedToYear,
-      'engineSize': selectedFromYear,
+      'fuelType': finalToYear,  // ✅ استخدام القيمة النهائية
+      'engineSize': finalFromYear,  // ✅ استخدام القيمة النهائية
       'checkboxData': [],
       'token': token,
       'is_for_all_cars': isChassisRequired ? (isForAllCars ? 1 : 0) : null,
     };
 
     final imageProvider =
-    Provider.of<ImageProviderNotifier>(context, listen: false);
+        Provider.of<ImageProviderNotifier>(context, listen: false);
 
     for (int i = 0; i < 5; i++) {
       // الآن نعتمد على وجود سعر بدلاً من الـ checkbox
@@ -1760,7 +1709,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         title: CustomText(text: "صلاحيات مطلوبة"),
         content: CustomText(
             text:
-            "التطبيق يحتاج للوصول إلى الصور/الكاميرا لإتمام هذه العملية. يرجى تفعيل الصلاحية من الإعدادات."),
+                "التطبيق يحتاج للوصول إلى الصور/الكاميرا لإتمام هذه العملية. يرجى تفعيل الصلاحية من الإعدادات."),
         actions: [
           TextButton(
             child: CustomText(text: "إلغاء"),

@@ -11,6 +11,7 @@ import '../../../provider/ProfileProvider.dart';
 import '../../../screen/Drawer/Notification.dart';
 import '../../../style/colors.dart';
 import '../../model/Delevery/Orders.dart';
+import '../../provider/languageProvider.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
 import '../../widget/Inallpage/NotificationIcon.dart';
@@ -40,12 +41,12 @@ class _Archev_DriverState extends State<Archev_Driver> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList('notifications') ?? [];
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnreadNotifications =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       check = hasUnreadNotifications;
@@ -90,11 +91,11 @@ class _Archev_DriverState extends State<Archev_Driver> {
                       itemBuilder: (context, index) {
                         final order = orders[index];
                         String orderStatus =
-                        (order['paymethod']?.toLowerCase() == "cash")
-                            ? "غير مدفوع"
-                            : (order['paymethod']?.toLowerCase() == "visa")
-                            ? "مدفوع"
-                            : "غير محدد";
+                            (order['paymethod']?.toLowerCase() == "cash")
+                                ? "غير مدفوع"
+                                : (order['paymethod']?.toLowerCase() == "visa")
+                                    ? "مدفوع"
+                                    : "غير محدد";
 
                         return GestureDetector(
                           onTap: () {
@@ -123,7 +124,7 @@ class _Archev_DriverState extends State<Archev_Driver> {
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     CustomText(
                                       text: order['order_time'], // عرض التاريخ
@@ -147,7 +148,7 @@ class _Archev_DriverState extends State<Archev_Driver> {
                                 ),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     CustomText(
                                       text: order['order_time'],
@@ -173,25 +174,25 @@ class _Archev_DriverState extends State<Archev_Driver> {
                                 ),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     CustomText(
                                       text:
-                                      (order['trader_details'].isNotEmpty &&
-                                          order['trader_details'][0]
-                                          ['doneorder'] ==
-                                              0)
-                                          ? "غير جاهز"
-                                          : "جاهز",
+                                          (order['trader_details'].isNotEmpty &&
+                                                  order['trader_details'][0]
+                                                          ['doneorder'] ==
+                                                      0)
+                                              ? "غير جاهز"
+                                              : "جاهز",
                                       size: isnormal ? 16 : 14,
                                       weight: FontWeight.bold,
                                       color:
-                                      (order['trader_details'].isNotEmpty &&
-                                          order['trader_details'][0]
-                                          ['doneorder'] ==
-                                              0)
-                                          ? red
-                                          : green,
+                                          (order['trader_details'].isNotEmpty &&
+                                                  order['trader_details'][0]
+                                                          ['doneorder'] ==
+                                                      0)
+                                              ? red
+                                              : green,
                                     ),
                                     Center(
                                       child: CustomText(
@@ -284,7 +285,7 @@ class _Archev_DriverState extends State<Archev_Driver> {
       BuildContext context, String userId) async* {
     while (true) {
       final ordersData =
-      await fetchOrders2(); // هذه البيانات بصيغة List<Map<String, dynamic>>
+          await fetchOrders2(); // هذه البيانات بصيغة List<Map<String, dynamic>>
       yield ordersData; // تمرير البيانات كما هي دون تحويلها إلى كائنات Order
       await Future.delayed(Duration(seconds: 3));
     }
@@ -299,7 +300,7 @@ class OrderResponse {
   factory OrderResponse.fromMap(Map<String, dynamic> map) {
     var ordersData = map['data'] ?? [];
     List<Order> ordersList =
-    ordersData.map<Order>((item) => Order.fromMap(item)).toList();
+        ordersData.map<Order>((item) => Order.fromMap(item)).toList();
     return OrderResponse(data: ordersList);
   }
 }

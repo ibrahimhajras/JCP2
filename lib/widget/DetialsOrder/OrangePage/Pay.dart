@@ -40,7 +40,7 @@ class _PayPageState extends State<PayPage> {
     showConfirmationDialog(
       context: context,
       message:
-      "هل أنت متأكد من إلغاء الطلب؟ سيتم حذف الفاتورة والعودة لصفحة اختيار القطع",
+          "هل أنت متأكد من إلغاء الطلب؟ سيتم حذف الفاتورة والعودة لصفحة اختيار القطع",
       confirmText: "نعم",
       onConfirm: () async {
         await _processCancelOrder();
@@ -67,7 +67,7 @@ class _PayPageState extends State<PayPage> {
 
       if (response.statusCode == 200) {
         final responseData =
-        jsonDecode(utf8.decode(response.bodyBytes));
+            jsonDecode(utf8.decode(response.bodyBytes));
 
         // ✅ Check if 'orders' key exists in the response
         if (responseData.containsKey('orders') &&
@@ -116,7 +116,7 @@ class _PayPageState extends State<PayPage> {
 
       if (response.statusCode == 200) {
         final responseData =
-        jsonDecode(utf8.decode(response.bodyBytes));
+            jsonDecode(utf8.decode(response.bodyBytes));
 
         if (responseData['success'] == true) {
           showConfirmationDialog(
@@ -129,7 +129,7 @@ class _PayPageState extends State<PayPage> {
                 List<dynamic> orderItems2 = [];
 
                 Map<String, dynamic> orderData =
-                await fetchOrderItemsOrange(widget.orderId.toString(), 1);
+                    await fetchOrderItemsOrange(widget.orderId.toString(), 1);
 
                 final response = await http.get(
                   Uri.parse(
@@ -138,7 +138,7 @@ class _PayPageState extends State<PayPage> {
 
                 if (response.statusCode == 200) {
                   final Map<String, dynamic> jsonResponse =
-                  json.decode(utf8.decode(response.bodyBytes));
+                      json.decode(utf8.decode(response.bodyBytes));
 
                   if (jsonResponse['success'] == true &&
                       jsonResponse.containsKey('items')) {
@@ -360,7 +360,7 @@ class _PayPageState extends State<PayPage> {
     showConfirmationDialog(
       context: context,
       message:
-      "هل أنت متأكد من إلغاء الطلب الخاص؟ سيتم إرجاع الطلب إلى حالته السابقة",
+          "هل أنت متأكد من إلغاء الطلب الخاص؟ سيتم إرجاع الطلب إلى حالته السابقة",
       confirmText: "نعم",
       cancelText: "لا",
       onConfirm: () async {
@@ -459,7 +459,7 @@ class _PayPageState extends State<PayPage> {
                   icon: SvgPicture.asset(
                     'assets/svg/cancel.svg',
                     colorFilter:
-                    const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     width: 26,
                     height: 26,
                   ),
@@ -470,24 +470,24 @@ class _PayPageState extends State<PayPage> {
                   icon: SvgPicture.asset(
                     'assets/svg/cancel.svg',
                     colorFilter:
-                    const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     width: 26,
                     height: 26,
                   ),
                 )
               else if (billCategory == "special")
-                  IconButton(
-                    onPressed: _cancelPrivateBill,
-                    icon: SvgPicture.asset(
-                      'assets/svg/cancel.svg',
-                      colorFilter:
-                      const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      width: 26,
-                      height: 26,
-                    ),
-                  )
-                else
-                  const SizedBox(width: 26),
+                IconButton(
+                  onPressed: _cancelPrivateBill,
+                  icon: SvgPicture.asset(
+                    'assets/svg/cancel.svg',
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    width: 26,
+                    height: 26,
+                  ),
+                )
+              else
+                const SizedBox(width: 26),
             ],
           ),
         ),
@@ -649,7 +649,7 @@ class _PayPageState extends State<PayPage> {
               SizedBox(height: 10),
               Padding(
                 padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -719,7 +719,7 @@ class _PayPageState extends State<PayPage> {
                 }
 
                 final user =
-                Provider.of<ProfileProvider>(context, listen: false);
+                    Provider.of<ProfileProvider>(context, listen: false);
                 await updateUserCityAndAddressDetail(
                   int.parse(user.user_id),
                   title,
@@ -750,7 +750,7 @@ class _PayPageState extends State<PayPage> {
                 } else if (isEfawateercomSelected) {
                   final double amount = double.tryParse(Amount.toString()) ?? 0;
                   final bilrTrxNo =
-                  DateTime.now().millisecondsSinceEpoch.toString();
+                      DateTime.now().millisecondsSinceEpoch.toString();
 
                   showDialog(
                     context: context,
@@ -800,7 +800,7 @@ class _PayPageState extends State<PayPage> {
                     showConfirmationDialog(
                       context: context,
                       message:
-                      'فشل في الاتصال بالخادم. الكود: ${response.statusCode}',
+                          'فشل في الاتصال بالخادم. الكود: ${response.statusCode}',
                       confirmText: 'حسنًا',
                       onConfirm: () {},
                     );
@@ -824,29 +824,29 @@ class _PayPageState extends State<PayPage> {
             billCategory == "pricing"
                 ? Container()
                 : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  CustomText(
-                    text: "ملاحظة",
-                    size: 16,
-                    color: Colors.black,
-                    weight: FontWeight.bold,
-                    textAlign: TextAlign.right,
-                  ),
-                  SizedBox(height: 5),
-                  CustomText(
-                    text:
-                    "في حال تغيير العنوان سيتم إعادة احتساب فرق التوصيل إن وجد",
-                    size: 14,
-                    color: Colors.black,
-                    weight: FontWeight.w200,
-                    textAlign: TextAlign.right,
-                  ),
-                ],
-              ),
-            )
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        CustomText(
+                          text: "ملاحظة",
+                          size: 16,
+                          color: Colors.black,
+                          weight: FontWeight.bold,
+                          textAlign: TextAlign.right,
+                        ),
+                        SizedBox(height: 5),
+                        CustomText(
+                          text:
+                              "في حال تغيير العنوان سيتم إعادة احتساب فرق التوصيل إن وجد",
+                          size: 14,
+                          color: Colors.black,
+                          weight: FontWeight.w200,
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ),
+                  )
           ],
         ),
       ),
@@ -866,7 +866,7 @@ class _PayPageState extends State<PayPage> {
       if (response.statusCode == 200) {
         // ✅ تحديث ProfileProvider
         final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
+            Provider.of<ProfileProvider>(context, listen: false);
         profileProvider.setcity(city);
         profileProvider.setaddressDetail(addressDetail);
 

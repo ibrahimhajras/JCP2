@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../provider/ProfileProvider.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
+import '../../widget/FullScreenImageViewer.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/showConfirmationDialog.dart';
 import '../../widget/RotatingImagePage.dart';
@@ -153,8 +154,8 @@ class _ArchivedetailsState extends State<Archivedetails> {
                           Expanded(
                             child: _buildTableCell(
                                 ((double.tryParse(item['price'].toString()) ??
-                                    0) *
-                                    1.08)
+                                            0) *
+                                        1.08)
                                     .ceil()
                                     .toString()),
                           ),
@@ -210,7 +211,7 @@ class _ArchivedetailsState extends State<Archivedetails> {
               maxLines: 2,
               decoration: InputDecoration(
                 contentPadding:
-                EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(color: Colors.grey, width: 1.5),
@@ -241,7 +242,7 @@ class _ArchivedetailsState extends State<Archivedetails> {
                 message: "هل أنت متأكد من إتمام التحصيل والتوصيل؟",
                 confirmText: "تأكيد",
                 onConfirm: () {
-
+                  
                   updateOrderStatus(1,noteC.text,context);
                 },
                 cancelText: "رفض",
@@ -276,11 +277,11 @@ class _ArchivedetailsState extends State<Archivedetails> {
   Future<void> updateOrderStatus(int status, String note,BuildContext c) async {
     final user = Provider.of<ProfileProvider>(context, listen: false);
     int persion = int.tryParse(user.user_id) ?? 0;
-
+    
 
     final url =
-    Uri.parse('https://jordancarpart.com/Api/delevery/accesspetdeleveryorder.php');
-
+        Uri.parse('https://jordancarpart.com/Api/delevery/accesspetdeleveryorder.php');
+    
 
     try {
       final response = await http.post(
@@ -296,15 +297,15 @@ class _ArchivedetailsState extends State<Archivedetails> {
           'note': note,
         }),
       );
-
-
+      
+     
       if (response.statusCode == 200) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (c) => Index_Driver(page: 1),
           ),
-              (route) => false,
+          (route) => false,
         );
       } else {
         showConfirmationDialog(
@@ -329,7 +330,7 @@ class _ArchivedetailsState extends State<Archivedetails> {
     required Map<String, dynamic> item,
   }) {
     final user =
-    Provider.of<ProfileProvider>(context, listen: false).name.toString();
+        Provider.of<ProfileProvider>(context, listen: false).name.toString();
 
     showDialog(
       context: context,
@@ -438,10 +439,12 @@ class _ArchivedetailsState extends State<Archivedetails> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Spacer(),
-                                _buildImageRow(
-                                  "",
-                                  'http://jordancarpart.com${item['img']}',
-                                ),
+                                (item['img'] != null && item['img'].toString().trim().isNotEmpty)
+                                    ? _buildImageRow(
+                                        "",
+                                        'http://jordancarpart.com/${item['img']}',
+                                      )
+                                    : CustomText(text: "لا توجد صورة", size: 16),
                                 Spacer(),
                                 CustomText(text: "الصورة"),
                               ],
@@ -503,19 +506,19 @@ class _ArchivedetailsState extends State<Archivedetails> {
         SizedBox(width: 10),
         imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
-          onTap: () {
-            _showImageDialog(imageUrl);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(
-              imageUrl,
-              width: MediaQuery.of(context).size.width * 0.26,
-              height: MediaQuery.of(context).size.width * 0.22,
-              fit: BoxFit.cover,
-            ),
-          ),
-        )
+                onTap: () {
+                  _showImageDialog(imageUrl);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    imageUrl,
+                    width: MediaQuery.of(context).size.width * 0.26,
+                    height: MediaQuery.of(context).size.width * 0.22,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
             : CustomText(text: "لا توجد صورة", size: 16),
       ],
     );
@@ -524,54 +527,8 @@ class _ArchivedetailsState extends State<Archivedetails> {
   void _showImageDialog(String imageUrl) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allows dismissing by tapping outside
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero, // Makes dialog fullscreen
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Colors.black.withOpacity(0.9), // Dark overlay
-              child: Stack(
-                children: [
-                  Center(
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.contain,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                            child: RotatingImagePage()); // Loading indicator
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: CustomText(
-                            text: "لا توجد صورة",
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    top: 40,
-                    right: 20,
-                    child: IconButton(
-                      icon: Icon(Icons.close, color: Colors.white, size: 30),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        return FullScreenImageViewer(imageUrl: imageUrl);
       },
     );
   }

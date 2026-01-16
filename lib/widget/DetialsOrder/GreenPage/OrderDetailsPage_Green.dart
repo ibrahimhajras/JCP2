@@ -35,7 +35,7 @@ class _OrderDetailsPage_GreenState extends State<OrderDetailsPage_Green> {
 
   void checkPaymentStatus(int orderId) async {
     final url = Uri.parse(
-        'https://jordancarpart.com/Api/check_payment.php?order_id=$orderId');
+          'https://jordancarpart.com/Api/check_payment.php?order_id=$orderId');
 
     try {
       final response = await http.get(url);
@@ -120,7 +120,7 @@ class _OrderDetailsPage_GreenState extends State<OrderDetailsPage_Green> {
                               size: 40,
                               value: true,
                               colorConfig:
-                              MSHColorConfig.fromCheckedUncheckedDisabled(
+                                  MSHColorConfig.fromCheckedUncheckedDisabled(
                                 checkedColor: green,
                               ),
                               style: MSHCheckboxStyle.stroke,
@@ -166,7 +166,7 @@ class _OrderDetailsPage_GreenState extends State<OrderDetailsPage_Green> {
                               ),
                               CustomText(
                                 text:
-                                "${int.parse(header['deliveryCost'].toString().replaceAll(',', '').split('.')[0])}",
+                                    "${int.parse(header['deliveryCost'].toString().replaceAll(',', '').split('.')[0])}",
                                 size: 18,
                               ),
                               CustomText(
@@ -299,9 +299,9 @@ class _OrderDetailsPage_GreenState extends State<OrderDetailsPage_Green> {
                 double.tryParse(productDetails['price']?.toString() ?? '0') ??
                     0;
             double adjustedPrice =
-            (basePrice + (basePrice * 0.08)).ceilToDouble();
+                (basePrice + (basePrice * 0.08)).ceilToDouble();
             String priceText =
-            adjustedPrice > 0 ? adjustedPrice.toInt().toString() : "N/A";
+                adjustedPrice > 0 ? adjustedPrice.toInt().toString() : "N/A";
 
             widgets.add(
               Padding(
@@ -643,16 +643,16 @@ class _OrderDetailsPage_GreenState extends State<OrderDetailsPage_Green> {
         SizedBox(width: 10),
         imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
-          onTap: () {
-            _showImageDialog(imageUrl, context);
-          },
-          child: _SmartImage(
-            imageUrl: imageUrl,
-            width: MediaQuery.of(context).size.width * 0.26,
-            height: MediaQuery.of(context).size.width * 0.22,
-            borderRadius: 20,
-          ),
-        )
+                onTap: () {
+                  _showImageDialog(imageUrl, context);
+                },
+                child: _SmartImage(
+                  imageUrl: imageUrl,
+                  width: MediaQuery.of(context).size.width * 0.26,
+                  height: MediaQuery.of(context).size.width * 0.22,
+                  borderRadius: 20,
+                ),
+              )
             : CustomText(text: "لا توجد صورة", size: 16),
       ],
     );

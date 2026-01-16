@@ -15,7 +15,7 @@ class ProductProvider with ChangeNotifier {
       _calculateTotalPriceAmountAndCheckboxItems();
       notifyListeners();
     } catch (e) {
-
+      
     }
   }
 
@@ -28,7 +28,7 @@ class ProductProvider with ChangeNotifier {
     );
 
     final response = await http.get(url);
-
+    
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = json.decode(response.body);

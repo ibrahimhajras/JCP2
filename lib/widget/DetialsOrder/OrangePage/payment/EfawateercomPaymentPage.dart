@@ -177,7 +177,7 @@ class _EfawateercomPaymentPageState extends State<EfawateercomPaymentPage> {
 
       Navigator.of(context).pop();
 
-
+      
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -198,7 +198,7 @@ class _EfawateercomPaymentPageState extends State<EfawateercomPaymentPage> {
               MaterialPageRoute(
                 builder: (context) => HomePage(page: 2),
               ),
-                  (route) => false,
+              (route) => false,
             );
           }
         } else {
@@ -212,7 +212,7 @@ class _EfawateercomPaymentPageState extends State<EfawateercomPaymentPage> {
                 MaterialPageRoute(
                   builder: (context) => HomePage(page: 2),
                 ),
-                    (route) => false,
+                (route) => false,
               );
             },
           );
@@ -228,7 +228,7 @@ class _EfawateercomPaymentPageState extends State<EfawateercomPaymentPage> {
     } catch (e) {
       Navigator.of(context).pop();
 
-
+      
       showConfirmationDialog(
         context: context,
         message: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.',

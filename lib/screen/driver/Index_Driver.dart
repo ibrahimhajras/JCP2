@@ -23,7 +23,7 @@ import 'Archev_Driver.dart';
 import 'Done_Order_Driver.dart';
 import 'Home_Driver.dart';
 
-class Index_Driver extends StatefulWidget {
+  class Index_Driver extends StatefulWidget {
   final int page;
 
   const Index_Driver({required this.page, super.key});
@@ -164,6 +164,7 @@ Future<JoinTraderModel?> fetchUserData(String userPhone, BuildContext context) a
           isImageRequired: user['store_is_image_required']?.toString() == "1",
           isBrandRequired: user['store_is_brand_required']?.toString() == "1",
           isEngineSizeRequired: user['store_is_engine_size_required']?.toString() == "1",
+          isYearRangeRequired: user['store_is_year_range_required']?.toString() == "1",
         );
 
         trader.printDetails();
@@ -395,10 +396,10 @@ class _Index_DriverState extends State<Index_Driver> {
                           isLoading = false;
                         });
 
-
+                        
                         if (fetchedUser != null) {
                           Provider.of<ProfileTraderProvider>(context,
-                              listen: false)
+                                  listen: false)
                               .setTrader(fetchedUser);
                           Navigator.push(
                             context,
@@ -406,13 +407,13 @@ class _Index_DriverState extends State<Index_Driver> {
                                 builder: (context) => TraderInfoPage()),
                           );
                         } else {
-
+                          
                         }
                       }).catchError((error) {
                         setState(() {
                           isLoading = false;
                         });
-
+                        
                       });
                     },
                     child: Center(
@@ -549,13 +550,13 @@ class _Index_DriverState extends State<Index_Driver> {
   }
 
   Widget _buildNavItem(
-      BuildContext context, {
-        required String iconActive,
-        required String iconInactive,
-        required String text,
-        required int index,
-        required Widget page,
-      }) {
+    BuildContext context, {
+    required String iconActive,
+    required String iconInactive,
+    required String text,
+    required int index,
+    required Widget page,
+  }) {
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -588,9 +589,9 @@ class _Index_DriverState extends State<Index_Driver> {
 
   Widget _buildDrawerButton(
       {required String text,
-        required String icon,
-        Color? color,
-        required VoidCallback onTap}) {
+      required String icon,
+      Color? color,
+      required VoidCallback onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: GestureDetector(
@@ -608,7 +609,7 @@ class _Index_DriverState extends State<Index_Driver> {
                 child: Center(
                   child: Padding(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     child: CustomText(
                       text: text,
                       size: MediaQuery.of(context).size.width * 0.04,
@@ -639,9 +640,9 @@ class _Index_DriverState extends State<Index_Driver> {
         child: Center(
           child: iconPath.endsWith('.svg')
               ? SvgPicture.asset(iconPath,
-              height: 30,
-              width: 30,
-              colorFilter: ColorFilter.mode(black, BlendMode.srcIn))
+                  height: 30,
+                  width: 30,
+                  colorFilter: ColorFilter.mode(black, BlendMode.srcIn))
               : Image.asset(iconPath, height: 30, width: 30),
         ),
       ),
@@ -674,7 +675,7 @@ class _Index_DriverState extends State<Index_Driver> {
                         children: [
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -687,7 +688,7 @@ class _Index_DriverState extends State<Index_Driver> {
                           ),
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -697,7 +698,7 @@ class _Index_DriverState extends State<Index_Driver> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                  Color.fromRGBO(153, 153, 160, 0.63),
+                                      Color.fromRGBO(153, 153, 160, 0.63),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -710,11 +711,11 @@ class _Index_DriverState extends State<Index_Driver> {
                               ),
                               SizedBox(
                                   width:
-                                  MediaQuery.of(context).size.width * 0.03),
+                                      MediaQuery.of(context).size.width * 0.03),
                               ElevatedButton(
                                 onPressed: () async {
                                   final prefs =
-                                  await SharedPreferences.getInstance();
+                                      await SharedPreferences.getInstance();
                                   String? token = prefs.getString('token');
                                   _removeFcmToken(token!);
                                   await prefs.clear();   await prefs.remove('vehicle_brand');
@@ -737,30 +738,30 @@ class _Index_DriverState extends State<Index_Driver> {
                                       'notifications', notifications);
                                   await prefs.setInt('isOrderAllowed', 0);
                                   final profileProvider =
-                                  Provider.of<ProfileProvider>(context,
-                                      listen: false);
+                                      Provider.of<ProfileProvider>(context,
+                                          listen: false);
                                   profileProvider.resetFields();
                                   final OrderProvider1 =
-                                  Provider.of<OrderProvider>(context,
-                                      listen: false);
+                                      Provider.of<OrderProvider>(context,
+                                          listen: false);
                                   OrderProvider1.clearOrders();
                                   final orderDetailsProvider =
-                                  Provider.of<OrderDetailsProvider>(context,
-                                      listen: false);
+                                      Provider.of<OrderDetailsProvider>(context,
+                                          listen: false);
                                   orderDetailsProvider.clear();
                                   final editProductProvider =
-                                  Provider.of<EditProductProvider>(context,
-                                      listen: false);
+                                      Provider.of<EditProductProvider>(context,
+                                          listen: false);
                                   editProductProvider.clear();
                                   final deliveryModel =
-                                  Provider.of<DeliveryModelOrange>(context,
-                                      listen: false);
+                                      Provider.of<DeliveryModelOrange>(context,
+                                          listen: false);
                                   deliveryModel.clear();
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => LoginPage()),
-                                        (Route<dynamic> route) => false,
+                                    (Route<dynamic> route) => false,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -779,7 +780,7 @@ class _Index_DriverState extends State<Index_Driver> {
                           ),
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                         ],
                       ),
                     ),
@@ -805,7 +806,7 @@ class _Index_DriverState extends State<Index_Driver> {
     );
   }
   Future<void> _removeFcmToken(String token) async {
-
+    
     final String apiUrl = "https://jordancarpart.com/Api/clear_fcm_token.php";
 
     try {
@@ -820,15 +821,15 @@ class _Index_DriverState extends State<Index_Driver> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data["status"] == "success") {
-
+          
         } else {
-
+          
         }
       } else {
-
+        
       }
     } catch (e) {
-
+      
     }
   }
 }

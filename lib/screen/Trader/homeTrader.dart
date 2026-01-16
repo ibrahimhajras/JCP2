@@ -25,6 +25,7 @@ import 'package:http/http.dart' as http;
 import '../Drawer/PredictivePartsPage.dart';
 import '../Drawer/PricingRequestPage.dart';
 import '../home/homeuser.dart';
+import 'ImageRequestsPage.dart';
 
 class TraderInfoPage extends StatefulWidget {
   static bool isEnabled = false;
@@ -219,6 +220,16 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => PricingRequestPage()));
+                  },
+                ),
+                _buildDrawerButton(
+                  text: "إضافة قطعة",
+                  icon: "assets/images/addprodouct.png",
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddProductTraderPage()));
                   },
                 ),
                 _buildDrawerButton(
@@ -430,7 +441,7 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                         children: [
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -443,7 +454,7 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                           ),
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -453,7 +464,7 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                  Color.fromRGBO(153, 153, 160, 0.63),
+                                      Color.fromRGBO(153, 153, 160, 0.63),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -466,11 +477,11 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                               ),
                               SizedBox(
                                   width:
-                                  MediaQuery.of(context).size.width * 0.03),
+                                      MediaQuery.of(context).size.width * 0.03),
                               ElevatedButton(
                                 onPressed: () async {
                                   final prefs =
-                                  await SharedPreferences.getInstance();
+                                      await SharedPreferences.getInstance();
                                   String? token = prefs.getString('token');
                                   _removeFcmToken(token!);
                                   await prefs.clear();    await prefs.remove('vehicle_brand');
@@ -492,30 +503,30 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                                       'notifications', notifications);
                                   await prefs.setInt('isOrderAllowed', 0);
                                   final profileProvider =
-                                  Provider.of<ProfileProvider>(context,
-                                      listen: false);
+                                      Provider.of<ProfileProvider>(context,
+                                          listen: false);
                                   profileProvider.resetFields();
                                   final OrderProvider1 =
-                                  Provider.of<OrderProvider>(context,
-                                      listen: false);
+                                      Provider.of<OrderProvider>(context,
+                                          listen: false);
                                   OrderProvider1.clearOrders();
                                   final orderDetailsProvider =
-                                  Provider.of<OrderDetailsProvider>(context,
-                                      listen: false);
+                                      Provider.of<OrderDetailsProvider>(context,
+                                          listen: false);
                                   orderDetailsProvider.clear();
                                   final editProductProvider =
-                                  Provider.of<EditProductProvider>(context,
-                                      listen: false);
+                                      Provider.of<EditProductProvider>(context,
+                                          listen: false);
                                   editProductProvider.clear();
                                   final deliveryModel =
-                                  Provider.of<DeliveryModelOrange>(context,
-                                      listen: false);
+                                      Provider.of<DeliveryModelOrange>(context,
+                                          listen: false);
                                   deliveryModel.clear();
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => LoginPage()),
-                                        (Route<dynamic> route) => false,
+                                    (Route<dynamic> route) => false,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -534,7 +545,7 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                           ),
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                         ],
                       ),
                     ),
@@ -597,9 +608,9 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
 
   Widget _buildDrawerButton(
       {required String text,
-        required String icon,
-        Color? color,
-        required VoidCallback onTap}) {
+      required String icon,
+      Color? color,
+      required VoidCallback onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: GestureDetector(
@@ -617,7 +628,7 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                 child: Center(
                   child: Padding(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     child: CustomText(
                       text: text,
                       size: MediaQuery.of(context).size.width * 0.04,
@@ -626,8 +637,18 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                   ),
                 ),
               ),
-              Image.asset(icon,
-                  height: MediaQuery.of(context).size.height * 0.03),
+              SizedBox(width: 10),
+              icon.endsWith('.svg')
+                  ? SvgPicture.asset(
+                      icon,
+                      height: MediaQuery.of(context).size.height * 0.035,
+                      width: MediaQuery.of(context).size.height * 0.035,
+                      fit: BoxFit.contain,
+                    )
+                  : Image.asset(
+                      icon,
+                      height: MediaQuery.of(context).size.height * 0.03,
+                    ),
             ],
           ),
         ),

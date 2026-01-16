@@ -39,7 +39,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       final decoded = img.decodeImage(bytes);
       if (decoded != null) {
         final resized = img.copyResize(decoded, width: 500, height: 500);
-        return base64Encode(img.encodeJpg(resized, quality: 85));
+         return base64Encode(img.encodeJpg(resized, quality: 85));
       }
       return base64Encode(bytes);
     }
@@ -68,10 +68,10 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     if (resizedImages.length == 2) {
       // صورتين جنب بعض - مع خلفية بيضاء
       mergedImage = img.Image(width: targetSize * 2, height: targetSize * 2);
-
+      
       // ملء الخلفية باللون الأبيض
       img.fill(mergedImage, color: img.ColorRgb8(255, 255, 255));
-
+      
       // وضع الصورتين في النص عمودياً
       int centerY = (targetSize * 2 - targetSize) ~/ 2;
       img.compositeImage(mergedImage, resizedImages[0], dstX: 0, dstY: centerY);
@@ -79,10 +79,10 @@ class _EditStockWidgetState extends State<EditStockWidget> {
     } else if (resizedImages.length == 3) {
       // 3 صور - 2 فوق و 1 تحت بالنص
       mergedImage = img.Image(width: targetSize * 2, height: targetSize * 2);
-
+      
       // ملء الخلفية باللون الأبيض
       img.fill(mergedImage, color: img.ColorRgb8(255, 255, 255));
-
+      
       img.compositeImage(mergedImage, resizedImages[0], dstX: 0, dstY: 0);
       img.compositeImage(mergedImage, resizedImages[1], dstX: targetSize, dstY: 0);
       int centerX = (targetSize * 2 - targetSize) ~/ 2;
@@ -190,15 +190,15 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   }
 
   Future<List<Map<String, dynamic>>> fetchProducts(
-      String userId,
-      String s1,
-      String s2,
-      String s3,
-      String s4,
-      String s5,
-      String s6, {
-        int page = 1,
-      }) async {
+    String userId,
+    String s1,
+    String s2,
+    String s3,
+    String s4,
+    String s5,
+    String s6, {
+    int page = 1,
+  }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -352,10 +352,10 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       );
 
       print(utf8.decode(response.bodyBytes));
-
+      
       if (response.statusCode == 200) {
         final responseData = json.decode(utf8.decode(response.bodyBytes));
-
+        
         if (responseData['success'] == true) {
           // Perform refresh immediately without dialog
           setState(() {
@@ -366,7 +366,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
           });
           return true;
         } else {
-          showConfirmationDialog(
+             showConfirmationDialog(
             context: context,
             message: "فشل التحديث: ${responseData['message'] ?? 'خطأ غير معروف'}",
             confirmText: "حسناً",
@@ -374,24 +374,24 @@ class _EditStockWidgetState extends State<EditStockWidget> {
           );
           return false;
         }
-
+       
       } else {
-        showConfirmationDialog(
-          context: context,
-          message: "فشل الاتصال بالخادم. رمز الخطأ: ${response.statusCode}",
-          confirmText: "حسناً",
-          onConfirm: () {},
-        );
-        return false;
+         showConfirmationDialog(
+            context: context,
+            message: "فشل الاتصال بالخادم. رمز الخطأ: ${response.statusCode}",
+            confirmText: "حسناً",
+            onConfirm: () {},
+          );
+          return false;
       }
     } catch (e) {
-      showConfirmationDialog(
-        context: context,
-        message: "حدث خطأ: $e",
-        confirmText: "حسناً",
-        onConfirm: () {},
-      );
-      return false;
+       showConfirmationDialog(
+            context: context,
+            message: "حدث خطأ: $e",
+            confirmText: "حسناً",
+            onConfirm: () {},
+          );
+          return false;
     }
   }
 
@@ -399,29 +399,24 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Column(
-        children: [
-          _buildHeader(size, user), // الهيدر
-          Expanded(
-            child: Column(
-              children: [
-                _buildDropdownRow(),
-                _buildSearchField(size),
-                EditStockTitleWidget(
-                  totalItems: _totalItems,
-                ),
-                Expanded(
-                  child: _buildProductList(size, user.user_id),
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        _buildHeader(size, user), // الهيدر
+        Expanded(
+          child: Column(
+            children: [
+              _buildDropdownRow(),
+              _buildSearchField(size),
+              EditStockTitleWidget(
+                totalItems: _totalItems,
+              ),
+              Expanded(
+                child: _buildProductList(size, user.user_id),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -485,7 +480,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                   _buildDropdown(
                       list4, title4, (val) => setState(() => title4 = val!)),
                   _buildDropdown(carprovider.categories, title1,
-                          (val) => setState(() => title1 = val!)),
+                      (val) => setState(() => title1 = val!)),
                   _buildDropdown(carprovider.carNames, title, (val) {
                     setState(() {
                       title = val!;
@@ -513,18 +508,18 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   }
 
   Widget _buildDropdown(
-      List<String> items,
-      String? selectedValue,
-      ValueChanged<String?> onChanged,
-      ) {
+    List<String> items,
+    String? selectedValue,
+    ValueChanged<String?> onChanged,
+  ) {
     List<String> uniqueItems =
-    items.where((item) => item.isNotEmpty).toSet().toList();
+        items.where((item) => item.isNotEmpty).toSet().toList();
 
     String? validValue = uniqueItems.contains(selectedValue)
         ? selectedValue
         : uniqueItems.isNotEmpty
-        ? uniqueItems[0]
-        : null;
+            ? uniqueItems[0]
+            : null;
 
     return Flexible(
       flex: 1,
@@ -636,7 +631,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
               child: MaterialButton(
                 onPressed: () {
                   final user =
-                  Provider.of<ProfileProvider>(context, listen: false);
+                      Provider.of<ProfileProvider>(context, listen: false);
                   setState(() {
                     _productListFuture = fetchProducts(
                       user.user_id.toString(),
@@ -676,8 +671,8 @@ class _EditStockWidgetState extends State<EditStockWidget> {
 
                   final contains = parts
                       .where((p) =>
-                  !p.toLowerCase().startsWith(query) &&
-                      p.toLowerCase().contains(query))
+                          !p.toLowerCase().startsWith(query) &&
+                          p.toLowerCase().contains(query))
                       .toList();
 
                   return [...startsWith, ...contains];
@@ -708,7 +703,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                             search.text = value;
                             searchQuery = value.toLowerCase().trim();
                             borderColor =
-                            parts.contains(value.trim()) ? green : Colors.grey;
+                                parts.contains(value.trim()) ? green : Colors.grey;
                           });
                         },
                         decoration: InputDecoration(
@@ -818,7 +813,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       child: NotificationListener<ScrollNotification>(
         onNotification: (scrollNotification) {
           if (scrollNotification.metrics.pixels >=
-              scrollNotification.metrics.maxScrollExtent - 100 &&
+                  scrollNotification.metrics.maxScrollExtent - 100 &&
               !_isLoadingMore &&
               (_currentPage * 100) < _totalItems) {
             _loadMoreItems();
@@ -918,149 +913,149 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                     children: [
                       ...filteredList
                           .where((product) =>
-                      product['checkboxData'] != null &&
-                          product['checkboxData'].isNotEmpty)
+                              product['checkboxData'] != null &&
+                              product['checkboxData'].isNotEmpty)
                           .map((product) {
-                        List<Map<String, dynamic>> checkboxData = (product[
-                        'checkboxData'] as List<dynamic>)
-                            .cast<Map<String, dynamic>>()
-                          ..sort((a, b) {
-                            int aAmount =
-                                int.tryParse(a['amount'].toString()) ?? 0;
-                            int bAmount =
-                                int.tryParse(b['amount'].toString()) ?? 0;
-                            return aAmount.compareTo(bAmount);
-                          });
+                            List<Map<String, dynamic>> checkboxData = (product[
+                                    'checkboxData'] as List<dynamic>)
+                                .cast<Map<String, dynamic>>()
+                              ..sort((a, b) {
+                                int aAmount =
+                                    int.tryParse(a['amount'].toString()) ?? 0;
+                                int bAmount =
+                                    int.tryParse(b['amount'].toString()) ?? 0;
+                                return aAmount.compareTo(bAmount);
+                              });
 
-                        return checkboxData.map<Widget>((checkboxItem) {
-                          final priceController = TextEditingController(
-                            text: double.tryParse(checkboxItem['price'])
-                                ?.toStringAsFixed(0) ??
-                                checkboxItem['price'],
-                          );
+                            return checkboxData.map<Widget>((checkboxItem) {
+                              final priceController = TextEditingController(
+                                text: double.tryParse(checkboxItem['price'])
+                                        ?.toStringAsFixed(0) ??
+                                    checkboxItem['price'],
+                              );
 
-                          final amountController = TextEditingController(
-                              text: checkboxItem['amount'].toString());
+                              final amountController = TextEditingController(
+                                  text: checkboxItem['amount'].toString());
 
-                          // تحديد اللون بناءً على الحالة
-                          bool hasImage = checkboxItem['img'] != null &&
-                              checkboxItem['img'].toString().isNotEmpty;
-                          bool isComplete = hasImage; // Only check for image
+                              // تحديد اللون بناءً على الحالة
+                              bool hasImage = checkboxItem['img'] != null &&
+                                  checkboxItem['img'].toString().isNotEmpty;
+                              bool isComplete = hasImage; // Only check for image
+                              
+                              // Debug: print image status
+                              print('Product: ${product['name']}, Has Image: $hasImage, img value: ${checkboxItem['img']}');
 
-                          // Debug: print image status
-                          print('Product: ${product['name']}, Has Image: $hasImage, img value: ${checkboxItem['img']}');
+                              int amount = int.tryParse(checkboxItem['amount'].toString()) ?? 0;
 
-                          int amount = int.tryParse(checkboxItem['amount'].toString()) ?? 0;
+                              Color textColor;
+                              if (amount <= 0) {
+                                textColor = Colors.red;
+                              } else if (isComplete) {
+                                textColor = green;
+                              } else {
+                                textColor = Colors.black;
+                              }
 
-                          Color textColor;
-                          if (amount <= 0) {
-                            textColor = Colors.red;
-                          } else if (isComplete) {
-                            textColor = green;
-                          } else {
-                            textColor = Colors.black;
-                          }
-
-                          return Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 15),
-                                child: Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      child: Row(
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              _showDetailsDialog(
-                                                  context: context,
-                                                  product: product,
-                                                  checkboxItem:
-                                                  checkboxItem);
-                                            },
-                                            child: Image.asset(
-                                              'assets/images/iconinfo.png',
-                                              width: 24.0,
-                                              height: 24.0,
+                              return Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          child: Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _showDetailsDialog(
+                                                      context: context,
+                                                      product: product,
+                                                      checkboxItem:
+                                                          checkboxItem);
+                                                },
+                                                child: Image.asset(
+                                                  'assets/images/iconinfo.png',
+                                                  width: 24.0,
+                                                  height: 24.0,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  width: size.width * 0.02),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  _showEditProductDialog(
+                                                      context,
+                                                      product,
+                                                      checkboxItem,
+                                                      priceController,
+                                                      amountController);
+                                                },
+                                                child: Image.asset(
+                                                  'assets/images/05.png',
+                                                  width: 24.0,
+                                                  height: 24.0,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          width: size.width * 0.17,
+                                          height: 40,
+                                          child: Center(
+                                            child: CustomText(
+                                              text: "${checkboxItem['name']}",
+                                              size: 15,
+                                              color: textColor,
                                             ),
                                           ),
-                                          SizedBox(
-                                              width: size.width * 0.02),
-                                          GestureDetector(
-                                            onTap: () {
-                                              _showEditProductDialog(
-                                                  context,
-                                                  product,
-                                                  checkboxItem,
-                                                  priceController,
-                                                  amountController);
-                                            },
-                                            child: Image.asset(
-                                              'assets/images/05.png',
-                                              width: 24.0,
-                                              height: 24.0,
+                                        ),
+                                        Container(
+                                          width: size.width * 0.17,
+                                          height: 40,
+                                          child: Center(
+                                            child: CustomText(
+                                              text:
+                                                  "${double.parse(checkboxItem['price']).toInt()}",
+                                              size: 15,
+                                              color: textColor,
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      width: size.width * 0.17,
-                                      height: 40,
-                                      child: Center(
-                                        child: CustomText(
-                                          text: "${checkboxItem['name']}",
-                                          size: 15,
-                                          color: textColor,
                                         ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: size.width * 0.17,
-                                      height: 40,
-                                      child: Center(
-                                        child: CustomText(
-                                          text:
-                                          "${double.parse(checkboxItem['price']).toInt()}",
-                                          size: 15,
-                                          color: textColor,
+                                        Container(
+                                          width: size.width * 0.17,
+                                          height: 40,
+                                          child: Center(
+                                            child: CustomText(
+                                              text: "${checkboxItem['amount']}",
+                                              size: 15,
+                                              color: textColor,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: size.width * 0.17,
-                                      height: 40,
-                                      child: Center(
-                                        child: CustomText(
-                                          text: "${checkboxItem['amount']}",
-                                          size: 15,
-                                          color: textColor,
+                                        Container(
+                                          width: size.width * 0.17,
+                                          child: Center(
+                                            child: CustomText(
+                                              text: product['name'],
+                                              size: 15,
+                                              color: textColor,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                    Container(
-                                      width: size.width * 0.17,
-                                      child: Center(
-                                        child: CustomText(
-                                          text: product['name'],
-                                          size: 15,
-                                          color: textColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Divider(height: 5),
-                              const SizedBox(height: 10),
-                            ],
-                          );
-                        }).toList();
-                      })
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Divider(height: 5),
+                                  const SizedBox(height: 10),
+                                ],
+                              );
+                            }).toList();
+                          })
                           .expand((widget) => widget)
                           .toList(),
                     ],
@@ -1132,7 +1127,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                                       CustomText(text: "الكفالة"),
                                       Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           CustomText(text: "يوم", color: words),
                                           const SizedBox(width: 2),
@@ -1203,8 +1198,8 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                                 Expanded(
                                   child: CustomText(
                                     text:
-                                    "${product['fromYear']} ${product['Category']} ${product['NameCar']} ${product['engineSize']}-${product['fuelType']}" ??
-                                        "غير محدد",
+                                        "${product['fromYear']} ${product['Category']} ${product['NameCar']} ${product['engineSize']}-${product['fuelType']}" ??
+                                            "غير محدد",
                                     color: words,
                                     maxLines: null,
                                     overflow: TextOverflow.visible,
@@ -1251,7 +1246,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
 
   Future<String> fetchImageUrl(int productId) async {
     final url =
-    Uri.parse('http://jordancarpart.com/Api/getphoto.php?id=$productId');
+        Uri.parse('http://jordancarpart.com/Api/getphoto.php?id=$productId');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -1274,19 +1269,19 @@ class _EditStockWidgetState extends State<EditStockWidget> {
         const SizedBox(width: 10),
         imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
-          onTap: () {
-            _showImageDialog(imageUrl);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(
-              imageUrl,
-              width: MediaQuery.of(context).size.width * 0.26,
-              height: MediaQuery.of(context).size.width * 0.22,
-              fit: BoxFit.cover,
-            ),
-          ),
-        )
+                onTap: () {
+                  _showImageDialog(imageUrl);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    imageUrl,
+                    width: MediaQuery.of(context).size.width * 0.26,
+                    height: MediaQuery.of(context).size.width * 0.22,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
             : CustomText(text: "لا توجد صورة", size: 16),
       ],
     );
@@ -1310,15 +1305,15 @@ class _EditStockWidgetState extends State<EditStockWidget> {
       TextEditingController priceController,
       TextEditingController amountController) {
     TextEditingController markController =
-    TextEditingController(text: checkboxItem['mark']?.toString() ?? '');
+        TextEditingController(text: checkboxItem['mark']?.toString() ?? '');
     TextEditingController warrantyController = TextEditingController(
         text: (checkboxItem['warranty']?.toString() ?? '') == "0"
             ? ""
             : (checkboxItem['warranty']?.toString() ?? ''));
     TextEditingController numberController =
-    TextEditingController(text: checkboxItem['number']?.toString() ?? '');
+        TextEditingController(text: checkboxItem['number']?.toString() ?? '');
     TextEditingController noteController =
-    TextEditingController(text: checkboxItem['note']?.toString() ?? '');
+        TextEditingController(text: checkboxItem['note']?.toString() ?? '');
 
     // Handle number selection
     int? selectedNumber;
@@ -1339,7 +1334,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
         bool isLoading = false;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-
+            
             Future<void> _pickImage(ImageSource source) async {
               if (source == ImageSource.camera) {
                 var status = await Permission.camera.status;
@@ -1352,76 +1347,44 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                 }
                 if (!status.isGranted) return;
               } else {
-                // Gallery
-                if (Platform.isAndroid) {
-                  if (await Permission.photos.status.isDenied) {
-                    await Permission.photos.request();
-                  }
-                  var status = await Permission.storage.status;
-                  if (status.isDenied) {
-                    status = await Permission.storage.request();
-                  }
-
-                  var photosStatus = await Permission.photos.status;
-
-                  if (status.isPermanentlyDenied && photosStatus.isPermanentlyDenied) {
-                    _showPermissionDialog(context);
-                    return;
-                  }
-
-                  if (!status.isGranted && !photosStatus.isGranted) {
-                    if (await Permission.photos.request().isGranted) {
-                    } else if (await Permission.storage.request().isGranted) {
-                    } else {
-                      return;
-                    }
-                  }
-                } else {
-                  // iOS
-                  var status = await Permission.photos.request();
-                  if (status.isPermanentlyDenied) {
-                    _showPermissionDialog(context);
-                    return;
-                  }
-                  if (!status.isGranted) return;
-                }
+                // Gallery - AssetPicker handles permissions
               }
 
               if (_selectedImages.length >= 4) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("يمكنك إضافة 4 صور كحد أقصى")),
-                );
-                return;
+                 ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("يمكنك إضافة 4 صور كحد أقصى")),
+                  );
+                  return;
               }
 
               if (source == ImageSource.gallery) {
-                int remaining = 4 - _selectedImages.length;
-                final List<AssetEntity>? result = await AssetPicker.pickAssets(
-                  context,
-                  pickerConfig: AssetPickerConfig(
-                    maxAssets: remaining,
-                    requestType: RequestType.image,
-                    themeColor: red, // Ensure 'red' is available or use Colors.red
-                    textDelegate: const ArabicAssetPickerTextDelegate(),
-                  ),
-                );
+                 int remaining = 4 - _selectedImages.length;
+                 final List<AssetEntity>? result = await AssetPicker.pickAssets(
+                    context,
+                    pickerConfig: AssetPickerConfig(
+                      maxAssets: remaining,
+                      requestType: RequestType.image,
+                      themeColor: red, // Ensure 'red' is available or use Colors.red
+                      textDelegate: const ArabicAssetPickerTextDelegate(),
+                    ),
+                 );
 
-                if (result != null && result.isNotEmpty) {
-                  setState(() {
-                    for (var asset in result) {
-                      // We need to wait for file, but this is inside setState which is sync.
-                      // Better to do async work outside setState.
-                      // However, for simplicity in this structure:
-                      asset.file.then((file) {
-                        if (file != null && mounted) {
-                          setState(() {
-                            _selectedImages.add(file);
-                          });
-                        }
-                      });
-                    }
-                  });
-                }
+                 if (result != null && result.isNotEmpty) {
+                    setState(() {
+                       for (var asset in result) {
+                         // We need to wait for file, but this is inside setState which is sync.
+                         // Better to do async work outside setState.
+                         // However, for simplicity in this structure:
+                         asset.file.then((file) {
+                           if (file != null && mounted) {
+                              setState(() {
+                                _selectedImages.add(file);
+                              });
+                           }
+                         });
+                       }
+                    });
+                 }
               } else {
                 final XFile? image = await _picker.pickImage(source: source);
                 if (image != null) {
@@ -1441,328 +1404,328 @@ class _EditStockWidgetState extends State<EditStockWidget> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  SingleChildScrollView(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 5, // Slightly thinner border for elegance
-                          color: words,
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.white,
+                   SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 5, // Slightly thinner border for elegance
+                      color: words, 
+                    ),
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CustomText(
+                        text: "تعديل ${checkboxItem['name']}",
+                        size: 16, // Smaller title
+                        weight: FontWeight.bold,
+                        color: green,
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+
+                      Row(
                         children: [
-                          CustomText(
-                            text: "تعديل ${checkboxItem['name']}",
-                            size: 16, // Smaller title
-                            weight: FontWeight.bold,
-                            color: green,
-                          ),
-
-                          Row(
-                            children: [
-                              Expanded(child: _buildCompactLabelField("العدد",
-                                  DropdownButtonFormField<int>(
-                                    dropdownColor: Colors.white,
-                                    value: selectedNumber,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedNumber = value;
-                                        numberController.text = value.toString();
-                                      });
-                                    },
-                                    items: List.generate(50,(i) => DropdownMenuItem(value: i + 1,child: Center(child: Text("${i + 1}",style: const TextStyle(fontSize: 12))))),
-                                    decoration: _compactInputDecoration(),
-                                    isExpanded: true,
-                                  )
-                              )),
-                              const SizedBox(width: 5),
-                              Expanded(child: _buildCompactLabelField("الكفالة (أيام)",
-                                  TextFormField(
-                                    controller: warrantyController,
-                                    textAlign: TextAlign.center,
-                                    keyboardType: TextInputType.number,
-                                    decoration: _compactInputDecoration(),
-                                    style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
-                                  )
-                              )),
-                              const SizedBox(width: 5),
-                              Expanded(child: _buildCompactLabelField("العلامة",
-                                  TextFormField(
-                                    controller: markController,
-                                    textAlign: TextAlign.center,
-                                    decoration: _compactInputDecoration(),
-                                    style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
-                                  )
-                              )),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-
-                          Row(
-                            children: [
-                              Expanded(child: _buildCompactLabelField("السعر",
-                                  TextField(
-                                    controller: priceController,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    decoration: _compactInputDecoration(),
-                                    style: const TextStyle(fontSize: 12),
-                                  )
-                              )),
-                              const SizedBox(width: 5),
-                              Expanded(child: _buildCompactLabelField("الكمية",
-                                  TextField(
-                                    controller: amountController,
-                                    keyboardType: TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    decoration: _compactInputDecoration(),
-                                    style: const TextStyle(fontSize: 12),
-                                  )
-                              )),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4.0, bottom: 2),
-                                child: Text("الملاحظات", style: TextStyle(fontSize: 12, fontFamily: 'Tajawal', color: Colors.grey[700])),
-                              ),
-                              TextFormField(
-                                controller: noteController,
-                                maxLines: 2,
-                                textDirection: TextDirection.rtl,
-                                textAlign: TextAlign.right,
-                                decoration: _compactInputDecoration().copyWith(
-                                  hintText: "إضافة ملاحظة...",
-                                  hintStyle: const TextStyle(fontSize: 10, color: Colors.grey),
-                                ),
+                          Expanded(child: _buildCompactLabelField("العدد", 
+                              DropdownButtonFormField<int>(
+                                dropdownColor: Colors.white,
+                                value: selectedNumber,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedNumber = value;
+                                    numberController.text = value.toString();
+                                  });
+                                },
+                                items: List.generate(50,(i) => DropdownMenuItem(value: i + 1,child: Center(child: Text("${i + 1}",style: const TextStyle(fontSize: 12))))),
+                                decoration: _compactInputDecoration(),
+                                isExpanded: true,
+                              )
+                          )),
+                          const SizedBox(width: 5),
+                          Expanded(child: _buildCompactLabelField("الكفالة (أيام)", 
+                             TextFormField(
+                                controller: warrantyController,
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                decoration: _compactInputDecoration(),
                                 style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
-                              ),
-                            ],
-                          ),
+                              )
+                          )),
+                          const SizedBox(width: 5),
+                          Expanded(child: _buildCompactLabelField("العلامة",
+                             TextFormField(
+                                controller: markController,
+                                textAlign: TextAlign.center,
+                                decoration: _compactInputDecoration(),
+                                style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
+                              )
+                          )),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
 
-                          const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(child: _buildCompactLabelField("السعر",
+                              TextField(
+                                controller: priceController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: _compactInputDecoration(),
+                                style: const TextStyle(fontSize: 12),
+                              )
+                          )),
+                          const SizedBox(width: 5),
+                          Expanded(child: _buildCompactLabelField("الكمية", 
+                              TextField(
+                                controller: amountController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: _compactInputDecoration(),
+                                style: const TextStyle(fontSize: 12),
+                              )
+                          )),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
 
-                          GestureDetector(
-                            onTap: () {
-                              if (_selectedImages.length >= 4) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("الحد الأقصى 4 صور")),
-                                );
-                                return;
-                              }
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return CupertinoAlertDialog(
-                                    title: CustomText(text: "اختر الصورة"),
-                                    content: CustomText(text: "الهاتف أو الكاميرا"),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.pop(context);
-                                          await _pickImage(ImageSource.camera);
-                                        },
-                                        child: Icon(Icons.photo_camera,
-                                            size: 25, color: red),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          Navigator.pop(context);
-                                          await _pickImage(ImageSource.gallery);
-                                        },
-                                        child:  Icon(Icons.image,
-                                            size: 25, color: red),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Column(
-                              children: [
-                                // Image Display Area
-                                _selectedImages.isNotEmpty
-                                    ? SizedBox(
-                                  height: 70,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: _selectedImages.asMap().entries.map((entry) {
-                                      int index = entry.key;
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                        child: Stack(
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(8),
-                                              child: Image.file(_selectedImages[index],
-                                                  height: 60, width: 60, fit: BoxFit.cover),
-                                            ),
-                                            Positioned(
-                                              top: 0,
-                                              right: 0,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _selectedImages.removeAt(index);
-                                                  });
-                                                },
-                                                child: Container(
-                                                  color: Colors.white.withOpacity(0.7),
-                                                  child: const Icon(Icons.close, color: Colors.red, size: 16),
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                )
-                                    : Container(
-                                  height: 60,
-                                  width: 60,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.grey.shade300),
-                                  ),
-                                  child: (checkboxItem['img'] != null && checkboxItem['img'].toString().isNotEmpty)
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      'http://jordancarpart.com/${checkboxItem['img']}',
-                                      fit: BoxFit.cover,
-                                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Center(
-                                          child: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: RotatingImagePage(),
-                                          ),
-                                        );
-                                      },
-                                      errorBuilder: (c, e, s) => const Icon(
-                                          Icons.camera_alt,
-                                          size: 30,
-                                          color: Colors.grey),
-                                    ),
-                                  )
-                                      : const Icon(Icons.camera_alt,
-                                      size: 30, color: Colors.grey),
-                                ),
-
-                                const SizedBox(height: 5),
-                                if (_selectedImages.length < 4)
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add_a_photo, color: Colors.grey[600], size: 20),
-                                      const SizedBox(width: 5),
-                                      Text("اضافة صور (${_selectedImages.length}/4)", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                                    ],
-                                  )
-                              ],
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                           Padding(
+                             padding: const EdgeInsets.only(right: 4.0, bottom: 2),
+                             child: Text("الملاحظات", style: TextStyle(fontSize: 12, fontFamily: 'Tajawal', color: Colors.grey[700])),
+                           ),
+                           TextFormField(
+                            controller: noteController,
+                            maxLines: 2,
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.right,
+                            decoration: _compactInputDecoration().copyWith(
+                              hintText: "إضافة ملاحظة...",
+                              hintStyle: const TextStyle(fontSize: 10, color: Colors.grey),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-
-                          // Compact Buttons
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  showConfirmationDialog(
-                                    context: context,
-                                    message: "تأكيد التعديلات؟",
-                                    confirmText: "حفظ",
-                                    onConfirm: () async {
-                                      setState(() {
-                                        isLoading = true;
-                                      });
-                                      String newPrice = priceController.text;
-                                      String newAmount = amountController.text;
-                                      String newNumber = selectedNumber != null
-                                          ? selectedNumber.toString()
-                                          : numberController.text;
-
-                                      String? newImageBase64;
-                                      if (_selectedImages.isNotEmpty) {
-                                        newImageBase64 = await _mergeImages(_selectedImages);
-                                      }
-
-                                      bool success = await saveChanges(
-                                          product['id'].toString(),
-                                          checkboxItem,
-                                          newPrice,
-                                          newAmount,
-                                          markController.text,
-                                          warrantyController.text.isEmpty ? "0" : warrantyController.text,
-                                          newNumber,
-                                          noteController.text,
-                                          newImageBase64);
-
-                                      if (mounted) {
-                                        setState(() {
-                                          isLoading = false;
-                                        });
-                                        if (success) {
-                                          Navigator.of(context).pop();
-                                        }
-                                      }
-                                    },
-                                    cancelText: "إلغاء",
-                                    onCancel: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(195, 29, 29, 1),
-                                  minimumSize: const Size(100, 35),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                child: const Text("حفظ", style: TextStyle(fontSize: 13, color: Colors.white, fontFamily: 'Tajawal')),
-                              ),
-                              const SizedBox(width: 20),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  bool? deleteResult = await _confirmDelete(
-                                      context, product, checkboxItem);
-                                  if (deleteResult == true) {
-                                    Navigator.of(context).pop();
-                                    if (mounted) {
-                                      setState(() {
-                                        final user = Provider.of<ProfileProvider>(context, listen: false);
-                                        _productListFuture = fetchProducts(user.user_id.toString(), title, title1, title5, title4.toLowerCase() == "gasoline" ? "Gasoline" : title4.toLowerCase(), title2, title3, page: _currentPage);
-                                      });
-                                    }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey,
-                                  minimumSize: const Size(80, 35),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                child: const Text("حذف", style: TextStyle(fontSize: 13, color: Colors.white, fontFamily: 'Tajawal')),
-                              ),
-                            ],
+                            style: const TextStyle(fontSize: 12, fontFamily: 'Tajawal'),
                           ),
                         ],
                       ),
-                    ),
+
+                      const SizedBox(height: 10),
+
+                      GestureDetector(
+                        onTap: () {
+                          if (_selectedImages.length >= 4) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("الحد الأقصى 4 صور")),
+                              );
+                              return;
+                          }
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CupertinoAlertDialog(
+                                title: CustomText(text: "اختر الصورة"),
+                                content: CustomText(text: "الهاتف أو الكاميرا"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _pickImage(ImageSource.camera);
+                                    },
+                                    child: Icon(Icons.photo_camera,
+                                        size: 25, color: red),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _pickImage(ImageSource.gallery);
+                                    },
+                                    child:  Icon(Icons.image,
+                                        size: 25, color: red),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Column(
+                          children: [
+                             // Image Display Area
+                             _selectedImages.isNotEmpty
+                                     ? SizedBox(
+                                      height: 70,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: _selectedImages.asMap().entries.map((entry) {
+                                          int index = entry.key;
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                            child: Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  child: Image.file(_selectedImages[index],
+                                                      height: 60, width: 60, fit: BoxFit.cover),
+                                                ),
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 0,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _selectedImages.removeAt(index);
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      color: Colors.white.withOpacity(0.7),
+                                                      child: const Icon(Icons.close, color: Colors.red, size: 16),
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    )
+                                : Container(
+                                      height: 60, 
+                                      width: 60,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.grey.shade300),
+                                      ),
+                                      child: (checkboxItem['img'] != null && checkboxItem['img'].toString().isNotEmpty)
+                                          ? ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Image.network(
+                                                'http://jordancarpart.com/${checkboxItem['img']}',
+                                                fit: BoxFit.cover,
+                                                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                                  if (loadingProgress == null) return child;
+                                                  return Center(
+                                                    child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child: RotatingImagePage(),
+                                                    ),
+                                                  );
+                                                },
+                                                errorBuilder: (c, e, s) => const Icon(
+                                                    Icons.camera_alt,
+                                                    size: 30,
+                                                    color: Colors.grey),
+                                              ),
+                                            )
+                                          : const Icon(Icons.camera_alt,
+                                              size: 30, color: Colors.grey),
+                                    ),
+                                    
+                             const SizedBox(height: 5),
+                             if (_selectedImages.length < 4)
+                                Row(
+                                   mainAxisAlignment: MainAxisAlignment.center,
+                                   children: [
+                                      Icon(Icons.add_a_photo, color: Colors.grey[600], size: 20),
+                                      const SizedBox(width: 5),
+                                      Text("اضافة صور (${_selectedImages.length}/4)", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                                   ],
+                                )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Compact Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              showConfirmationDialog(
+                                context: context,
+                                message: "تأكيد التعديلات؟",
+                                confirmText: "حفظ",
+                                onConfirm: () async {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  String newPrice = priceController.text;
+                                  String newAmount = amountController.text;
+                                  String newNumber = selectedNumber != null
+                                      ? selectedNumber.toString()
+                                      : numberController.text;
+                                      
+                                  String? newImageBase64;
+                                  if (_selectedImages.isNotEmpty) {
+                                    newImageBase64 = await _mergeImages(_selectedImages);
+                                  }
+                                  
+                                  bool success = await saveChanges(
+                                      product['id'].toString(),
+                                      checkboxItem,
+                                      newPrice,
+                                      newAmount,
+                                      markController.text,
+                                      warrantyController.text.isEmpty ? "0" : warrantyController.text,
+                                      newNumber,
+                                      noteController.text,
+                                      newImageBase64);
+                                      
+                                  if (mounted) {
+                                     setState(() {
+                                       isLoading = false;
+                                     });
+                                     if (success) {
+                                       Navigator.of(context).pop();
+                                     }
+                                  }
+                                },
+                                cancelText: "إلغاء",
+                                onCancel: () {
+                                  Navigator.of(context).pop();
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromRGBO(195, 29, 29, 1),
+                              minimumSize: const Size(100, 35),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text("حفظ", style: TextStyle(fontSize: 13, color: Colors.white, fontFamily: 'Tajawal')),
+                          ),
+                          const SizedBox(width: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              bool? deleteResult = await _confirmDelete(
+                                  context, product, checkboxItem);
+                              if (deleteResult == true) {
+                                Navigator.of(context).pop();
+                                if (mounted) {
+                                  setState(() {
+                                     final user = Provider.of<ProfileProvider>(context, listen: false);
+                                    _productListFuture = fetchProducts(user.user_id.toString(), title, title1, title5, title4.toLowerCase() == "gasoline" ? "Gasoline" : title4.toLowerCase(), title2, title3, page: _currentPage);
+                                  });
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                              minimumSize: const Size(80, 35),
+                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text("حذف", style: TextStyle(fontSize: 13, color: Colors.white, fontFamily: 'Tajawal')),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  if (isLoading)
+                ),
+              ),
+              if (isLoading)
                     Positioned.fill(
                       child: Container(
                         color: Colors.black45,
@@ -1876,10 +1839,10 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                           child: isDeleting
                               ? RotatingImagePage()
                               : CustomText(
-                            text: "تأكيد",
-                            color: white,
-                            size: 15,
-                          ),
+                                  text: "تأكيد",
+                                  color: white,
+                                  size: 15,
+                                ),
                         ),
                       ],
                     ),
@@ -1901,7 +1864,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
         title: CustomText(text: "صلاحيات مطلوبة"),
         content: CustomText(
             text:
-            "التطبيق يحتاج للوصول إلى الصور/الكاميرا لإتمام هذه العملية. يرجى تفعيل الصلاحية من الإعدادات."),
+                "التطبيق يحتاج للوصول إلى الصور/الكاميرا لإتمام هذه العملية. يرجى تفعيل الصلاحية من الإعدادات."),
         actions: [
           TextButton(
             child: CustomText(text: "إلغاء"),

@@ -10,6 +10,7 @@ import '../../../provider/ProfileProvider.dart';
 import '../../../screen/Drawer/Notification.dart';
 import '../../../style/colors.dart';
 import '../../model/Delevery/Orders.dart';
+import '../../provider/languageProvider.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
 import '../../widget/Inallpage/NotificationIcon.dart';
@@ -79,12 +80,12 @@ class _Done_Order_DriverState extends State<Done_Order_Driver> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList('notifications') ?? [];
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnreadNotifications =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       check = hasUnreadNotifications;
@@ -124,7 +125,7 @@ class _Done_Order_DriverState extends State<Done_Order_Driver> {
                     itemCount: orders.length,
                     itemBuilder: (context, index) {
                       Order order =
-                      orders[orders.length - 1 - index];
+                          orders[orders.length - 1 - index];
                       Map<String, dynamic> order2 = orders[orders.length - 1 - index].toJson();
 
                       return GestureDetector(
@@ -161,7 +162,7 @@ class _Done_Order_DriverState extends State<Done_Order_Driver> {
                             children: [
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomText(
                                     text: order.orderTime,
@@ -185,7 +186,7 @@ class _Done_Order_DriverState extends State<Done_Order_Driver> {
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomText(
                                     text: order.orderTime,

@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:jcp/provider/ProductProvider.dart';
 import 'package:jcp/provider/ProfileProvider.dart';
 import 'package:jcp/screen/Drawer/Notification.dart';
-import 'package:jcp/screen/Trader/AddProductTraderPage.dart';
+import 'package:jcp/screen/Trader/ImageRequestsPage.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,7 +18,7 @@ import '../../widget/update.dart';
 import 'Outofstock.dart';
 import 'PendingPartsPage.dart';
 
-class TraderHomeWidget extends StatefulWidget {
+      class TraderHomeWidget extends StatefulWidget {
   const TraderHomeWidget({super.key});
 
   @override
@@ -35,6 +35,8 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
   int total = 0;
   int pendingPartsCount = 0;
   bool isLoadingPendingParts = false;
+  int imageRequestsCount = 0;
+  bool isLoadingImageRequests = false;
 
   @override
   void didChangeDependencies() {
@@ -45,6 +47,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
       fetchOrders(user.user_id, 2);
       fetchLengthData(user.user_id);
       loadTraderInvitationsCount();
+      loadImageRequestsCount();
       _checkForNotifications();
       _isInitialized = true;
     }
@@ -79,11 +82,9 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
     Future.delayed(Duration.zero, () async {
       if (mounted) {
         final productProvider =
-        Provider.of<ProductProvider>(context, listen: false);
+            Provider.of<ProductProvider>(context, listen: false);
         final user = Provider.of<ProfileProvider>(context, listen: false);
         productProvider.loadProducts(user.user_id);
-        fetchOrders(user.user_id, 1);
-        fetchOrders(user.user_id, 2);
 
         int totalFetched = await fetchTotalParts(user.user_id);
         if (mounted) {
@@ -91,7 +92,6 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
             total = totalFetched;
           });
         }
-        fetchLengthData(user.user_id);
       }
     });
     _checkForNotifications();
@@ -136,6 +136,46 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
       if (mounted) {
         setState(() {
           isLoadingPendingParts = false;
+        });
+      }
+    }
+  }
+
+  Future<void> loadImageRequestsCount() async {
+    final user = Provider.of<ProfileProvider>(context, listen: false);
+
+    setState(() {
+      isLoadingImageRequests = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://jordancarpart.com/Api/get_image_requests.php?trader_id=${user.user_id}'),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['status'] == 'success') {
+          final newCount = responseData['count'] ?? 0;
+
+          if (mounted && newCount != imageRequestsCount) {
+            setState(() {
+              imageRequestsCount = newCount;
+            });
+          }
+        }
+      }
+    } catch (e) {
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingImageRequests = false;
         });
       }
     }
@@ -220,149 +260,164 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _buildProductOrderCard(size, user),
-                    SizedBox(height: 15),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => OutOfStockPage()),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 22.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CustomText(
-                                      text: "قطع نفذت كميتها",
-                                      color: Colors.black,
-                                      textDirection: TextDirection.rtl,
-                                      size: 16,
-                                    ),
-                                    SizedBox(height: 5),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 50),
-                                      decoration: BoxDecoration(
-                                        color: red,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: CustomText(
-                                        text: lengthItems.toString(),
-                                        color: white,
-                                        size: 18,
-                                        weight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 5),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CustomText(
-                                      text: "قطع للتسعير",
-                                      color: Colors.black,
-                                      textDirection: TextDirection.rtl,
-                                      size: 16,
-                                    ),
-                                    SizedBox(height: 5),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                PendingPartsPage(),
-                                          ),
-                                        ).then((_) {
-                                          Future.delayed(const Duration(milliseconds: 350), () {
-                                            if (mounted) loadTraderInvitationsCount();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 50),
-                                        decoration: BoxDecoration(
-                                          color: green,
-                                          borderRadius:
-                                          BorderRadius.circular(12),
-                                        ),
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 25,
-                                          child: Center(
-                                            child: isLoadingPendingParts
-                                                ? RotatingImagePage()
-                                                : CustomText(
-                                              text: pendingPartsCount
-                                                  .toString(),
-                                              color: white,
-                                              size: 18,
-                                              weight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              child: Row(
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Image Requests Button (Moved to Row Left)
+                              Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () {
+                                  CustomText(
+                                    text: "طلبات الصور",
+                                    color: Colors.black,
+                                    textDirection: TextDirection.rtl,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(height: 5),
+                                  GestureDetector(
+                                    onTap: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              AddProductTraderPage(),
+                                              const ImageRequestsPage(),
                                         ),
-                                      );
+                                      ).then((_) {
+                                        Future.delayed(
+                                            const Duration(milliseconds: 350),
+                                            () {
+                                          if (mounted) loadImageRequestsCount();
+                                        });
+                                      });
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: red,
-                                      foregroundColor: white,
-                                      elevation: 5,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 50),
+                                      decoration: BoxDecoration(
+                                        color: orange,
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 24, vertical: 12),
-                                    ),
-                                    icon: Padding(
-                                      padding:
-                                      const EdgeInsets.only(bottom: 3.0),
-                                      child: Icon(Icons.add_circle_outline,
-                                          size: 22),
-                                    ),
-                                    label: CustomText(
-                                      text: "إضافة قطعة",
-                                      size: 16,
-                                      color: white,
-                                      weight: FontWeight.bold,
+                                      child: SizedBox(
+                                        width: 40,
+                                        height: 25,
+                                        child: Center(
+                                          child: isLoadingImageRequests
+                                              ? RotatingImagePage()
+                                              : CustomText(
+                                                  text: imageRequestsCount
+                                                      .toString(),
+                                                  color: white,
+                                                  size: 18,
+                                                  weight: FontWeight.bold,
+                                                ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 5),
+                              // Pending Parts (Stays Right)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CustomText(
+                                    text: "قطع للتسعير",
+                                    color: Colors.black,
+                                    textDirection: TextDirection.rtl,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(height: 5),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const PendingPartsPage(),
+                                        ),
+                                      ).then((_) {
+                                        Future.delayed(
+                                            const Duration(milliseconds: 350),
+                                            () {
+                                          if (mounted)
+                                            loadTraderInvitationsCount();
+                                        });
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10, horizontal: 50),
+                                      decoration: BoxDecoration(
+                                        color: green,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: SizedBox(
+                                        width: 40,
+                                        height: 25,
+                                        child: Center(
+                                          child: isLoadingPendingParts
+                                              ? RotatingImagePage()
+                                              : CustomText(
+                                                  text: pendingPartsCount
+                                                      .toString(),
+                                                  color: white,
+                                                  size: 18,
+                                                  weight: FontWeight.bold,
+                                                ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: size.height * 0.01,
+                          ),
+                          // Out Of Stock Button (Moved to Bottom)
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const OutOfStockPage()),
+                              );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CustomText(
+                                  text: "قطع نفذت كميتها",
+                                  color: Colors.black,
+                                  textDirection: TextDirection.rtl,
+                                  size: 16,
+                                ),
+                                const SizedBox(height: 5),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 50),
+                                  decoration: BoxDecoration(
+                                    color: red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: CustomText(
+                                    text: lengthItems.toString(),
+                                    color: white,
+                                    size: 18,
+                                    weight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -431,7 +486,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
         height: size.width * 0.1,
         width: size.width * 0.1,
         decoration: BoxDecoration(
-          color: Color.fromRGBO(246, 246, 246, 0.26),
+          color: const Color.fromRGBO(246, 246, 246, 0.26),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
@@ -459,12 +514,12 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       hasNewNotification = hasUnread;
@@ -477,7 +532,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
       child: Container(
         height: size.height * 0.24, // ✅ تقليل الارتفاع
         decoration: BoxDecoration(
-          image: DecorationImage(
+          image: const DecorationImage(
             image: AssetImage("assets/images/card-1.png"),
             fit: BoxFit.cover,
           ),
@@ -598,7 +653,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
             ),
           ),
         ),
-        SizedBox(width: 5),
+        const SizedBox(width: 5),
         Text(
           title,
           style: TextStyle(
@@ -626,7 +681,7 @@ class _TraderHomeWidgetState extends State<TraderHomeWidget> {
               fontFamily: 'Tajawal',
             ),
           ),
-          SizedBox(width: 3),
+          const SizedBox(width: 3),
           Text(
             title,
             style: TextStyle(

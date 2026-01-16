@@ -51,10 +51,10 @@ class ImageProviderNotifier with ChangeNotifier {
     if (resizedImages.length == 2) {
       // صورتين جنب بعض أفقياً - نفس الحجم القديم
       mergedImage = img.Image(width: targetSize * 2, height: targetSize * 2);
-
+      
       // ملء الخلفية باللون الأبيض
       img.fill(mergedImage, color: img.ColorRgb8(255, 255, 255));
-
+      
       // وضع الصورتين في النص عمودياً
       int centerY = (targetSize * 2 - targetSize) ~/ 2; // = targetSize / 2
       img.compositeImage(mergedImage, resizedImages[0], dstX: 0, dstY: centerY);

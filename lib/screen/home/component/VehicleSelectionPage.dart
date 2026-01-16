@@ -241,7 +241,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
   void _onChassisNumberEntered(String chassisNumber) {
     setState(() {
       selectedChassisNumber =
-      chassisNumber.trim().isEmpty ? 'N/A' : chassisNumber.trim();
+          chassisNumber.trim().isEmpty ? 'N/A' : chassisNumber.trim();
     });
 
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -304,7 +304,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: red.withOpacity(0.2),
+                  color: red.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -370,56 +370,56 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
             shape: BoxShape.circle,
             gradient: isActive
                 ? LinearGradient(
-              colors: [
-                primary1,
-                primary2,
-                primary3,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            )
+                    colors: [
+                      primary1,
+                      primary2,
+                      primary3,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
                 : null,
             color: isActive ? null : Colors.grey.shade300,
             boxShadow: isCurrent
                 ? [
-              BoxShadow(
-                color: red.withOpacity(0.5),
-                blurRadius: 15,
-                spreadRadius: 3,
-              ),
-            ]
+                    BoxShadow(
+                      color: red.withValues(alpha: 0.5),
+                      blurRadius: 15,
+                      spreadRadius: 3,
+                    ),
+                  ]
                 : isActive
-                ? [
-              BoxShadow(
-                color: red.withOpacity(0.3),
-                blurRadius: 8,
-                spreadRadius: 1,
-              ),
-            ]
-                : null,
+                    ? [
+                        BoxShadow(
+                          color: red.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
             border: isCurrent
                 ? Border.all(
-              color: Colors.white,
-              width: 3,
-            )
+                    color: Colors.white,
+                    width: 3,
+                  )
                 : null,
           ),
           child: Center(
             child: isEngineStep
                 ? Image.asset(
-              isActive
-                  ? 'assets/images/engine.png'
-                  : 'assets/images/engine2.png',
-              color: isActive ? Colors.white : Colors.grey.shade600,
-              width: isCurrent ? 26 : 22,
-              height: isCurrent ? 26 : 22,
-              fit: BoxFit.contain,
-            )
+                    isActive
+                        ? 'assets/images/engine.png'
+                        : 'assets/images/engine2.png',
+                    color: isActive ? Colors.white : Colors.grey.shade600,
+                    width: isCurrent ? 26 : 22,
+                    height: isCurrent ? 26 : 22,
+                    fit: BoxFit.contain,
+                  )
                 : Icon(
-              icon,
-              color: isActive ? Colors.white : Colors.grey.shade500,
-              size: isCurrent ? 24 : 20,
-            ),
+                    icon,
+                    color: isActive ? Colors.white : Colors.grey.shade500,
+                    size: isCurrent ? 24 : 20,
+                  ),
           ),
         ),
         const SizedBox(height: 6),
@@ -447,12 +447,12 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
         decoration: BoxDecoration(
           gradient: isActive
               ? LinearGradient(
-            colors: [
-              primary1,
-              primary2,
-              primary3,
-            ],
-          )
+                  colors: [
+                    primary1,
+                    primary2,
+                    primary3,
+                  ],
+                )
               : null,
           color: isActive ? null : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(2),
@@ -495,7 +495,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: red.withOpacity(0.3),
+            color: red.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
             spreadRadius: 1,
@@ -513,7 +513,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
               height: circleSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
               ),
             ),
           ),
@@ -525,7 +525,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
               height: circleSize2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.07),
+                color: Colors.white.withValues(alpha: 0.07),
               ),
             ),
           ),
@@ -628,20 +628,20 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
   }
 
   Widget _buildInfoChipForSummary(
-      String value,
-      double fontSize,
-      bool isSmallScreen,
-      ) {
+    String value,
+    double fontSize,
+    bool isSmallScreen,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isSmallScreen ? 10.0 : 12.0,
         vertical: isSmallScreen ? 6.0 : 8.0,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -742,7 +742,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: Colors.grey.withValues(alpha: 0.2),
                         blurRadius: 6,
                         offset: const Offset(0, 3),
                       ),
@@ -784,7 +784,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
 
     final bool isChassisRequired = selectedCategory?.isChassisRequired ?? false;
     final String titleText =
-    isChassisRequired ? 'رقم الشاصي (إجباري)' : 'رقم الشاصي (اختياري)';
+        isChassisRequired ? 'رقم الشاصي (إجباري)' : 'رقم الشاصي (اختياري)';
 
     return FadeTransition(
       opacity: _cardAnimation,
@@ -892,7 +892,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
+                                color: Colors.grey.withValues(alpha: 0.2),
                                 blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
@@ -950,7 +950,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: green.withOpacity(0.3),
+                              color: green.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -1004,46 +1004,46 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                     children: [
                       filteredCategories.isEmpty
                           ? Padding(
-                        padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 60,
-                              color: Colors.grey.shade300,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'لا توجد نتائج',
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
+                              padding: const EdgeInsets.all(40),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 60,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'لا توجد نتائج',
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      )
+                            )
                           : GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 2.5,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
-                        ),
-                        itemCount: filteredCategories.length,
-                        itemBuilder: (context, index) {
-                          return _buildCategoryGridItem(
-                            filteredCategories[index],
-                            onSelected,
-                            index,
-                          );
-                        },
-                      ),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 2.5,
+                                crossAxisSpacing: 14,
+                                mainAxisSpacing: 14,
+                              ),
+                              itemCount: filteredCategories.length,
+                              itemBuilder: (context, index) {
+                                return _buildCategoryGridItem(
+                                  filteredCategories[index],
+                                  onSelected,
+                                  index,
+                                );
+                              },
+                            ),
                     ],
                   );
                 },
@@ -1062,8 +1062,8 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
       child: InkWell(
         onTap: () => onSelected(category),
         borderRadius: BorderRadius.circular(16),
-        splashColor: red.withOpacity(0.2),
-        highlightColor: red.withOpacity(0.1),
+        splashColor: red.withValues(alpha: 0.2),
+        highlightColor: red.withValues(alpha: 0.1),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -1081,7 +1081,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
             ),
             boxShadow: [
               BoxShadow(
-                color: red.withOpacity(0.08),
+                color: red.withValues(alpha: 0.08),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
                 spreadRadius: 1,
@@ -1130,46 +1130,46 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                     children: [
                       filteredItems.isEmpty
                           ? Padding(
-                        padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.search_off,
-                              size: 60,
-                              color: Colors.grey.shade300,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'لا توجد نتائج',
-                              style: TextStyle(
-                                fontFamily: 'Tajawal',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade400,
+                              padding: const EdgeInsets.all(40),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 60,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'لا توجد نتائج',
+                                    style: TextStyle(
+                                      fontFamily: 'Tajawal',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      )
+                            )
                           : GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 2.5,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
-                        ),
-                        itemCount: filteredItems.length,
-                        itemBuilder: (context, index) {
-                          return _buildGridItem(
-                            filteredItems[index],
-                            onSelected,
-                            index,
-                          );
-                        },
-                      ),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 2.5,
+                                crossAxisSpacing: 14,
+                                mainAxisSpacing: 14,
+                              ),
+                              itemCount: filteredItems.length,
+                              itemBuilder: (context, index) {
+                                return _buildGridItem(
+                                  filteredItems[index],
+                                  onSelected,
+                                  index,
+                                );
+                              },
+                            ),
                     ],
                   );
                 },
@@ -1201,83 +1201,83 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
                   children: [
                     items.isEmpty
                         ? Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Column(
-                        children: [
-                          Icon(Icons.search_off,
-                              size: 60, color: Colors.grey.shade300),
-                          const SizedBox(height: 16),
-                          Text(
-                            'لا توجد نتائج',
-                            style: TextStyle(
-                              fontFamily: 'Tajawal',
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                        : Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      height: 400,
-                      // ثبت الارتفاع بدلاً من constraints
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: red.withOpacity(0.08),
-                            blurRadius: 15,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                        border: Border.all(
-                            color: Colors.grey.shade200, width: 1.5),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: ListView.separated(
-                          controller: scrollController,
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: items.length,
-                          separatorBuilder: (context, index) => Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Colors.grey.shade200,
-                            indent: 16,
-                            endIndent: 16,
-                          ),
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () => onSelected(items[index]),
-                              splashColor: red.withOpacity(0.1),
-                              highlightColor: red.withOpacity(0.05),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 18,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    items[index],
-                                    style: const TextStyle(
-                                      fontFamily: 'Tajawal',
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
+                            padding: const EdgeInsets.all(40),
+                            child: Column(
+                              children: [
+                                Icon(Icons.search_off,
+                                    size: 60, color: Colors.grey.shade300),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'لا توجد نتائج',
+                                  style: TextStyle(
+                                    fontFamily: 'Tajawal',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade400,
                                   ),
                                 ),
+                              ],
+                            ),
+                          )
+                        : Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            height: 400,
+                            // ثبت الارتفاع بدلاً من constraints
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: red.withValues(alpha: 0.08),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                              border: Border.all(
+                                  color: Colors.grey.shade200, width: 1.5),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: ListView.separated(
+                                controller: scrollController,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                itemCount: items.length,
+                                separatorBuilder: (context, index) => Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Colors.grey.shade200,
+                                  indent: 16,
+                                  endIndent: 16,
+                                ),
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onTap: () => onSelected(items[index]),
+                                    splashColor: red.withValues(alpha: 0.1),
+                                    highlightColor: red.withValues(alpha: 0.05),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 18,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          items[index],
+                                          style: const TextStyle(
+                                            fontFamily: 'Tajawal',
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+                            ),
+                          ),
                   ],
                 );
               },
@@ -1294,8 +1294,8 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
       child: InkWell(
         onTap: () => onSelected(item),
         borderRadius: BorderRadius.circular(16),
-        splashColor: red.withOpacity(0.2),
-        highlightColor: red.withOpacity(0.1),
+        splashColor: red.withValues(alpha: 0.2),
+        highlightColor: red.withValues(alpha: 0.1),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -1313,7 +1313,7 @@ class _VehicleSelectionPageState extends State<VehicleSelectionPage>
             ),
             boxShadow: [
               BoxShadow(
-                color: red.withOpacity(0.08),
+                color: red.withValues(alpha: 0.08),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
                 spreadRadius: 1,

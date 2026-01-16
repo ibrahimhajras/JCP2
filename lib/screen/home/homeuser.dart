@@ -39,10 +39,10 @@ class HomePage extends StatefulWidget {
 }
 
 Future<JoinTraderModel?> fetchUserData(
-    String? userId,
-    String? userPhone,
-    BuildContext context,
-    ) async {
+  String? userId,
+  String? userPhone,
+  BuildContext context,
+) async {
   try {
     final prefs = await SharedPreferences.getInstance();
 
@@ -56,12 +56,12 @@ Future<JoinTraderModel?> fetchUserData(
 
     final url = Uri.parse(
       'https://jordancarpart.com/Api/trader/getTraderInfo2.php'
-          '?user_id=$userId&phone=$userPhone',
+      '?user_id=$userId&phone=$userPhone',
     );
     print(url);
     final response = await http.get(url).timeout(
-      const Duration(seconds: 15),
-    );
+          const Duration(seconds: 15),
+        );
 
     print(userId);
     print(userPhone);
@@ -113,10 +113,10 @@ Future<JoinTraderModel?> fetchUserData(
           isCommercial: user['store_is_commercial'] == "1",
           isUsed: user['store_is_used'] == "1",
           isCommercial2: user['store_is_commercial2'] == "1",
-          // ✅ الحقول المنفصلة الجديدة
           isImageRequired: user['store_is_image_required'] == "1",
           isBrandRequired: user['store_is_brand_required'] == "1",
           isEngineSizeRequired: user['store_is_engine_size_required'] == "1",
+          isYearRangeRequired: user['store_is_year_range_required'] == "1",
         );
       }
     }
@@ -266,7 +266,7 @@ class _HomePageState extends State<HomePage> {
 
                             if (fetchedUser != null) {
                               Provider.of<ProfileTraderProvider>(context,
-                                  listen: false)
+                                      listen: false)
                                   .setTrader(fetchedUser);
 
                               Navigator.push(
@@ -511,11 +511,11 @@ class _HomePageState extends State<HomePage> {
         child: Center(
           child: iconPath.endsWith('.svg')
               ? SvgPicture.asset(
-            iconPath,
-            height: 30,
-            width: 30,
-            colorFilter: ColorFilter.mode(black, BlendMode.srcIn),
-          )
+                  iconPath,
+                  height: 30,
+                  width: 30,
+                  colorFilter: ColorFilter.mode(black, BlendMode.srcIn),
+                )
               : Image.asset(iconPath, height: 30, width: 30),
         ),
       ),
@@ -568,7 +568,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -581,7 +581,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -591,7 +591,7 @@ class _HomePageState extends State<HomePage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                  Color.fromRGBO(153, 153, 160, 0.63),
+                                      Color.fromRGBO(153, 153, 160, 0.63),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
@@ -604,11 +604,11 @@ class _HomePageState extends State<HomePage> {
                               ),
                               SizedBox(
                                   width:
-                                  MediaQuery.of(context).size.width * 0.03),
+                                      MediaQuery.of(context).size.width * 0.03),
                               ElevatedButton(
                                 onPressed: () async {
                                   final prefs =
-                                  await SharedPreferences.getInstance();
+                                      await SharedPreferences.getInstance();
                                   String? token = prefs.getString('token');
                                   _removeFcmToken(token!);
 
@@ -633,30 +633,30 @@ class _HomePageState extends State<HomePage> {
                                       'notifications', notifications);
                                   await prefs.setInt('isOrderAllowed', 0);
                                   final profileProvider =
-                                  Provider.of<ProfileProvider>(context,
-                                      listen: false);
+                                      Provider.of<ProfileProvider>(context,
+                                          listen: false);
                                   profileProvider.resetFields();
                                   final OrderProvider1 =
-                                  Provider.of<OrderProvider>(context,
-                                      listen: false);
+                                      Provider.of<OrderProvider>(context,
+                                          listen: false);
                                   OrderProvider1.clearOrders();
                                   final orderDetailsProvider =
-                                  Provider.of<OrderDetailsProvider>(context,
-                                      listen: false);
+                                      Provider.of<OrderDetailsProvider>(context,
+                                          listen: false);
                                   orderDetailsProvider.clear();
                                   final editProductProvider =
-                                  Provider.of<EditProductProvider>(context,
-                                      listen: false);
+                                      Provider.of<EditProductProvider>(context,
+                                          listen: false);
                                   editProductProvider.clear();
                                   final deliveryModel =
-                                  Provider.of<DeliveryModelOrange>(context,
-                                      listen: false);
+                                      Provider.of<DeliveryModelOrange>(context,
+                                          listen: false);
                                   deliveryModel.clear();
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => LoginPage()),
-                                        (Route<dynamic> route) => false,
+                                    (Route<dynamic> route) => false,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -675,7 +675,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(
                               height:
-                              MediaQuery.of(context).size.height * 0.03),
+                                  MediaQuery.of(context).size.height * 0.03),
                         ],
                       ),
                     ),
@@ -734,9 +734,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildDrawerButton(
       {required String text,
-        required String icon,
-        Color? color,
-        required VoidCallback onTap}) {
+      required String icon,
+      Color? color,
+      required VoidCallback onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: GestureDetector(
@@ -754,7 +754,7 @@ class _HomePageState extends State<HomePage> {
                 child: Center(
                   child: Padding(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     child: CustomText(
                       text: text,
                       size: MediaQuery.of(context).size.width * 0.04,

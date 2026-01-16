@@ -112,7 +112,7 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
                 width: size.width,
                 decoration: BoxDecoration(
                   gradient:
-                  LinearGradient(colors: [primary1, primary2, primary3]),
+                      LinearGradient(colors: [primary1, primary2, primary3]),
                 ),
                 child: Center(
                   child: Row(
@@ -141,214 +141,214 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
               SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               isLoading
                   ? Center(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.3),
-                      RotatingImagePage(),
-                    ],
-                  ))
+                      child: Column(
+                      children: [
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.3),
+                        RotatingImagePage(),
+                      ],
+                    ))
                   : Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 5),
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CustomText(
-                        text: "الطلبات المتبقية",
-                        size: 20,
-                        weight: FontWeight.bold,
-                      ),
-                      SizedBox(
-                          height:
-                          MediaQuery.of(context).size.height * 0.001),
-                      CustomText(
-                        text: "${limitOfOrder?.toInt() ?? 0}",
-                        size: 30,
-                        weight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                      SizedBox(height: 10),
-                      CustomText(
-                        text: "هذا القسم مخصص للتسعير المدفوع",
-                        size: 16,
-                        textAlign: TextAlign.center,
-                        weight: FontWeight.bold,
-                      ),
-                      SizedBox(height: 10),
-                      CustomText(
-                        text:
-                        "يمكنك تفعيل أكثر من طلب تسعير بصلاحية تنتهي بانتهاء عدد الطلبات المدفوعة مع الاحتفاظ بحقك في التسعير المجاني لمرة واحدة في اليوم",
-                        size: 14,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                          height:
-                          MediaQuery.of(context).size.height * 0.001),
-                      CustomText(
-                        text: " JD2تكلفة كل طلب جديد هي ",
-                        size: 14,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                          height:
-                          MediaQuery.of(context).size.height * 0.02),
-                      Column(
-                        children: [
-                          ...(hasActiveBill
-                              ? []
-                              : [
-                            Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.center,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 5),
+                      child: Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CustomText(
+                              text: "الطلبات المتبقية",
+                              size: 20,
+                              weight: FontWeight.bold,
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.001),
+                            CustomText(
+                              text: "${limitOfOrder?.toInt() ?? 0}",
+                              size: 30,
+                              weight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                            SizedBox(height: 10),
+                            CustomText(
+                              text: "هذا القسم مخصص للتسعير المدفوع",
+                              size: 16,
+                              textAlign: TextAlign.center,
+                              weight: FontWeight.bold,
+                            ),
+                            SizedBox(height: 10),
+                            CustomText(
+                              text:
+                                  "يمكنك تفعيل أكثر من طلب تسعير بصلاحية تنتهي بانتهاء عدد الطلبات المدفوعة مع الاحتفاظ بحقك في التسعير المجاني لمرة واحدة في اليوم",
+                              size: 14,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.001),
+                            CustomText(
+                              text: " JD2تكلفة كل طلب جديد هي ",
+                              size: 14,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.02),
+                            Column(
                               children: [
-                                SizedBox(
-                                  width: MediaQuery.of(context)
-                                      .size
-                                      .width *
-                                      0.15,
-                                  child: TextField(
-                                    keyboardType:
-                                    TextInputType.number,
-                                    textAlign: TextAlign.center,
-                                    // 🔥 يخلي الكتابة بالنص
-                                    textAlignVertical:
-                                    TextAlignVertical.center,
-                                    // 🔥 يخليها بنص الصندوق عمودياً
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: '',
-                                      contentPadding:
-                                      EdgeInsets.symmetric(
-                                          vertical:
-                                          10), // 🔥 أحلى تمركز
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedRequests =
-                                            int.tryParse(value) ??
-                                                0;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context)
-                                      .size
-                                      .width *
-                                      0.05,
-                                ),
-                                CustomText(
-                                  text: ": عدد الطلبات",
-                                  size: 16,
-                                  textAlign: TextAlign.center,
-                                ),
+                                ...(hasActiveBill
+                                    ? []
+                                    : [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.15,
+                                              child: TextField(
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                textAlign: TextAlign.center,
+                                                // 🔥 يخلي الكتابة بالنص
+                                                textAlignVertical:
+                                                    TextAlignVertical.center,
+                                                // 🔥 يخليها بنص الصندوق عمودياً
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(),
+                                                  hintText: '',
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical:
+                                                              10), // 🔥 أحلى تمركز
+                                                ),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    selectedRequests =
+                                                        int.tryParse(value) ??
+                                                            0;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.05,
+                                            ),
+                                            CustomText(
+                                              text: ": عدد الطلبات",
+                                              size: 16,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.02,
+                                        ),
+                                        CustomText(
+                                          text:
+                                              "JDالتكلفة الإجمالية: ${selectedRequests * 2} ",
+                                          size: 16,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ])
                               ],
                             ),
                             SizedBox(
-                              height: MediaQuery.of(context)
-                                  .size
-                                  .height *
-                                  0.02,
+                              height: MediaQuery.of(context).size.height * 0.03,
                             ),
-                            CustomText(
-                              text:
-                              "JDالتكلفة الإجمالية: ${selectedRequests * 2} ",
-                              size: 16,
-                              textAlign: TextAlign.center,
-                            ),
-                          ])
-                        ],
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.03,
-                      ),
-                      hasActiveBill
-                          ? Column(
-                        children: [
-                          SizedBox(height: 10),
-                          CustomText(
-                            text: "لديك طلب تسعير مفعل بالفعل",
-                            size: 16,
-                            color: Colors.green,
-                            weight: FontWeight.bold,
-                          ),
-                          SizedBox(height: 5),
-                          Column(
-                            children: [
-                              CustomText(
-                                text: ":رقم الفاتورة",
-                                size: 16,
-                                color: Colors.black87,
-                              ),
-                              CustomText(
-                                text: "$billId",
-                                size: 16,
-                                color: Colors.black87,
-                              ),
-                            ],
-                          ),
-                          Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.center,
-                            children: [
-                              CustomText(
-                                text: ":المبلغ المستحق",
-                                size: 16,
-                                color: Colors.red,
-                              ),
-                              CustomText(
-                                text:
-                                "${dueAmount?.toStringAsFixed(2)} JD",
-                                size: 16,
-                                color: Colors.red,
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          CustomButton(
-                            height: 50,
-                            text: "متابعة",
-                            onPressed: () async {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PayPage(
-                                        orderId: int.parse(
-                                            userProvider.user_id),
-                                        billId: billId!),
-                                  ));
-                            },
-                            color: button,
-                            textStyle: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16.0,
-                              fontFamily: "Tajawal",
-                            ),
-                          ),
-                        ],
-                      )
-                          : CustomButton(
-                        height: 50,
-                        minWidth: size.width * 0.9,
-                        text: "شراء",
-                        onPressed: () {
-                          _submitRequest(
-                              selectedRequests.toString(), context);
-                        },
-                        color: button,
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                          fontFamily: "Tajawal",
+                            hasActiveBill
+                                ? Column(
+                                    children: [
+                                      SizedBox(height: 10),
+                                      CustomText(
+                                        text: "لديك طلب تسعير مفعل بالفعل",
+                                        size: 16,
+                                        color: Colors.green,
+                                        weight: FontWeight.bold,
+                                      ),
+                                      SizedBox(height: 5),
+                                      Column(
+                                        children: [
+                                          CustomText(
+                                            text: ":رقم الفاتورة",
+                                            size: 16,
+                                            color: Colors.black87,
+                                          ),
+                                          CustomText(
+                                            text: "$billId",
+                                            size: 16,
+                                            color: Colors.black87,
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          CustomText(
+                                            text: ":المبلغ المستحق",
+                                            size: 16,
+                                            color: Colors.red,
+                                          ),
+                                          CustomText(
+                                            text:
+                                                "${dueAmount?.toStringAsFixed(2)} JD",
+                                            size: 16,
+                                            color: Colors.red,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 5),
+                                      CustomButton(
+                                        height: 50,
+                                        text: "متابعة",
+                                        onPressed: () async {
+                                          Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => PayPage(
+                                                    orderId: int.parse(
+                                                        userProvider.user_id),
+                                                    billId: billId!),
+                                              ));
+                                        },
+                                        color: button,
+                                        textStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16.0,
+                                          fontFamily: "Tajawal",
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : CustomButton(
+                                    height: 50,
+                                    minWidth: size.width * 0.9,
+                                    text: "شراء",
+                                    onPressed: () {
+                                      _submitRequest(
+                                          selectedRequests.toString(), context);
+                                    },
+                                    color: button,
+                                    textStyle: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                      fontFamily: "Tajawal",
+                                    ),
+                                  ),
+                            SizedBox(height: 20),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ],
           ),
         ),
@@ -391,13 +391,13 @@ class _PricingRequestPageState extends State<PricingRequestPage> {
           hasActiveBill = true;
           billId = responseJson['bill_id'];
           dueAmount = double.tryParse(message) ?? 0.0;
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PayPage(
-                    orderId: int.parse(userProvider.user_id), billId: billId!),
-              ));
         });
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PayPage(
+                  orderId: int.parse(userProvider.user_id), billId: billId!),
+            ));
       } else {
         showConfirmationDialog(
           context: context,

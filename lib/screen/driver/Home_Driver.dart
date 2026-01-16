@@ -42,10 +42,10 @@ class _Home_DriverState extends State<Home_Driver> {
   Future<String?> getLocalVersion() async {
     try {
       final String buildVersion =
-      await rootBundle.loadString('assets/version.txt');
+          await rootBundle.loadString('assets/version.txt');
       return buildVersion.trim();
     } catch (e) {
-
+      
       return null;
     }
   }
@@ -61,7 +61,7 @@ class _Home_DriverState extends State<Home_Driver> {
         }
       }
     } catch (e) {
-
+      
     }
     return null;
   }
@@ -91,12 +91,12 @@ class _Home_DriverState extends State<Home_Driver> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList('notifications') ?? [];
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnreadNotifications =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       check = hasUnreadNotifications;
@@ -155,13 +155,13 @@ class _Home_DriverState extends State<Home_Driver> {
                     itemBuilder: (context, index) {
                       Order order = orders[orders.length - 1 - index];
                       Map<String, dynamic> order2 =
-                      orders[orders.length - 1 - index].toJson();
+                          orders[orders.length - 1 - index].toJson();
 
                       List<Map<String, dynamic>> uniqueTraders = [];
                       Set<int> seenTraderIds = {};
 
                       for (var trader
-                      in order.traderDetails.map((t) => t.toJson())) {
+                          in order.traderDetails.map((t) => t.toJson())) {
                         if (!seenTraderIds.contains(trader['trader_id'])) {
                           seenTraderIds.add(trader['trader_id']);
                           uniqueTraders.add(trader);
@@ -200,7 +200,7 @@ class _Home_DriverState extends State<Home_Driver> {
                             children: [
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomText(
                                     text: order.orderTime,
@@ -224,7 +224,7 @@ class _Home_DriverState extends State<Home_Driver> {
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomText(
                                     text: uniqueTraders.length.toString(),
@@ -242,21 +242,21 @@ class _Home_DriverState extends State<Home_Driver> {
                               ),
                               Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomText(
                                     text: order.traderDetails.isNotEmpty &&
-                                        order.traderDetails.first
-                                            .doneorder ==
-                                            0
+                                            order.traderDetails.first
+                                                    .doneorder ==
+                                                0
                                         ? "غير جاهز"
                                         : "جاهز",
                                     size: isnormal ? 16 : 14,
                                     weight: FontWeight.bold,
                                     color: order.traderDetails.isNotEmpty &&
-                                        order.traderDetails.first
-                                            .doneorder ==
-                                            0
+                                            order.traderDetails.first
+                                                    .doneorder ==
+                                                0
                                         ? red
                                         : green,
                                   ),

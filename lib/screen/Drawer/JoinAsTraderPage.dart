@@ -1,13 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/helper/snack_bar.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/widget/Inallpage/CustomHeader.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:msh_checkbox/msh_checkbox.dart';
 import 'package:http/http.dart' as http;
 import '../../style/colors.dart';
@@ -90,14 +88,14 @@ class _TraderPageState extends State<TraderPage> {
       'productTypes': y.keys.toList(),
     };
 
-
+    
 
     if (formData['name'] == null ||
         formData['phone'] == null ||
         formData['city'] == null ||
         formData['offerPrice'] == null ||
         formData['businessSize'] == null) {
-
+      
       return;
     }
 
@@ -117,12 +115,12 @@ class _TraderPageState extends State<TraderPage> {
 
       if (response.statusCode == 200) {
 
-
+        
       } else {
-
+        
       }
     } catch (e) {
-
+      
     }
   }
 
@@ -179,11 +177,11 @@ class _TraderPageState extends State<TraderPage> {
                       }),
                       buildDropdownField(
                           "استعداد لتقديم افضل سعر في المملكة ؟", list1, title1,
-                              (val) {
-                            setState(() {
-                              title1 = val!;
-                            });
-                          }),
+                          (val) {
+                        setState(() {
+                          title1 = val!;
+                        });
+                      }),
                       buildDropdownField(
                           "حجم تجارتك ومستودعك بالسوق ؟", list2, title2, (val) {
                         setState(() {
@@ -372,14 +370,14 @@ class _TraderPageState extends State<TraderPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: List.generate(
                 (selectedTradeFields.keys.length / 3).ceil(),
-                    (index) {
+                (index) {
                   int start = index * 3;
                   int end = (start + 3) > selectedTradeFields.keys.length
                       ? selectedTradeFields.keys.length
                       : start + 3;
 
                   var keysSubset =
-                  selectedTradeFields.keys.toList().sublist(start, end);
+                      selectedTradeFields.keys.toList().sublist(start, end);
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -392,7 +390,7 @@ class _TraderPageState extends State<TraderPage> {
                               size: 40,
                               value: selectedTradeFields[key]!,
                               colorConfig:
-                              MSHColorConfig.fromCheckedUncheckedDisabled(
+                                  MSHColorConfig.fromCheckedUncheckedDisabled(
                                 checkedColor: red,
                               ),
                               style: MSHCheckboxStyle.stroke,
@@ -479,7 +477,7 @@ class _TraderPageState extends State<TraderPage> {
               child: CustomText(
                 text: "رجوع",
                 color:
-                Colors.white,
+                    Colors.white,
                 size: size.width * 0.045,
               ),
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
@@ -517,9 +515,9 @@ class _TraderPageState extends State<TraderPage> {
               textAlign: TextAlign.end,
               controller: name,
               decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: nameHint, // عرض الـ hint هنا
-                  contentPadding: EdgeInsets.symmetric(horizontal: 6.5)
+                border: InputBorder.none,
+                hintText: nameHint, // عرض الـ hint هنا
+                contentPadding: EdgeInsets.symmetric(horizontal: 6.5)
               ),
               style: TextStyle(
                 color: Colors.black,
@@ -547,7 +545,6 @@ class _TraderPageState extends State<TraderPage> {
     );
   }
 
-
   Padding buildPhoneField() {
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -566,83 +563,52 @@ class _TraderPageState extends State<TraderPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             color: grey,
-            child: SizedBox(
-              height: 47,
-              child: KeyboardActions(
-                config: KeyboardActionsConfig(
-                  actions: [
-                    KeyboardActionsItem(
-                      focusNode: phoneFocus,
-                      toolbarButtons: [
-                            (node) => CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: const Text(
-                            "تم",
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Tajawal",
-                            ),
-                          ),
-                          onPressed: () {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              node.unfocus();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+            child: IntlPhoneField(
+              onTap: () {
+                setState(() {
+                  phoneHint = "";
+                });
+              },
+              disableLengthCheck: true,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.start,
+              decoration: InputDecoration(
+                hintText: phoneHint,
+                border: InputBorder.none,
+                labelStyle: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
-                child: IntlPhoneField(
-                  focusNode: phoneFocus,
-                  onTap: () {
-                    setState(() {
-                      phoneHint = "";
-                    });
-                  },
-                  disableLengthCheck: true,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.start,
-                  decoration: InputDecoration(
-                    hintText: phoneHint,
-                    border: InputBorder.none,
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    hintStyle: TextStyle(
-                      color: Color.fromRGBO(153, 153, 160, 1),
-                      fontSize: 18,
-                      fontFamily: "Tajawal",
-                    ),
-                  ),
-                  flagsButtonMargin: EdgeInsets.only(right: 5),
-                  disableAutoFillHints: true,
-                  textAlignVertical: TextAlignVertical.center,
-                  initialCountryCode: 'JO',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  onChanged: (phone) {
-                    String x = phone.completeNumber;
-                    phoneCon.text = (phone.number.length == 0 || phone.number[0] == '0')
-                        ? x.replaceFirst("0", "")
-                        : x;
-                  },
+                hintStyle: TextStyle(
+                  color: Color.fromRGBO(153, 153, 160, 1),
+                  fontSize: 18,
+                  fontFamily: "Tajawal",
                 ),
               ),
+              flagsButtonMargin: EdgeInsets.only(right: 5),
+              disableAutoFillHints: true,
+              textAlignVertical: TextAlignVertical.center,
+              initialCountryCode: 'JO',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              onChanged: (phone) {
+                String x = phone.completeNumber;
+                phoneCon.text =
+                    (phone.number.length == 0 || phone.number[0] == '0')
+                        ? x.replaceFirst("0", "")
+                        : x;
+              },
             ),
           ),
-
         ],
       ),
     );
   }
-  final FocusNode phoneFocus = FocusNode();
+
   Padding buildDropdownField(String label, List<String> options, String value,
       ValueChanged<String?> onChanged) {
     return Padding(

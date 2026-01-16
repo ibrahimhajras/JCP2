@@ -24,11 +24,11 @@ class CarProvider with ChangeNotifier {
         } else {
           carNames = ['المركبة'];
           notifyListeners();
-
+          
         }
       }
     } catch (e) {
-
+      
       carNames = ['المركبة'];
       notifyListeners();
     }
@@ -74,11 +74,11 @@ class CarProvider with ChangeNotifier {
         if (data['status'] == 'success') {
           List<dynamic> categoriesData = data['data'];
           var selectedCategory = categoriesData.firstWhere(
-                  (cat) => cat['category_name'] == categoryName,
-              orElse: () => {'is_chassis_required': 0}
+            (cat) => cat['category_name'] == categoryName,
+            orElse: () => {'is_chassis_required': 0}
           );
           isChassisRequired = selectedCategory['is_chassis_required'] == 1 ||
-              selectedCategory['is_chassis_required'] == '1';
+                              selectedCategory['is_chassis_required'] == '1';
           notifyListeners();
         }
       }

@@ -97,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
             confirmText: "حسناً",
             onConfirm: () async {
               final prefs =
-              await SharedPreferences.getInstance();
+                  await SharedPreferences.getInstance();
               String? token = prefs.getString('token');
               _removeFcmToken(token!);
 
@@ -254,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
+                      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -291,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
+                      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -312,7 +312,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           textAlignVertical: TextAlignVertical.center,
                           decoration: InputDecoration(
                             hintText:
-                            user.phone.replaceFirst("+962", "962") ?? '',
+                                user.phone.replaceFirst("+962", "962") ?? '',
                             border: InputBorder.none,
                             labelStyle: const TextStyle(
                               color: Colors.black,
@@ -326,7 +326,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               fontWeight: FontWeight.w100,
                             ),
                             contentPadding:
-                            EdgeInsets.only(top: 3.0, left: 12.0),
+                                EdgeInsets.only(top: 3.0, left: 12.0),
                           ),
                           flagsButtonMargin: EdgeInsets.only(left: 5),
                           disableAutoFillHints: true,
@@ -345,7 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
+                      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -398,9 +398,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             }).toList(),
                             onChanged: isEditing
                                 ? (val) => setState(() {
-                              title = val!;
-                              user.city = val;
-                            })
+                                      title = val!;
+                                      user.city = val;
+                                    })
                                 : null,
                           ),
                         ),
@@ -411,7 +411,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 5),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
+                      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -452,7 +452,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
+                      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -603,21 +603,21 @@ class _ProfilePageState extends State<ProfilePage> {
                                         width: size.width * 0.9,
                                         decoration: BoxDecoration(
                                           borderRadius:
-                                          BorderRadius.circular(10),
+                                              BorderRadius.circular(10),
                                           color:
-                                          Color.fromRGBO(255, 255, 255, 1),
+                                              Color.fromRGBO(255, 255, 255, 1),
                                         ),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             SizedBox(
                                                 height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
+                                                        .size
+                                                        .height *
                                                     0.03),
                                             Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 CustomText(
                                                   text: " الخاصة بك ؟",
@@ -638,27 +638,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                             SizedBox(
                                                 height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
+                                                        .size
+                                                        .height *
                                                     0.03),
                                             Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 ElevatedButton(
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
                                                   style:
-                                                  ElevatedButton.styleFrom(
+                                                      ElevatedButton.styleFrom(
                                                     backgroundColor:
-                                                    Color.fromRGBO(153, 153,
-                                                        160, 0.63),
+                                                        Color.fromRGBO(153, 153,
+                                                            160, 0.63),
                                                     shape:
-                                                    RoundedRectangleBorder(
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
-                                                      BorderRadius.circular(
-                                                          10),
+                                                          BorderRadius.circular(
+                                                              10),
                                                     ),
                                                   ),
                                                   child: CustomText(
@@ -669,23 +669,23 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ),
                                                 SizedBox(
                                                     width:
-                                                    MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                        0.03),
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.03),
                                                 ElevatedButton(
                                                   onPressed: () async {
                                                     await deleteUser(int.parse(
                                                         user.user_id));
                                                   },
                                                   style:
-                                                  ElevatedButton.styleFrom(
+                                                      ElevatedButton.styleFrom(
                                                     backgroundColor: red,
                                                     shape:
-                                                    RoundedRectangleBorder(
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
-                                                      BorderRadius.circular(
-                                                          10),
+                                                          BorderRadius.circular(
+                                                              10),
                                                     ),
                                                   ),
                                                   child: CustomText(
@@ -698,8 +698,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                             SizedBox(
                                                 height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
+                                                        .size
+                                                        .height *
                                                     0.03),
                                           ],
                                         ),
@@ -739,16 +739,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                         children: [
                                           SizedBox(
                                               height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
+                                                      .size
+                                                      .height *
                                                   0.03),
                                           Row(
                                             mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                                MainAxisAlignment.center,
                                             children: [
                                               CustomText(
                                                 text:
-                                                "هل انت متأكد من تسجيل الخروج ؟",
+                                                    "هل انت متأكد من تسجيل الخروج ؟",
                                                 color: black,
                                                 size: 15,
                                               ),
@@ -756,12 +756,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                           SizedBox(
                                               height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
+                                                      .size
+                                                      .height *
                                                   0.03),
                                           Row(
                                             mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                                MainAxisAlignment.center,
                                             children: [
                                               ElevatedButton(
                                                 onPressed: () {
@@ -769,12 +769,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
-                                                  Color.fromRGBO(
-                                                      153, 153, 160, 0.63),
+                                                      Color.fromRGBO(
+                                                          153, 153, 160, 0.63),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(
-                                                        10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                 ),
                                                 child: CustomText(
@@ -785,8 +785,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               ),
                                               SizedBox(
                                                   width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
+                                                          .size
+                                                          .width *
                                                       0.03),
                                               ElevatedButton(
                                                 onPressed: () {
@@ -796,8 +796,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   backgroundColor: red,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(
-                                                        10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                 ),
                                                 child: CustomText(
@@ -810,8 +810,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                           SizedBox(
                                               height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
+                                                      .size
+                                                      .height *
                                                   0.03),
                                         ],
                                       ),
@@ -921,24 +921,24 @@ class _ProfilePageState extends State<ProfilePage> {
     await prefs.remove('vehicle_fuelType');
     await prefs.remove('vehicle_engineSize');
     final profileProvider =
-    Provider.of<ProfileProvider>(context, listen: false);
+        Provider.of<ProfileProvider>(context, listen: false);
     profileProvider.resetFields();
     final OrderProvider1 = Provider.of<OrderProvider>(context, listen: false);
     OrderProvider1.clearOrders();
     final orderDetailsProvider =
-    Provider.of<OrderDetailsProvider>(context, listen: false);
+        Provider.of<OrderDetailsProvider>(context, listen: false);
     orderDetailsProvider.clear();
     final editProductProvider =
-    Provider.of<EditProductProvider>(context, listen: false);
+        Provider.of<EditProductProvider>(context, listen: false);
     editProductProvider.clear();
     final deliveryModel =
-    Provider.of<DeliveryModelOrange>(context, listen: false);
+        Provider.of<DeliveryModelOrange>(context, listen: false);
     deliveryModel.clear();
 
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-          (Route<dynamic> route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 

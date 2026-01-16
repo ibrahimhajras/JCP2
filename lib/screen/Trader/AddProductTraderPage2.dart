@@ -158,7 +158,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   Future<String?> getLocalVersion() async {
     try {
       final String buildVersion =
-          await rootBundle.loadString('assets/version.txt');
+      await rootBundle.loadString('assets/version.txt');
       return buildVersion.trim();
     } catch (e) {
       return null;
@@ -211,7 +211,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
         // تفعيل checkboxes بناءً على صلاحيات التاجر
         final traderProvider =
-            Provider.of<ProfileTraderProvider>(context, listen: false);
+        Provider.of<ProfileTraderProvider>(context, listen: false);
         final trader = traderProvider.trader;
         for (int i = 0; i < 5; i++) {
           if (_hasPermission(trader, i)) {
@@ -228,7 +228,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
             .fetchCars(user.user_id);
 
         final engineProvider =
-            Provider.of<EngineSizeProvider>(context, listen: false);
+        Provider.of<EngineSizeProvider>(context, listen: false);
         await engineProvider.fetchEngineSizes();
 
         if (engineProvider.engineSizes.isNotEmpty && mounted) {
@@ -294,15 +294,15 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   ];
 
   final List<TextEditingController> priceControllers =
-      List.generate(5, (_) => TextEditingController());
+  List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> amountControllers =
-      List.generate(5, (_) => TextEditingController());
+  List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> warrantyControllers =
-      List.generate(5, (_) => TextEditingController());
+  List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> markControllers =
-      List.generate(5, (_) => TextEditingController());
+  List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
-      List.generate(5, (_) => TextEditingController());
+  List.generate(5, (_) => TextEditingController());
   List<int?> selectedNumbers = List.filled(5, null);
 
   final List<bool> checkboxStates = List.generate(5, (_) => false);
@@ -363,8 +363,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               icon: Image.asset(
                 checkboxStates[index]
                     ? checkboxCompleted[index]
-                        ? 'assets/images/addgreen.png'
-                        : 'assets/images/addorange.png'
+                    ? 'assets/images/addgreen.png'
+                    : 'assets/images/addorange.png'
                     : 'assets/images/original.png',
                 width: sizeFactor * 30,
               ),
@@ -583,7 +583,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
     // التحقق من الصورة (دائماً مطلوبة للون الأخضر) - الآن نتحقق من وجود صورة واحدة على الأقل
     final imageProvider =
-        Provider.of<ImageProviderNotifier>(context, listen: false);
+    Provider.of<ImageProviderNotifier>(context, listen: false);
     bool isImagePresent = imageProvider.imageFiles[index].isNotEmpty;
     if (!isImagePresent) {
       setState(() {
@@ -622,7 +622,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   Future<void> submitData(String user_id) async {
     final carProvider = Provider.of<CarProvider>(context, listen: false);
     final imageProvider =
-        Provider.of<ImageProviderNotifier>(context, listen: false);
+    Provider.of<ImageProviderNotifier>(context, listen: false);
 
     setState(() {
       isLoading = true;
@@ -630,24 +630,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-
-    // التحقق من إعداد إخفاء السنوات
-    final traderCheck =
-        Provider.of<ProfileTraderProvider>(context, listen: false).trader;
-    final isYearRangeHidden =
-        traderCheck != null && traderCheck.isYearRangeRequired;
-
-    // ✅ تحديد قيم السنوات النهائية
-    String finalToYear = titles[4];  // "إلى"
-    String finalFromYear = titles[5];  // "من"
-
-    // إذا كانت السنوات مخفية، استخدم سنة السيارة من الاختيار
-    if (isYearRangeHidden && titles[2].isNotEmpty && titles[2] != "المركبة") {
-      // استخراج السنة من اسم السيارة إذا كانت موجودة
-      // أو استخدام قيمة افتراضية
-      finalToYear = titles[2];  // يمكن تعديلها حسب البنية
-      finalFromYear = titles[2];
-    }
 
     Map<String, dynamic> data = {
       'user_id': user_id,
@@ -657,12 +639,12 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       'Category': titles[1],
       'fromYear': titles[2],
       'toYear': selectedEngineSizes,
-      'fuelType': finalToYear,  // ✅ استخدام القيمة النهائية
-      'engineSize': finalFromYear,  // ✅ استخدام القيمة النهائية
+      'fuelType': titles[4],
+      'engineSize': titles[5],
       'checkboxData': [],
       'token': token,
       'is_for_all_cars':
-          carProvider.isChassisRequired ? (isForAllCars ? 1 : 0) : null,
+      carProvider.isChassisRequired ? (isForAllCars ? 1 : 0) : null,
     };
 
     for (int i = 0; i < 5; i++) {
@@ -821,7 +803,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: !isForAllCars
-                            ? red.withValues(alpha: 0.1)
+                            ? red.withOpacity(0.1)
                             : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
@@ -870,7 +852,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withValues(alpha: 0.1)
+                            ? green.withOpacity(0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -951,7 +933,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child:
-                      Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+                  Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
                 ),
               ),
             ),
@@ -998,28 +980,20 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                         .trader;
                 final hideEngineSize =
                     traderData != null && traderData.isEngineSizeRequired;
-                final hideYearRange =
-                    traderData != null && traderData.isYearRangeRequired;
-
-                // ✅ إخفاء الـ Row بالكامل إذا كانت كل العناصر مخفية
-                if (hideEngineSize && hideYearRange) {
-                  return const SizedBox.shrink();
-                }
 
                 return buildDropdownRow(
                   [
                     hideEngineSize
                         ? <String>[]
                         : (engineProvider.engineSizes.isEmpty
-                            ? ["ح.المحرك"]
-                            : engineProvider.engineSizes),
+                        ? ["ح.المحرك"]
+                        : engineProvider.engineSizes),
                     toYearList,
                     fromYearList,
                   ],
                   [3, 4, 5],
                   sizeFactor,
                   hideEngineSize: hideEngineSize,
-                  hideYearRange: hideYearRange,
                 );
               },
             ),
@@ -1199,7 +1173,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                         },
                         items: List.generate(
                           50,
-                          (i) => DropdownMenuItem(
+                              (i) => DropdownMenuItem(
                             value: i + 1,
                             child: Center(
                               child: CustomText(
@@ -1346,7 +1320,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                   hintText: "إضافة ملاحظة",
                   border: const OutlineInputBorder(),
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                   hintStyle: TextStyle(
                     fontSize: sizeFactor * 12,
                     color: Colors.grey,
@@ -1486,8 +1460,57 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     }
   }
 
+  Future<bool> _requestGalleryPermission() async {
+    if (Platform.isAndroid) {
+      // أندرويد 13+ (SDK 33) يستخدم READ_MEDIA_IMAGES
+      // أندرويد 12 وأقل يستخدم storage
+
+      // نحاول photos أولاً (أندرويد 13+)
+      var photosStatus = await Permission.photos.status;
+      if (photosStatus.isGranted) {
+        return true;
+      }
+
+      // نحاول storage (أندرويد 12 وأقل)
+      var storageStatus = await Permission.storage.status;
+      if (storageStatus.isGranted) {
+        return true;
+      }
+
+      // نطلب الصلاحيات
+      photosStatus = await Permission.photos.request();
+      if (photosStatus.isGranted) {
+        return true;
+      }
+
+      storageStatus = await Permission.storage.request();
+      if (storageStatus.isGranted) {
+        return true;
+      }
+
+      // إذا مرفوض بشكل نهائي
+      if (photosStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
+        if (mounted) _showPermissionDialog(context);
+      }
+
+      return false;
+    } else {
+      // iOS
+      var status = await Permission.photos.request();
+      if (status.isPermanentlyDenied) {
+        if (mounted) _showPermissionDialog(context);
+        return false;
+      }
+      return status.isGranted;
+    }
+  }
+
   Future<void> _pickMultipleImages(int index) async {
-    // AssetPicker handles permissions automatically
+    // التحقق من صلاحية الصور/الاستوديو
+    bool hasPermission = await _requestGalleryPermission();
+    if (!hasPermission) {
+      return;
+    }
 
     final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     final remaining = imageProvider.getRemainingSlots(index);
@@ -1583,7 +1606,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
   Widget buildDropdownRow(List<List<String>> options, List<int> selectedIndices,
       double sizeFactor,
-      {bool hideEngineSize = false, bool hideYearRange = false}) {
+      {bool hideEngineSize = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
           horizontal: sizeFactor * 20, vertical: sizeFactor * 10),
@@ -1683,7 +1706,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       color: Colors.white,
                       child: Container(
                         padding:
-                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1715,12 +1738,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 );
               },
             );
-          }
-
-          // ✅ إخفاء dropdown السنوات إذا كان hideYearRange == true
-          String currentValue = titles[selectedIndices[index]];
-          if (hideYearRange && (currentValue == "من" || currentValue == "إلى")) {
-            return const SizedBox.shrink();
           }
 
           // باقي الـ dropdowns كما هي
@@ -1758,7 +1775,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   ),
                   items: optionList.map((String value) {
                     bool isDefault = defaultValues.contains(value);
@@ -1833,7 +1850,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         title: CustomText(text: "صلاحيات مطلوبة"),
         content: CustomText(
             text:
-                "التطبيق يحتاج للوصول إلى الصور/الكاميرا لإتمام هذه العملية. يرجى تفعيل الصلاحية من الإعدادات."),
+            "التطبيق يحتاج للوصول إلى الصور/الكاميرا لإتمام هذه العملية. يرجى تفعيل الصلاحية من الإعدادات."),
         actions: [
           TextButton(
             child: CustomText(text: "إلغاء"),
@@ -2197,7 +2214,7 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                       checkboxTheme: CheckboxThemeData(
                         checkColor: WidgetStateProperty.all(Colors.white),
                         fillColor: WidgetStateProperty.resolveWith<Color?>(
-                          (states) {
+                              (states) {
                             if (states.contains(WidgetState.selected)) {
                               return green;
                             }
@@ -2253,21 +2270,21 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
                       onChanged: isAllSelected
                           ? null
                           : (bool? value) {
-                              setState(() {
-                                if (value == true) {
-                                  selectedItems.add(item);
-                                } else {
-                                  selectedItems.remove(item);
-                                }
+                        setState(() {
+                          if (value == true) {
+                            selectedItems.add(item);
+                          } else {
+                            selectedItems.remove(item);
+                          }
 
-                                if (selectedItems.length ==
-                                    widget.items.length) {
-                                  selectedItems = List.from(widget.items);
-                                }
+                          if (selectedItems.length ==
+                              widget.items.length) {
+                            selectedItems = List.from(widget.items);
+                          }
 
-                                widget.onSelectionChanged(selectedItems);
-                              });
-                            },
+                          widget.onSelectionChanged(selectedItems);
+                        });
+                      },
                     ),
                   );
                 }

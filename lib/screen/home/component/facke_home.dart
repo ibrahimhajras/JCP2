@@ -311,17 +311,17 @@ class CustomHeader extends StatelessWidget {
 //       String? userId = prefs.getString('userId');
 //       String? token = prefs.getString('token');
 //       if (userId == null) {
-//
+//         
 //         return;
 //       }
-//
-//
+//       
+//       
 //       final url = Uri.parse(
 //           'https://jordancarpart.com/Api/getordersofuser.php?user_id=$userId&token=$token');
 //       final response = await http.get(
 //         url,
 //       );
-//
+//       
 //       if (response.statusCode == 200) {
 //         final responseData = json.decode(response.body);
 //         if (responseData['success'] == true) {
@@ -332,15 +332,15 @@ class CustomHeader extends StatelessWidget {
 //           if (orders.isNotEmpty) {
 //             countdownProvider.startCountdown(DateTime.parse(orders.last.time));
 //           }
-//
+//           
 //         } else {
-//
+//           
 //         }
 //       } else {
-//
+//         
 //       }
 //     } catch (e) {
-//
+//       
 //     }
 //   }
 //
@@ -412,7 +412,7 @@ class CustomHeader extends StatelessWidget {
 //       });
 //       _fetchOrdersForUser(context);
 //     } else {
-//
+//       
 //     }
 //   }
 //
@@ -515,7 +515,7 @@ class CustomHeader extends StatelessWidget {
 //     final timeDifferenceGt24hrs = apiData['time_difference_gt_24hrs'];
 //     final limitOfOrder = apiData['limit_of_order'];
 //     saveLimitOfOrder(limitOfOrder);
-//
+//     
 //     if (timeDifferenceGt24hrs) {
 //       return _buildFormFields(context, size, user);
 //     } else {
@@ -1017,7 +1017,7 @@ class CustomHeader extends StatelessWidget {
 //       padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
 //       child: MaterialButton(
 //         onPressed: () async {
-//
+//           
 //           if (carid.text.length == 17 && part_1.text.isNotEmpty) {
 //             onSave(carid.text, part_1.text, part_2.text, part_3.text,
 //                 user.user_id);
@@ -1121,7 +1121,7 @@ class CustomHeader extends StatelessWidget {
 //         int? isOrderAllowed = prefs.getInt('isOrderAllowed');
 //         if (isOrderAllowed == 1) {
 //           await prefs.setInt('isOrderAllowed', 0);
-//
+//           
 //         }
 //         setState(() {
 //           isLoading = true;

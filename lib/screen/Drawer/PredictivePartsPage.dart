@@ -44,7 +44,7 @@ class _PredictivePartsPageState extends State<PredictivePartsPage> {
         });
       }
     } catch (e) {
-
+      
       setState(() {
         isLoading = false;
       });

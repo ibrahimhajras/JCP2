@@ -30,7 +30,7 @@ class _OrderDetailsPageState_OrangePrivate
     extends State<OrderDetailsPage_OrangePrivate> {
   @override
   void initState() {
-
+    
     super.initState();
   }
 
@@ -87,20 +87,20 @@ class _OrderDetailsPageState_OrangePrivate
                   SizedBox(height: size.height * 0.07),
                   widget.status == true
                       ? MaterialButton(
-                    onPressed: _handleConfirm,
-                    height: 50,
-                    minWidth: size.width * 0.9,
-                    color: Color.fromRGBO(195, 29, 29, 1),
-                    child: CustomText(
-                      text: "تاكيد",
-                      color: white,
-                      size: 16,
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  )
+                          onPressed: _handleConfirm,
+                          height: 50,
+                          minWidth: size.width * 0.9,
+                          color: Color.fromRGBO(195, 29, 29, 1),
+                          child: CustomText(
+                            text: "تاكيد",
+                            color: white,
+                            size: 16,
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        )
                       : Container(),
                   SizedBox(height: 20),
                 ],
@@ -330,7 +330,7 @@ class _OrderDetailsPageState_OrangePrivate
       Navigator.of(context).pop();
 
       final billResponseData = jsonDecode(billResponse.body);
-
+      
 
       if (billResponse.statusCode == 200 &&
           billResponseData['success'] == true) {
@@ -349,8 +349,8 @@ class _OrderDetailsPageState_OrangePrivate
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
-              )),
+            '. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
+          )),
         );
       }
     } catch (e) {
@@ -358,7 +358,7 @@ class _OrderDetailsPageState_OrangePrivate
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
-            Text('. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى')),
+                Text('. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى')),
       );
     }
   }

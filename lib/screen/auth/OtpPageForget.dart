@@ -143,7 +143,7 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
                 ),
               ),
 
-              SizedBox(height: size.height * 0.05),
+              SizedBox(height: size.height * 0.3),
               MaterialButton(
                 height: size.height * 0.07,
                 minWidth: size.width * 0.9,
@@ -186,12 +186,12 @@ class _OtpPageForgweState extends State<OtpPageForgwe> with CodeAutoFill {
 
     final prefs = await SharedPreferences.getInstance();
     String? otpFromPrefs = prefs.getString('otp');
+    
 
-
-
+    
 
     if (otpFromPrefs == enteredOtp) {
-
+      
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(

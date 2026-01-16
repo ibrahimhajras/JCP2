@@ -18,7 +18,7 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
   @override
   void initState() {
     super.initState();
-
+    
   }
 
   @override
@@ -83,17 +83,17 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                         child: SingleChildScrollView(
                           child: Column(
                             children: widget.items.map(
-                                  (e) {
+                              (e) {
                                 String? imageUrl;
                                 if (e["itemimg64"] != null &&
                                     e["itemimg64"].isNotEmpty) {
                                   imageUrl = e["itemimg64"];
-
-
+                                  
+                                  
                                 }
                                 return Padding(
                                   padding:
-                                  const EdgeInsets.symmetric(vertical: 5),
+                                      const EdgeInsets.symmetric(vertical: 5),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
@@ -130,31 +130,31 @@ class _OrderDetailsPage2State extends State<OrderDetailsPage2> {
                                         ),
                                         subtitle: imageUrl != null
                                             ? Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                            BorderRadius.circular(30),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey
-                                                    .withOpacity(0.3),
-                                                spreadRadius: 2,
-                                                blurRadius: 5,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Image.network(
-                                            "$imageUrl",
-                                            height: 250,
-                                            width: 350,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Image.network(
+                                                  "$imageUrl",
+                                                  height: 250,
+                                                  width: 350,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
                                             : CustomText(
-                                          text: "لا يوجد صورة",
-                                          size: 14,
-                                          color: Colors.red,
-                                        ),
+                                                text: "لا يوجد صورة",
+                                                size: 14,
+                                                color: Colors.red,
+                                              ),
                                       ),
                                     ],
                                   ),

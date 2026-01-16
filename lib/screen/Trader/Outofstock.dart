@@ -37,7 +37,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
         "https://jordancarpart.com/Api/Out_of_stock.php?user_id=${user.user_id}");
 
     try {
-
+      
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -46,7 +46,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
         }
       }
     } catch (e) {
-
+      
     }
 
     return [];
@@ -126,7 +126,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (context) => TraderInfoPage()),
-                          (route) => false,
+                      (route) => false,
                     );
                   },
                   child: Padding(
@@ -173,7 +173,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
           Expanded(
               child: Center(
                   child:
-                  CustomText(text: "إسم القطعة", weight: FontWeight.bold))),
+                      CustomText(text: "إسم القطعة", weight: FontWeight.bold))),
         ],
       ),
     );
@@ -188,8 +188,8 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
 
     return parsedPrice % 1 == 0
         ? parsedPrice
-        .toInt()
-        .toString() // Convert to integer if no decimal values
+            .toInt()
+            .toString() // Convert to integer if no decimal values
         : parsedPrice.toString(); // Keep decimal if needed
   }
 
@@ -205,7 +205,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
             child: Center(
               child: GestureDetector(
                   onTap: () {
-
+                    
                     _showEditProductDialog(
                       context,
                       item['product_id'].toString(),
@@ -261,7 +261,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
                 width: 50,
                 height: 40,
                 decoration:
-                BoxDecoration(border: Border.all(color: Colors.black)),
+                    BoxDecoration(border: Border.all(color: Colors.black)),
                 child: Center(
                   child: CustomText(
                       text: item['amount'].toString(),
@@ -274,10 +274,10 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
           Expanded(
             child: Center(
                 child: CustomText(
-                  text: item['product_name'],
-                  size: 16,
-                  color: Colors.red,
-                )),
+              text: item['product_name'],
+              size: 16,
+              color: Colors.red,
+            )),
           ),
         ],
       ),
@@ -332,13 +332,13 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
                                       CustomText(text: "الكفالة"),
                                       Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           CustomText(text: "يوم", color: words),
                                           SizedBox(width: 2),
                                           CustomText(
                                             text: product['warranty']
-                                                ?.toString() ??
+                                                    ?.toString() ??
                                                 "غير محدد",
                                             color: words,
                                           ),
@@ -406,8 +406,8 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
                                 Expanded(
                                   child: CustomText(
                                     text:
-                                    "${product['fromYear']} ${product['Category']} ${product['NameCar']} ${product['engineSize']}-${product['fuelType']}" ??
-                                        "غير محدد",
+                                        "${product['fromYear']} ${product['Category']} ${product['NameCar']} ${product['engineSize']}-${product['fuelType']}" ??
+                                            "غير محدد",
                                     color: words,
                                     maxLines: null,
                                     overflow: TextOverflow.visible,
@@ -447,12 +447,12 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
 
   Future<String> fetchImageUrl(int productId) async {
     final url =
-    Uri.parse('http://jordancarpart.com/Api/getphoto.php?id=$productId');
+        Uri.parse('http://jordancarpart.com/Api/getphoto.php?id=$productId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
+      
       return data['image'];
     } else {
       throw Exception('فشل في تحميل الصورة');
@@ -465,7 +465,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
   }
 
   Widget _buildImageRow(String label, String? imageUrl) {
-
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -477,19 +477,19 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
         SizedBox(width: 10),
         imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
-          onTap: () {
-            _showImageDialog(imageUrl);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(
-              imageUrl,
-              width: MediaQuery.of(context).size.width * 0.26,
-              height: MediaQuery.of(context).size.width * 0.22,
-              fit: BoxFit.cover,
-            ),
-          ),
-        )
+                onTap: () {
+                  _showImageDialog(imageUrl);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    imageUrl,
+                    width: MediaQuery.of(context).size.width * 0.26,
+                    height: MediaQuery.of(context).size.width * 0.22,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
             : CustomText(text: "لا توجد صورة", size: 16),
       ],
     );
@@ -514,8 +514,8 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
       TextEditingController amountController) {
     priceController.text = (double.parse(price) % 1 == 0)
         ? double.parse(price)
-        .toInt()
-        .toString() // Convert to int if no decimals
+            .toInt()
+            .toString() // Convert to int if no decimals
         : double.parse(price).toString(); // Keep decimals if needed
     amountController.text = amount;
 
@@ -571,17 +571,17 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
                             showConfirmationDialog(
                               context: context,
                               message:
-                              "هل تريد تأكيد التعديلات على هذه القطعة؟",
+                                  "هل تريد تأكيد التعديلات على هذه القطعة؟",
                               confirmText: "تأكيد",
                               onConfirm: () {
                                 String newPrice =
-                                priceController.text.isNotEmpty
-                                    ? priceController.text
-                                    : price.toString();
+                                    priceController.text.isNotEmpty
+                                        ? priceController.text
+                                        : price.toString();
                                 String newAmount =
-                                amountController.text.isNotEmpty
-                                    ? amountController.text
-                                    : amount.toString();
+                                    amountController.text.isNotEmpty
+                                        ? amountController.text
+                                        : amount.toString();
                                 saveChanges(
                                   productid,
                                   productdetailsid,
@@ -747,7 +747,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
         if (responseData['success'] == true) {
-
+          
           if (mounted) {
             setState(() {
               final user = Provider.of<ProfileProvider>(context, listen: false);
@@ -756,25 +756,25 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
           }
           return true;
         } else {
-
+          
           return false;
         }
       } else {
-
+        
         return false;
       }
     } catch (e) {
-
+      
       return false;
     }
   }
 
   void saveChanges(String product_id, String checkboxItem, String newPrice,
       String newAmount) async {
-
-
-
-
+    
+    
+    
+    
 
     final url = Uri.parse('https://jordancarpart.com/Api/updateproduct.php');
     final response = await http.post(
@@ -804,7 +804,7 @@ class _OutOfStockPageState extends State<OutOfStockPage> {
         });
       }
     } else {
-
+      
     }
   }
 }

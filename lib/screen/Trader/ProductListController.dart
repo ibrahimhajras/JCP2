@@ -54,7 +54,7 @@ class ProductListController {
       }
       return [];
     } catch (e) {
-
+      
       return [];
     }
   }
@@ -89,7 +89,7 @@ class ProductListController {
       products.addAll(newProducts);
       hasMore = newProducts.length >= itemsPerPage;
     } catch (e) {
-
+      
       // You might want to handle this error in your UI
     }
   }
@@ -124,7 +124,7 @@ class ProductListController {
         hasMore = false;
       }
     } catch (e) {
-
+      
     } finally {
       isLoading = false;
     }

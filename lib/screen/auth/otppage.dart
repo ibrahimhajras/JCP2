@@ -28,12 +28,12 @@ class OtpPage extends StatefulWidget {
 
   const OtpPage(
       {Key? key,
-        required this.phone,
-        required this.fname,
-        required this.lname,
-        required this.password,
-        required this.city,
-        required this.AddressDetail})
+      required this.phone,
+      required this.fname,
+      required this.lname,
+      required this.password,
+      required this.city,
+      required this.AddressDetail})
       : super(key: key);
 
   @override
@@ -42,13 +42,13 @@ class OtpPage extends StatefulWidget {
 
 class _OtpPageState extends State<OtpPage> with CodeAutoFill {
   List<TextEditingController> otpControllers =
-  List.generate(6, (index) => TextEditingController());
+      List.generate(6, (index) => TextEditingController());
   List<FocusNode> focusNodes = List.generate(6, (index) => FocusNode());
 
   bool isLoading = false;
-  Timer? _timer;
-  int _start = 60;
-  String generatedOtp = '';
+  Timer? _timer;      
+  int _start = 60;  
+  String generatedOtp = ''; 
   bool canResendOtp = false;
 
   @override
@@ -197,7 +197,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                     SizedBox(height: size.height * 0.02),
                     CustomText(
                       text:
-                      "لقد أرسلنا رمزاً مكوناً من 6 أرقام إلى رقم هاتفك المسجل. يرجى إدخال هذا الرمز لإكمال عملية التسجيل الخاصة بك.",
+                          "لقد أرسلنا رمزاً مكوناً من 6 أرقام إلى رقم هاتفك المسجل. يرجى إدخال هذا الرمز لإكمال عملية التسجيل الخاصة بك.",
                       color: Colors.grey,
                       size: size.width * 0.04,
                       weight: FontWeight.w400,
@@ -228,12 +228,12 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide:
-                                      BorderSide(color: red, width: 2),
+                                          BorderSide(color: red, width: 2),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide:
-                                      BorderSide(color: red, width: 2),
+                                          BorderSide(color: red, width: 2),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
@@ -242,7 +242,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                                     ),
                                     hintText: "-",
                                     hintStyle:
-                                    TextStyle(color: Colors.grey.shade600),
+                                        TextStyle(color: Colors.grey.shade600),
                                     contentPadding: EdgeInsets.symmetric(
                                         vertical: size.height * 0.030),
                                   ),
@@ -274,14 +274,14 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
                       child: isLoading
                           ? RotatingImagePage()
                           : Text(
-                        "متابعة",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: size.width * 0.045,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Tajawal",
-                        ),
-                      ),
+                              "متابعة",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: size.width * 0.045,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "Tajawal",
+                              ),
+                            ),
                       padding: EdgeInsets.symmetric(
                           vertical: size.height * 0.015,
                           horizontal: size.width * 0.12),
@@ -340,7 +340,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
       String message = 'لقد تجاوزت الحد المسموح من محاولات إرسال رمز التحقق';
       if (limitCheck['remaining_seconds'] != null) {
         message +=
-        '\n\nيمكنك المحاولة مرة أخرى بعد\n${OtpRateLimiter.formatRemainingTime(limitCheck['remaining_seconds'])}';
+            '\n\nيمكنك المحاولة مرة أخرى بعد\n${OtpRateLimiter.formatRemainingTime(limitCheck['remaining_seconds'])}';
       }
 
       showConfirmationDialog(
@@ -369,7 +369,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
     });
 
     String enteredOtp =
-    otpControllers.map((controller) => controller.text).join();
+        otpControllers.map((controller) => controller.text).join();
 
     final prefs = await SharedPreferences.getInstance();
     String? otpFromPrefs = prefs.getString('otp');
@@ -377,12 +377,12 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
     if (otpFromPrefs == enteredOtp) {
       Uri apiUrl = Uri.parse(
         'https://jordancarpart.com/Api/auth/rigester.php'
-            '?phone=${widget.phone}'
-            '&type=1'
-            '&password=${widget.password}'
-            '&city=${widget.city}'
-            '&name=${Uri.encodeComponent("${widget.fname} ${widget.lname}")}'
-            '&addressDetail=${Uri.encodeComponent(widget.AddressDetail)}',
+        '?phone=${widget.phone}'
+        '&type=1'
+        '&password=${widget.password}'
+        '&city=${widget.city}'
+        '&name=${Uri.encodeComponent("${widget.fname} ${widget.lname}")}'
+        '&addressDetail=${Uri.encodeComponent(widget.AddressDetail)}',
       );
 
       final response = await http.get(
@@ -404,7 +404,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
-              (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
         );
       }
       setState(() {
@@ -437,7 +437,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
         UserModel user = UserModel.fromJson(userData);
 
         final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
+            Provider.of<ProfileProvider>(context, listen: false);
         profileProvider.setuser_id(user.userId);
         profileProvider.setphone(user.phone);
         profileProvider.setname(user.name);
@@ -476,7 +476,7 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePage(page: 1)),
-              (Route<dynamic> route) => false,
+          (Route<dynamic> route) => false,
         );
       } else {
         // If auto-login fails, show success message and go to login
@@ -532,8 +532,8 @@ class _OtpPageState extends State<OtpPage> with CodeAutoFill {
   void codeUpdated() {
     setState(() {
       for (int i = 0;
-      i < generatedOtp.length && i < otpControllers.length;
-      i++) {
+          i < generatedOtp.length && i < otpControllers.length;
+          i++) {
         otpControllers[i].text = generatedOtp[i];
       }
     });

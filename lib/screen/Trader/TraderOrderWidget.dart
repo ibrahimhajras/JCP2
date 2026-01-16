@@ -30,7 +30,7 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
   void initState() {
     super.initState();
     final profileProvider =
-    Provider.of<ProfileProvider>(context, listen: false);
+        Provider.of<ProfileProvider>(context, listen: false);
     String userId = profileProvider.getuser_id();
     ordersStreamData = ordersStream(userId);
     _checkForNotifications();
@@ -53,12 +53,12 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       hasNewNotification = hasUnread;
@@ -136,7 +136,7 @@ class _TraderOrderWidgetState extends State<TraderOrderWidget> {
                     itemCount: uniqueOrders.length,
                     itemBuilder: (context, index) {
                       final order =
-                      uniqueOrders[uniqueOrders.length - 1 - index];
+                          uniqueOrders[uniqueOrders.length - 1 - index];
                       return GestureDetector(
                         onTap: () async {
                           try {
@@ -296,7 +296,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
 
   Future<void> _fetchCustomerInfo() async {
     final hdr = widget.orderDetails['hdr'] != null &&
-        widget.orderDetails['hdr'].isNotEmpty
+            widget.orderDetails['hdr'].isNotEmpty
         ? widget.orderDetails['hdr'][0]
         : {};
 
@@ -370,19 +370,19 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
     }
 
     final profileProvider =
-    Provider.of<ProfileProvider>(context, listen: false);
+        Provider.of<ProfileProvider>(context, listen: false);
     String id = profileProvider.getuser_id();
 
     final hdr = widget.orderDetails['hdr'] != null &&
-        widget.orderDetails['hdr'].isNotEmpty
+            widget.orderDetails['hdr'].isNotEmpty
         ? widget.orderDetails['hdr'][0]
         : {};
 
     final items = (widget.orderDetails['items'] ?? [])
         .where((item) =>
-    item != null &&
-        item['product_details'] != null &&
-        item['product_details']['user_id'].toString() == id)
+            item != null &&
+            item['product_details'] != null &&
+            item['product_details']['user_id'].toString() == id)
         .toList();
 
     final size = MediaQuery.of(context).size;
@@ -418,34 +418,34 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                   Expanded(
                     child: items.isNotEmpty
                         ? SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildTableHeader(),
-                          ...items
-                              .map((item) => _buildItemRow(item, size))
-                              .toList(),
-                          const SizedBox(height: 10),
-                          _buildTotalCost(items),
-                          _buildCustomerInfo(size),
-                          const SizedBox(height: 20),
-                          _isLoading
-                              ? RotatingImagePage()
-                              : widget.anotherParameter == 0
-                              ? CustomButton(
-                            text: 'تم',
-                            onPressed: () {
-                              updateDeliveryStatus(
-                                  hdr['orderId'], 1);
-                            },
+                            child: Column(
+                              children: [
+                                _buildTableHeader(),
+                                ...items
+                                    .map((item) => _buildItemRow(item, size))
+                                    .toList(),
+                                const SizedBox(height: 10),
+                                _buildTotalCost(items),
+                                _buildCustomerInfo(size),
+                                const SizedBox(height: 20),
+                                _isLoading
+                                    ? RotatingImagePage()
+                                    : widget.anotherParameter == 0
+                                        ? CustomButton(
+                                            text: 'تم',
+                                            onPressed: () {
+                                              updateDeliveryStatus(
+                                                  hdr['orderId'], 1);
+                                            },
+                                          )
+                                        : Container()
+                              ],
+                            ),
                           )
-                              : Container()
-                        ],
-                      ),
-                    )
                         : Center(
-                      child: CustomText(
-                          text: 'لا توجد عناصر متاحة', size: 18),
-                    ),
+                            child: CustomText(
+                                text: 'لا توجد عناصر متاحة', size: 18),
+                          ),
                   ),
 
                 ],
@@ -577,7 +577,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
               ),
             ),
           ),
-
+          
           // Content
           Padding(
             padding: const EdgeInsets.all(16),
@@ -585,7 +585,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
               children: [
                 if (customerName.isNotEmpty)
                   _buildCustomerRow(Icons.person_outline, customerName),
-
+                
                 if (customerName.isNotEmpty && (customerPhone.isNotEmpty || customerCity.isNotEmpty))
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 10),
@@ -596,15 +596,15 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                   _buildCustomerRow(Icons.phone_outlined, customerPhone, isPhone: true),
 
                 if (customerPhone.isNotEmpty && (customerCity.isNotEmpty || addressDetails.isNotEmpty))
-                  const Padding(
+                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Divider(height: 1, color: Color(0xFFEEEEEE)),
                   ),
 
                 if (customerCity.isNotEmpty || addressDetails.isNotEmpty)
                   _buildCustomerRow(
-                      Icons.location_on_outlined,
-                      addressDetails.isNotEmpty ? '$customerCity - $addressDetails' : customerCity
+                    Icons.location_on_outlined, 
+                    addressDetails.isNotEmpty ? '$customerCity - $addressDetails' : customerCity
                   ),
               ],
             ),
@@ -620,7 +620,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
     if (isPhone && text.trim().isNotEmpty && !text.trim().startsWith('0')) {
       displayText = '0${text.trim()}';
     }
-
+    
     return GestureDetector(
       onTap: isPhone ? () => _makePhoneCall(text) : null,
       child: Row(
@@ -656,22 +656,22 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
     if (!formattedNumber.startsWith('0')) {
       formattedNumber = '0$formattedNumber';
     }
-
+    
     final Uri phoneUri = Uri(scheme: 'tel', path: formattedNumber);
-    await launchUrl(phoneUri);
+      await launchUrl(phoneUri);
   }
 
   Widget _buildSectionTitle(String title) {
     return Center(
         child: Align(
-          alignment: Alignment.center,
-          child: CustomText(
-            text: title,
-            size: 14,
-            weight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ));
+      alignment: Alignment.center,
+      child: CustomText(
+        text: title,
+        size: 14,
+        weight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    ));
   }
 
   Widget _buildVehicleInfo(Map<String, dynamic> hdr, Size size) {
@@ -838,12 +838,12 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
     );
   }
 
-  void _showDetailsDialog({
+        void _showDetailsDialog({
     required BuildContext context,
     required Map<String, dynamic> item,
   }) {
     final user =
-    Provider.of<ProfileProvider>(context, listen: false).name.toString();
+        Provider.of<ProfileProvider>(context, listen: false).name.toString();
 
     showDialog(
       context: context,
@@ -890,14 +890,14 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                                       CustomText(text: "الكفالة"),
                                       Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           CustomText(text: "يوم", color: words),
                                           const SizedBox(width: 2),
                                           CustomText(
                                             text: item['product_details']
-                                            ['warranty']
-                                                ?.toString() ??
+                                                        ['warranty']
+                                                    ?.toString() ??
                                                 "0",
                                             color: words,
                                           ),
@@ -912,12 +912,12 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                                       CustomText(text: "العدد"),
                                       Row(
                                         mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                            MainAxisAlignment.center,
                                         children: [
                                           CustomText(
                                             text: item['product_details']
-                                            ['number']
-                                                ?.toString() ??
+                                                        ['number']
+                                                    ?.toString() ??
                                                 "0",
                                             color: words,
                                           ),
@@ -944,10 +944,16 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildImageRow(
-                                  "",
-                                  'http://jordancarpart.com/${item['product_details']['img']}',
-                                ),
+                                (item['product_details']['img'] != null && 
+                                 item['product_details']['img'].toString().trim().isNotEmpty)
+                                    ? _buildImageRow(
+                                        "",
+                                        'http://jordancarpart.com/${item['product_details']['img']}',
+                                      )
+                                    : const Text(
+                                        "لا توجد صورة",
+                                        style: TextStyle(fontSize: 16),
+                                      ),
                               ],
                             ),
                             const SizedBox(height: 10),
@@ -957,7 +963,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                                 Expanded(
                                   child: CustomText(
                                     text:
-                                    "${item['product_info']['fromYear']} ${item['product_info']['Category']} ${item['product_info']['NameCar']} ${item['product_info']['engineSize']}-${item['product_info']['fuelType']}",
+                                        "${item['product_info']['fromYear']} ${item['product_info']['Category']} ${item['product_info']['NameCar']} ${item['product_info']['engineSize']}-${item['product_info']['fuelType']}",
                                     color: words,
                                     maxLines: null,
                                     overflow: TextOverflow.visible,
@@ -975,7 +981,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                                 Expanded(
                                   child: CustomText(
                                     text: item['product_details']['note']
-                                        .isNotEmpty
+                                            .isNotEmpty
                                         ? item['product_details']['note']
                                         : "لا يوجد ملاحظات",
                                     color: words,
@@ -1009,7 +1015,7 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
 
   Future<String> fetchImageUrl(int productId) async {
     final url =
-    Uri.parse('http://jordancarpart.com/Api/getphoto.php?id=$productId');
+        Uri.parse('http://jordancarpart.com/Api/getphoto.php?id=$productId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -1032,34 +1038,34 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
         const SizedBox(width: 10),
         imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
-          onTap: () {
-            _showImageDialog(imageUrl);
-          },
-          child: Image.network(
-            imageUrl,
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-            loadingBuilder: (BuildContext context, Widget child,
-                ImageChunkEvent? loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: RotatingImagePage(),
-              );
-            },
-            errorBuilder: (BuildContext context, Object error,
-                StackTrace? stackTrace) {
-              return const Text(
+                onTap: () {
+                  _showImageDialog(imageUrl);
+                },
+                child: Image.network(
+                  imageUrl,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: RotatingImagePage(),
+                    );
+                  },
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    return const Text(
+                      "لا توجد صورة",
+                      style: TextStyle(fontSize: 16),
+                    );
+                  },
+                ),
+              )
+            : const Text(
                 "لا توجد صورة",
                 style: TextStyle(fontSize: 16),
-              );
-            },
-          ),
-        )
-            : const Text(
-          "لا توجد صورة",
-          style: TextStyle(fontSize: 16),
-        ),
+              ),
       ],
     );
   }

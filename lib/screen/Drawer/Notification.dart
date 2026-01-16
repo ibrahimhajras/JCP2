@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jcp/screen/Trader/PendingPartsPage.dart';
+import 'package:jcp/screen/Trader/ImageRequestsPage.dart';
 import 'package:jcp/screen/driver/Home_Driver.dart';
 import 'package:jcp/screen/driver/Index_Driver.dart';
 import 'package:jcp/style/colors.dart';
@@ -71,7 +72,7 @@ class _NotificationPageState extends State<NotificationPage>
 
     final url = Uri.parse(
         'https://jordancarpart.com/Api/get_notifications.php?user_id=$userId&limit=$_limit&offset=$_offset');
-
+    print(url);
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -107,6 +108,7 @@ class _NotificationPageState extends State<NotificationPage>
   Map<String, dynamic> _mapNotification(dynamic n) {
     return {
       'id': n['id'].toString(),
+      'title': n['title'] ?? "",
       'message': n['body'] ?? "",
       'type': n['type'] ?? "",
       'orderid': n['orderid']?.toString() ?? "",
@@ -142,7 +144,7 @@ class _NotificationPageState extends State<NotificationPage>
         prefs.getStringList('notifications') ?? [];
 
     Set<String> existingIds =
-    storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
+        storedNotifications.map((n) => jsonDecode(n)['id'].toString()).toSet();
 
     for (var notification in notifications) {
       if (!existingIds.contains(notification['id'].toString())) {
@@ -166,7 +168,7 @@ class _NotificationPageState extends State<NotificationPage>
 
     List<String> updatedNotifications = storedNotifications.map((notification) {
       Map<String, dynamic> notificationMap =
-      Map<String, dynamic>.from(jsonDecode(notification));
+          Map<String, dynamic>.from(jsonDecode(notification));
       notificationMap['isRead'] = true;
       return jsonEncode(notificationMap);
     }).toList();
@@ -186,22 +188,22 @@ class _NotificationPageState extends State<NotificationPage>
           SizedBox(height: size.height * 0.01),
           isLoading // ✅ إذا الصفحة ما زالت تحمّل
               ? Column(
-            children: [
-              SizedBox(height: size.height * 0.3),
-              Center(child: RotatingImagePage()),
-            ],
-          ) // شاشة التحميل
+                  children: [
+                    SizedBox(height: size.height * 0.3),
+                    Center(child: RotatingImagePage()),
+                  ],
+                ) // شاشة التحميل
               : Expanded(
-            child: notifications.isEmpty
-                ? Center(
-              child: CustomText(
-                text: "لا توجد إشعارات جديدة",
-                color: Colors.grey,
-                size: size.height * 0.02,
-              ),
-            )
-                : _buildNotificationList(notifications, size),
-          ),
+                  child: notifications.isEmpty
+                      ? Center(
+                          child: CustomText(
+                            text: "لا توجد إشعارات جديدة",
+                            color: Colors.grey,
+                            size: size.height * 0.02,
+                          ),
+                        )
+                      : _buildNotificationList(notifications, size),
+                ),
         ],
       ),
     );
@@ -251,10 +253,10 @@ class _NotificationPageState extends State<NotificationPage>
         if (index == notifications.length) {
           return _isFetchingMore
               ? Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Center(child: RotatingImagePage()),
           )
-              : SizedBox.shrink();
+              : const SizedBox.shrink();
         }
         return _buildNotificationCard(notifications[index], index, size);
       },
@@ -263,7 +265,7 @@ class _NotificationPageState extends State<NotificationPage>
 
   Future<void> deleteNotificationFromServer(String notificationId) async {
     final url =
-    Uri.parse('https://jordancarpart.com/Api/delete_notification.php');
+        Uri.parse('https://jordancarpart.com/Api/delete_notification.php');
 
     try {
       final response = await http.post(
@@ -285,11 +287,16 @@ class _NotificationPageState extends State<NotificationPage>
   Widget _buildNotificationCard(
       Map<String, dynamic> notification, int index, Size size) {
     RegExp regExp = RegExp(r"\d+");
-    String message = notification['message'] ?? " ";
+    String message = notification['message'] ?? notification['body'] ?? " ";
     Iterable<Match> matches = regExp.allMatches(message);
     String number = matches.isNotEmpty ? matches.first.group(0) ?? "" : "";
     String messageWithoutNumber =
-    message.replaceFirst(number, '').replaceAll(':', '').trim();
+        message.replaceFirst(number, '').replaceAll(':', '').trim();
+    
+    // Debug print
+    print("Title: ${notification['title']}");
+    print("Message: $message");
+    
     return GestureDetector(
         onTap: () {
           final type = notification['type']?.toString() ?? "";
@@ -327,7 +334,7 @@ class _NotificationPageState extends State<NotificationPage>
           if (type == "invitation" || type == "pending_parts") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => PendingPartsPage()),
+              MaterialPageRoute(builder: (context) => const PendingPartsPage()),
             );
             return;
           }
@@ -343,7 +350,7 @@ class _NotificationPageState extends State<NotificationPage>
           if (type == "contact_us") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ContactPage()),
+              MaterialPageRoute(builder: (context) => const ContactPage()),
             );
             return;
           }
@@ -351,7 +358,7 @@ class _NotificationPageState extends State<NotificationPage>
           if (type == "stock_empty") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => PendingPartsPage()),
+              MaterialPageRoute(builder: (context) => const PendingPartsPage()),
             );
             return;
           }
@@ -359,7 +366,7 @@ class _NotificationPageState extends State<NotificationPage>
           if (type == "home") {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomePage(page: 1)),
+              MaterialPageRoute(builder: (context) => const HomePage(page: 1)),
                   (route) => false,
             );
             return;
@@ -368,7 +375,7 @@ class _NotificationPageState extends State<NotificationPage>
           if (type == "private") {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomePage(page: 0)),
+              MaterialPageRoute(builder: (context) => const HomePage(page: 0)),
                   (route) => false,
             );
             return;
@@ -377,20 +384,20 @@ class _NotificationPageState extends State<NotificationPage>
           if (type == "orders") {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomePage(page: 2)),
+              MaterialPageRoute(builder: (context) => const HomePage(page: 2)),
                   (route) => false,
             );
             return;
           }
 
           if (type == "notifications") {
-            // We are already on the notification page, maybe refresh?
-            // Or push a new instance if that's what is expected, but usually
-            // staying put or refreshing is better.
-            // Logic in NotificationService pushes NotificationPage.
-            // Given we are IN NotificationPage, let's just refresh.
-            fetchAndShowNotifications();
-            return;
+             // We are already on the notification page, maybe refresh?
+             // Or push a new instance if that's what is expected, but usually 
+             // staying put or refreshing is better. 
+             // Logic in NotificationService pushes NotificationPage.
+             // Given we are IN NotificationPage, let's just refresh.
+             fetchAndShowNotifications();
+             return;
           }
 
           if (type == "see_photo") {
@@ -398,7 +405,27 @@ class _NotificationPageState extends State<NotificationPage>
             return;
           }
 
-          // باقي الأنواع تجاهلها من دون أي أكشن
+          if (type == "image_request") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ImageRequestsPage()),
+            );
+            return;
+          }
+
+          if (type == "image_request_completed") {
+            print("image_request_completed - orderId: $orderId");
+            fetchAndNavigateToOrderDetails(context, orderId);
+            return;
+          }
+
+          if (type == "part_image_uploaded") {
+            print("part_image_uploaded - orderId: $orderId");
+            fetchAndNavigateToOrderDetails(context, orderId);
+            return;
+          }
+ 
+           // باقي الأنواع تجاهلها من دون أي أكشن
           return;
         },
         child: Dismissible(
@@ -441,11 +468,31 @@ class _NotificationPageState extends State<NotificationPage>
                   Expanded(
                     child: Directionality(
                       textDirection: TextDirection.rtl,
-                      child: RichText(
-                        textAlign: TextAlign.right,
-                        text: TextSpan(
-                          children: _buildColoredTextSpans(message, size),
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Display title (always show if exists)
+                          if (notification['title'] != null && notification['title'].toString().trim().isNotEmpty) ...[
+                            Text(
+                              notification['title'],
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Tajawal',
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                          ],
+                          // Display message
+                          RichText(
+                            textAlign: TextAlign.right,
+                            text: TextSpan(
+                              children: _buildColoredTextSpans(message, size),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -454,16 +501,16 @@ class _NotificationPageState extends State<NotificationPage>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: messageWithoutNumber == "تم تأكيد الطلب رقم" ||
-                          messageWithoutNumber.contains(
-                              "تم شراء طلب جديد يرجى تجهيز القطع رقم")
+                              messageWithoutNumber.contains(
+                                  "تم شراء طلب جديد يرجى تجهيز القطع رقم")
                           ? Colors.green
                           : Colors.orange,
                     ),
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     child: Image.asset(
                       messageWithoutNumber == "تم تأكيد الطلب رقم" ||
-                          messageWithoutNumber.contains(
-                              "تم شراء طلب جديد يرجى تجهيز القطع رقم")
+                              messageWithoutNumber.contains(
+                                  "تم شراء طلب جديد يرجى تجهيز القطع رقم")
                           ? "assets/images/green.png"
                           : "assets/images/orange.png",
                       width: size.width * 0.09,
@@ -479,16 +526,16 @@ class _NotificationPageState extends State<NotificationPage>
 
   List<TextSpan> _buildColoredTextSpans(String message, Size size) {
     final regExp = RegExp(r"\d+");
-
+    
     // Convert literal \n to actual newlines
     // This handles cases where \n comes as text from backend
     String processedMessage = message.replaceAll(r'\n', '\n');
-
+    
     List<TextSpan> spans = [];
-
+    
     // Split message by \n to handle multi-line
     List<String> lines = processedMessage.split('\n');
-
+    
     for (int lineIndex = 0; lineIndex < lines.length; lineIndex++) {
       String line = lines[lineIndex];
       final matches = regExp.allMatches(line);
@@ -533,10 +580,10 @@ class _NotificationPageState extends State<NotificationPage>
           ),
         ));
       }
-
+      
       // Add line break if not the last line
       if (lineIndex < lines.length - 1) {
-        spans.add(TextSpan(text: '\n'));
+        spans.add(const TextSpan(text: '\n'));
       }
     }
 
@@ -566,7 +613,7 @@ class _NotificationPageState extends State<NotificationPage>
       List<dynamic> orderItems2 = [];
 
       Map<String, dynamic> orderData =
-      await fetchOrderItemsOrange(orderId.toString(), 1);
+          await fetchOrderItemsOrange(orderId.toString(), 1);
 
       final response = await http.get(
         Uri.parse(
@@ -600,7 +647,7 @@ class _NotificationPageState extends State<NotificationPage>
               nameproduct: orderItems2.isNotEmpty
                   ? orderItems2
                   : List.filled(orderItems.length,
-                  "غير معروف"), // ✅ إذا كانت فارغة، املأها
+                      "غير معروف"), // ✅ إذا كانت فارغة، املأها
             ),
           ),
         );
@@ -609,7 +656,7 @@ class _NotificationPageState extends State<NotificationPage>
       }
     } catch (e) {
       Navigator.pop(context);
-
+      
     }
   }
 
@@ -647,7 +694,7 @@ class _NotificationPageState extends State<NotificationPage>
             'Failed to load order items, status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -679,10 +726,10 @@ class _NotificationPageState extends State<NotificationPage>
     } catch (e) {
       Navigator.pop(context);
 
-
+      
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('فشل في جلب تفاصيل الطلب.')),
+        const SnackBar(content: Text('فشل في جلب تفاصيل الطلب.')),
       );
     }
   }
@@ -692,7 +739,7 @@ class _NotificationPageState extends State<NotificationPage>
         'https://jordancarpart.com/Api/getacceptedorderfromuser.php?order_id=$orderId');
 
     try {
-
+      
 
       final response = await http.get(
         url,
@@ -711,7 +758,7 @@ class _NotificationPageState extends State<NotificationPage>
             responseData.containsKey('items')) {
           return {
             'header': responseData['hdr']
-            [0], // Assuming there's only one header
+                [0], // Assuming there's only one header
             'items': responseData['items'], // List of items
           };
         } else {
@@ -723,7 +770,7 @@ class _NotificationPageState extends State<NotificationPage>
             'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -760,7 +807,7 @@ class _NotificationPageState extends State<NotificationPage>
     } catch (e) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('فشل في تحميل تفاصيل الطلب')),
+        const SnackBar(content: Text('فشل في تحميل تفاصيل الطلب')),
       );
     }
   }
@@ -799,7 +846,7 @@ class _NotificationPageState extends State<NotificationPage>
       }).toList();
 
       Map<String, dynamic> orderData =
-      await fetchOrderItemsOrangePrivate(order);
+          await fetchOrderItemsOrangePrivate(order);
 
       if (context.mounted) {
         Navigator.pop(context);
@@ -825,7 +872,7 @@ class _NotificationPageState extends State<NotificationPage>
           const SnackBar(content: Text('❌ فشل في جلب تفاصيل الطلب.')),
         );
       }
-
+      
     }
   }
 
@@ -857,7 +904,7 @@ class _NotificationPageState extends State<NotificationPage>
             'Failed to load order items, status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -894,7 +941,7 @@ class _NotificationPageState extends State<NotificationPage>
             'Failed to fetch order details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-
+      
       throw e;
     }
   }
@@ -920,9 +967,9 @@ class _NotificationPageState extends State<NotificationPage>
       }).toList();
 
       Map<String, dynamic> orderData =
-      await fetchOrderItemsOrangePrivate(order);
+          await fetchOrderItemsOrangePrivate(order);
 
-
+      
 
       if (context.mounted) {
         Navigator.pop(context);
@@ -946,7 +993,7 @@ class _NotificationPageState extends State<NotificationPage>
           const SnackBar(content: Text('❌ فشل في جلب تفاصيل الطلب.')),
         );
       }
-
+      
     }
   }
 
@@ -960,6 +1007,29 @@ class _NotificationPageState extends State<NotificationPage>
     );
 
     try {
+      // First check order state
+      final stateResponse = await http.get(Uri.parse(
+          'https://jordancarpart.com/Api/checkOrderInDatabase.php?order_id=$orderId'));
+      print('https://jordancarpart.com/Api/checkOrderInDatabase.php?order_id=$orderId');
+      if (stateResponse.statusCode == 200) {
+        final stateData = json.decode(stateResponse.body);
+        print(stateData['summary']['order_state']);
+        if (stateData['summary']?['order_state'] != 1) {
+          if (context.mounted) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:  Center(
+                  child: CustomText(text: 'الطلب تم تسعيره بالفعل',color: white,),
+                ),
+                backgroundColor: red,
+              ),
+            );
+          }
+          return;
+        }
+      }
+      
       final response = await http.get(Uri.parse(
           'https://jordancarpart.com/Api/getItemsFromOrders.php?flag=1&order_id=$orderId'));
       if (response.statusCode == 200) {
@@ -983,7 +1053,7 @@ class _NotificationPageState extends State<NotificationPage>
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('فشل في جلب تفاصيل الطلب.')),
+               SnackBar(content: CustomText(text:'فشل في جلب تفاصيل الطلب.')),
         );
       }
     }

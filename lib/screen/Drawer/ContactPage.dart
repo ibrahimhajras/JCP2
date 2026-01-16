@@ -296,7 +296,7 @@ class _ContactPageState extends State<ContactPage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => HomePage(page: 3)),
-                              (Route<dynamic> route) => false,
+                          (Route<dynamic> route) => false,
                         );
                       },
                       height: size.height * 0.06,
@@ -385,7 +385,7 @@ class _ContactPageState extends State<ContactPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                        const HomePage(page: 3),
+                                            const HomePage(page: 3),
                                       ),
                                     );
                                   }

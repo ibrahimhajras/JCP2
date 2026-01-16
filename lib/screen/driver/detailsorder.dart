@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../provider/ProfileProvider.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
+import '../../widget/FullScreenImageViewer.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/RotatingImagePage.dart';
 
@@ -136,7 +137,7 @@ class _DetailsorderState extends State<Detailsorder> {
                 int finalPrice = (itemPrice * 1.08).ceil();
                 return Padding(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -206,7 +207,7 @@ class _DetailsorderState extends State<Detailsorder> {
     required Map<String, dynamic> item,
   }) {
     final user =
-    Provider.of<ProfileProvider>(context, listen: false).name.toString();
+        Provider.of<ProfileProvider>(context, listen: false).name.toString();
 
     showDialog(
       context: context,
@@ -264,8 +265,8 @@ class _DetailsorderState extends State<Detailsorder> {
                               children: [
                                 CustomText(
                                   text: item['product_info'] != null &&
-                                      item['product_info']
-                                          .containsKey('fromYear')
+                                          item['product_info']
+                                              .containsKey('fromYear')
                                       ? item['product_info']['fromYear']
                                       : "غير محدد",
                                   color: words,
@@ -305,7 +306,7 @@ class _DetailsorderState extends State<Detailsorder> {
                                 Expanded(
                                   child: CustomText(
                                     text: item['note'] != null &&
-                                        item['note'].isNotEmpty
+                                            item['note'].isNotEmpty
                                         ? item['note']
                                         : "لا يوجد",
                                     color: words,
@@ -319,10 +320,12 @@ class _DetailsorderState extends State<Detailsorder> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Spacer(),
-                                _buildImageRow(
-                                  "",
-                                  'http://jordancarpart.com${item['img']}',
-                                ),
+                                (item['img'] != null && item['img'].toString().trim().isNotEmpty)
+                                    ? _buildImageRow(
+                                        "",
+                                        'http://jordancarpart.com/${item['img']}',
+                                      )
+                                    : CustomText(text: "لا توجد صورة", size: 16),
                                 Spacer(),
                                 CustomText(text: "الصورة"),
                               ],
@@ -353,19 +356,19 @@ class _DetailsorderState extends State<Detailsorder> {
         SizedBox(width: 10),
         imageUrl != null && imageUrl.isNotEmpty
             ? GestureDetector(
-          onTap: () {
-            _showImageDialog(imageUrl);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(
-              imageUrl,
-              width: MediaQuery.of(context).size.width * 0.26,
-              height: MediaQuery.of(context).size.width * 0.22,
-              fit: BoxFit.cover,
-            ),
-          ),
-        )
+                onTap: () {
+                  _showImageDialog(imageUrl);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    imageUrl,
+                    width: MediaQuery.of(context).size.width * 0.26,
+                    height: MediaQuery.of(context).size.width * 0.22,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
             : CustomText(text: "لا توجد صورة", size: 16),
       ],
     );
@@ -374,53 +377,8 @@ class _DetailsorderState extends State<Detailsorder> {
   void _showImageDialog(String imageUrl) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allows dismissing by tapping outside
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero,
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Colors.black.withOpacity(0.9),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.contain,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: RotatingImagePage());
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: CustomText(
-                            text: "لا توجد صورة",
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    top: 40,
-                    right: 20,
-                    child: IconButton(
-                      icon: Icon(Icons.close, color: Colors.white, size: 30),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        return FullScreenImageViewer(imageUrl: imageUrl);
       },
     );
   }

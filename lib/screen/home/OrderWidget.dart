@@ -109,7 +109,7 @@ class _OrderWidgetState extends State<OrderWidget> with WidgetsBindingObserver {
                     !snapshot.hasData ||
                     snapshot.data!.isEmpty) {
                   return Center(child: Text('لا يوجد طلبات'));
-                } else {
+                 } else {
                   final orders = snapshot.data!;
                   return ListView.builder(
                     itemCount: orders.length,
@@ -183,12 +183,12 @@ class _OrderWidgetState extends State<OrderWidget> with WidgetsBindingObserver {
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       hasNewNotification = hasUnread;

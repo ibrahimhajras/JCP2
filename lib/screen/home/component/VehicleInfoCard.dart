@@ -27,10 +27,10 @@ class VehicleInfoCard extends StatelessWidget {
 
   bool get hasVehicleInfo =>
       brand != null &&
-          model != null &&
-          year != null &&
-          fuelType != null &&
-          engineSize != null;
+      model != null &&
+      year != null &&
+      fuelType != null &&
+      engineSize != null;
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +52,11 @@ class VehicleInfoCard extends StatelessWidget {
     final double verticalPadding = size.height * 0.015;
     final double borderRadius = isSmallScreen ? 14.0 : 16.0;
     final double titleFontSize =
-    isSmallScreen ? 16.0 : (isMediumScreen ? 17.0 : 18.0);
+        isSmallScreen ? 16.0 : (isMediumScreen ? 17.0 : 18.0);
     final double subtitleFontSize =
-    isSmallScreen ? 12.0 : (isMediumScreen ? 13.0 : 14.0);
+        isSmallScreen ? 12.0 : (isMediumScreen ? 13.0 : 14.0);
     final double iconSize =
-    isSmallScreen ? 28.0 : (isMediumScreen ? 32.0 : 35.0);
+        isSmallScreen ? 28.0 : (isMediumScreen ? 32.0 : 35.0);
     final double iconPadding = isSmallScreen ? 12.0 : 14.0;
 
     return GestureDetector(
@@ -166,9 +166,9 @@ class VehicleInfoCard extends StatelessWidget {
 
     final double borderRadius = isSmallScreen ? 14.0 : 16.0;
     final double titleFontSize =
-    isSmallScreen ? 17.0 : (isMediumScreen ? 18.0 : 19.0);
+        isSmallScreen ? 17.0 : (isMediumScreen ? 18.0 : 19.0);
     final double valueFontSize =
-    isSmallScreen ? 15.0 : (isMediumScreen ? 16.0 : 17.0);
+        isSmallScreen ? 15.0 : (isMediumScreen ? 16.0 : 17.0);
 
     String vehicleInfo =
     '${brand ?? ''} ${model ?? ''} ${year ?? ''} ${fuelType ?? ''} '
@@ -176,8 +176,8 @@ class VehicleInfoCard extends StatelessWidget {
         .trim();
 
     bool hasChassisNumber = chassisNumber != null &&
-        chassisNumber != "N/A" &&
-        chassisNumber!.isNotEmpty;
+                           chassisNumber != "N/A" &&
+                           chassisNumber!.isNotEmpty;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: containerPadding,),

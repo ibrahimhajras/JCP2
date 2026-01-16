@@ -25,6 +25,7 @@ class JoinTraderModel {
   final bool isImageRequired;
   final bool isBrandRequired;
   final bool isEngineSizeRequired;
+  final bool isYearRangeRequired;
 
   JoinTraderModel({
     required this.fName,
@@ -52,6 +53,7 @@ class JoinTraderModel {
     required this.isImageRequired,
     required this.isBrandRequired,
     required this.isEngineSizeRequired,
+    required this.isYearRangeRequired,
   });
 
   void printDetails() {
@@ -75,6 +77,7 @@ class JoinTraderModel {
     print('Image Required: $isImageRequired');
     print('Brand Required: $isBrandRequired');
     print('Engine Size Required: $isEngineSizeRequired');
+    print('Year Range Required: $isYearRangeRequired');
     print('----------------------');
   }
 }

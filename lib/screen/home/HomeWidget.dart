@@ -16,6 +16,7 @@ import '../../model/OrderModel.dart';
 import '../../provider/CountdownProvider.dart';
 import '../../provider/EditProductProvider.dart';
 import '../../provider/OrderProvider.dart';
+import '../../widget/DetialsOrder/RedPage/OrderDetails_red.dart';
 import '../../widget/Inallpage/CustomHeader.dart';
 import '../../widget/Inallpage/MenuIcon.dart';
 import '../../widget/PartsWidget.dart';
@@ -260,7 +261,7 @@ class _HomeWidgetState extends State<HomeWidget>
                           children: [
                             CustomText(
                               text:
-                              'تم تسجيل الدخول من جهاز آخر. الرجاء تسجيل الخروج والدخول مرة أخرى.',
+                                  'تم تسجيل الدخول من جهاز آخر. الرجاء تسجيل الخروج والدخول مرة أخرى.',
                               color: black,
                               size: 15,
                             ),
@@ -307,7 +308,7 @@ class _HomeWidgetState extends State<HomeWidget>
   Future<void> _fetchOrdersForUser(BuildContext context) async {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final countdownProvider =
-    Provider.of<CountdownProvider>(context, listen: false);
+        Provider.of<CountdownProvider>(context, listen: false);
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -444,49 +445,49 @@ class _HomeWidgetState extends State<HomeWidget>
                     children: [
                       _limitationStream != null
                           ? StreamBuilder<Map<String, dynamic>>(
-                        stream: _limitationStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: Column(
-                                children: [
-                                  SizedBox(height: size.height * 0.3),
-                                  RotatingImagePage(),
-                                ],
-                              ),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(child: CustomText(text: ''));
-                          } else if (!snapshot.hasData) {
-                            return Center(
-                                child: CustomText(text: 'لا يوجد بيانات'));
-                          } else {
-                            final apiData = snapshot.data!;
-                            final countdownProvider =
-                            Provider.of<CountdownProvider>(context,
-                                listen: false);
+                              stream: _limitationStream,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(height: size.height * 0.3),
+                                        RotatingImagePage(),
+                                      ],
+                                    ),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Center(child: CustomText(text: ''));
+                                } else if (!snapshot.hasData) {
+                                  return Center(
+                                      child: CustomText(text: 'لا يوجد بيانات'));
+                                } else {
+                                  final apiData = snapshot.data!;
+                                  final countdownProvider =
+                                      Provider.of<CountdownProvider>(context,
+                                          listen: false);
 
-                            if (apiData
-                                .containsKey('duration_in_seconds')) {
-                              final duration =
-                                  apiData['duration_in_seconds'] ?? 0;
+                                  if (apiData
+                                      .containsKey('duration_in_seconds')) {
+                                    final duration =
+                                        apiData['duration_in_seconds'] ?? 0;
 
-                              if (duration > 0 &&
-                                  countdownProvider.remainingSeconds == 0) {
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  countdownProvider
-                                      .startCountdownFrom(duration);
-                                });
-                              }
-                            }
+                                    if (duration > 0 &&
+                                        countdownProvider.remainingSeconds == 0) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        countdownProvider
+                                            .startCountdownFrom(duration);
+                                      });
+                                    }
+                                  }
 
-                            return _buildContentBasedOnApiData(
-                                size, user, apiData);
-                          }
-                        },
-                      )
+                                  return _buildContentBasedOnApiData(
+                                      size, user, apiData);
+                                }
+                              },
+                            )
                           : const SizedBox(),
                     ],
                   ),
@@ -565,12 +566,12 @@ class _HomeWidgetState extends State<HomeWidget>
     List<String> notifications = prefs.getStringList('notifications') ?? [];
 
     List<Map<String, dynamic>> notificationList =
-    notifications.map((notification) {
+        notifications.map((notification) {
       return jsonDecode(notification) as Map<String, dynamic>;
     }).toList();
 
     bool hasUnread =
-    notificationList.any((notification) => notification['isRead'] == false);
+        notificationList.any((notification) => notification['isRead'] == false);
 
     setState(() {
       hasNewNotification = hasUnread;
@@ -604,216 +605,216 @@ class _HomeWidgetState extends State<HomeWidget>
           verificationValue == 0
               ? const SizedBox()
               : Padding(
-            padding: EdgeInsets.all(size.width * 0.01),
-            child: Column(
-              children: [
-                Container(
-                  child: CustomText(
-                    text: "الطلب المجاني سيكون بعد 24 ساعة",
-                    size: size.width * 0.05,
+                  padding: EdgeInsets.all(size.width * 0.01),
+                  child: Column(
+                    children: [
+                      Container(
+                        child: CustomText(
+                          text: "الطلب المجاني سيكون بعد 24 ساعة",
+                          size: size.width * 0.05,
+                        ),
+                      ),
+                      SizedBox(height: size.height * 0.01),
+                      Consumer<CountdownProvider>(
+                        builder: (context, countdownProvider, child) {
+                          return CustomText(
+                            text: countdownProvider.countdownText,
+                            size: size.width * 0.05,
+                          );
+                        },
+                      ),
+                      SizedBox(height: size.height * 0.01),
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _scaleAnimation.value,
+                            child: Image.asset(
+                              'assets/images/alarm.png',
+                              width: size.width * 0.40,
+                              height: size.height * 0.20,
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: size.height * 0.03),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PricingRequestPage(),
+                                  ));
+                            },
+                            child: Container(
+                              child: Text(
+                                "تواصل معنا",
+                                style: TextStyle(
+                                  fontSize: size.width * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                  color: green,
+                                  fontFamily: "Tajawal",
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            child: Text(
+                              "  إذا كنت بحاجه لتسعيرات متكررة   ",
+                              style: TextStyle(
+                                fontSize: size.width * 0.04,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF8D8D92),
+                                fontFamily: "Tajawal",
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: size.height * 0.03),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(size.width * 0.02),
+                                decoration: BoxDecoration(
+                                  color: const Color.fromRGBO(240, 240, 240, 1),
+                                  border: Border.all(
+                                    color: const Color.fromRGBO(240, 240, 240, 1),
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "${limitOfOrder}",
+                                    style: TextStyle(
+                                      fontSize: size.width * 0.045,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                      fontFamily: "Tajawal",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: size.width * 0.04),
+                              Text(
+                                "عدد الطلبات المدفوعه المتبقية",
+                                style: TextStyle(
+                                  fontSize: size.width * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "Tajawal",
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: (limitOfOrder > 0 && isButtonEnabled)
+                                    ? () async {
+                                        showConfirmationDialog(
+                                          context: context,
+                                          message: 'هل أنت متأكد من التفعيل؟',
+                                          confirmText: 'تأكيد',
+                                          onConfirm: () async {
+                                            setState(() {
+                                              isLoading = true;
+                                              isButtonEnabled = false;
+                                            });
+
+                                            final url =
+                                                'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}&flag=0';
+                                            final headers = {
+                                              'Access-Control-Allow-Headers':
+                                                  '*',
+                                              'Access-Control-Allow-Origin':
+                                                  '*',
+                                              'Content-Type':
+                                                  'application/json; charset=UTF-8',
+                                            };
+
+                                            try {
+                                              final response = await http.get(
+                                                Uri.parse(url),
+                                                headers: headers,
+                                              );
+
+                                              if (response.statusCode == 200) {
+                                                await http.post(
+                                                  Uri.parse(
+                                                      'https://jordancarpart.com/Api/log_order_action.php'),
+                                                  headers: {
+                                                    'Content-Type':
+                                                        'application/json; charset=UTF-8',
+                                                  },
+                                                  body: jsonEncode({
+                                                    'user_id': user.user_id,
+                                                    'action': '0',
+                                                  }),
+                                                );
+
+                                                SharedPreferences prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                await prefs.setInt(
+                                                    'isOrderAllowed', 1);
+
+                                                setState(() {
+                                                  errorMessage = null;
+                                                });
+                                                await _checkForNotifications();
+                                                await _fetchData();
+                                                await _loadOrderAllowed();
+                                              } else {
+                                                await _logoutUser();
+                                              }
+                                            } catch (e) {
+                                              await _logoutUser();
+                                            } finally {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            }
+                                          },
+                                          cancelText: "لا",
+                                        );
+                                      }
+                                    : null,
+                                child: isLoading
+                                    ? Center(child: RotatingImagePage())
+                                    : Center(
+                                        child: Text(
+                                          'تفعيل',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: size.width * 0.04,
+                                            fontFamily: "Tajawal",
+                                          ),
+                                        ),
+                                      ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: limitOfOrder > 0
+                                      ? Colors.green
+                                      : Colors.grey,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: size.height * 0.01),
-                Consumer<CountdownProvider>(
-                  builder: (context, countdownProvider, child) {
-                    return CustomText(
-                      text: countdownProvider.countdownText,
-                      size: size.width * 0.05,
-                    );
-                  },
-                ),
-                SizedBox(height: size.height * 0.01),
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _scaleAnimation.value,
-                      child: Image.asset(
-                        'assets/images/alarm.png',
-                        width: size.width * 0.40,
-                        height: size.height * 0.20,
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: size.height * 0.03),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PricingRequestPage(),
-                            ));
-                      },
-                      child: Container(
-                        child: Text(
-                          "تواصل معنا",
-                          style: TextStyle(
-                            fontSize: size.width * 0.04,
-                            fontWeight: FontWeight.bold,
-                            color: green,
-                            fontFamily: "Tajawal",
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      child: Text(
-                        "  إذا كنت بحاجه لتسعيرات متكررة   ",
-                        style: TextStyle(
-                          fontSize: size.width * 0.04,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF8D8D92),
-                          fontFamily: "Tajawal",
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: size.height * 0.03),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(size.width * 0.02),
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(240, 240, 240, 1),
-                            border: Border.all(
-                              color: const Color.fromRGBO(240, 240, 240, 1),
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "${limitOfOrder}",
-                              style: TextStyle(
-                                fontSize: size.width * 0.045,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontFamily: "Tajawal",
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: size.width * 0.04),
-                        Text(
-                          "عدد الطلبات المدفوعه المتبقية",
-                          style: TextStyle(
-                            fontSize: size.width * 0.04,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "Tajawal",
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: (limitOfOrder > 0 && isButtonEnabled)
-                              ? () async {
-                            showConfirmationDialog(
-                              context: context,
-                              message: 'هل أنت متأكد من التفعيل؟',
-                              confirmText: 'تأكيد',
-                              onConfirm: () async {
-                                setState(() {
-                                  isLoading = true;
-                                  isButtonEnabled = false;
-                                });
-
-                                final url =
-                                    'http://jordancarpart.com/Api/discountlimitation.php?user_id=${user.user_id}&flag=0';
-                                final headers = {
-                                  'Access-Control-Allow-Headers':
-                                  '*',
-                                  'Access-Control-Allow-Origin':
-                                  '*',
-                                  'Content-Type':
-                                  'application/json; charset=UTF-8',
-                                };
-
-                                try {
-                                  final response = await http.get(
-                                    Uri.parse(url),
-                                    headers: headers,
-                                  );
-
-                                  if (response.statusCode == 200) {
-                                    await http.post(
-                                      Uri.parse(
-                                          'https://jordancarpart.com/Api/log_order_action.php'),
-                                      headers: {
-                                        'Content-Type':
-                                        'application/json; charset=UTF-8',
-                                      },
-                                      body: jsonEncode({
-                                        'user_id': user.user_id,
-                                        'action': '0',
-                                      }),
-                                    );
-
-                                    SharedPreferences prefs =
-                                    await SharedPreferences
-                                        .getInstance();
-                                    await prefs.setInt(
-                                        'isOrderAllowed', 1);
-
-                                    setState(() {
-                                      errorMessage = null;
-                                    });
-                                    await _checkForNotifications();
-                                    await _fetchData();
-                                    await _loadOrderAllowed();
-                                  } else {
-                                    await _logoutUser();
-                                  }
-                                } catch (e) {
-                                  await _logoutUser();
-                                } finally {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
-                              },
-                              cancelText: "لا",
-                            );
-                          }
-                              : null,
-                          child: isLoading
-                              ? Center(child: RotatingImagePage())
-                              : Center(
-                            child: Text(
-                              'تفعيل',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: size.width * 0.04,
-                                fontFamily: "Tajawal",
-                              ),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: limitOfOrder > 0
-                                ? Colors.green
-                                : Colors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -839,23 +840,23 @@ class _HomeWidgetState extends State<HomeWidget>
     await prefs.setStringList('notifications', notifications);
     await prefs.setInt('isOrderAllowed', 0);
     final profileProvider =
-    Provider.of<ProfileProvider>(context, listen: false);
+        Provider.of<ProfileProvider>(context, listen: false);
     profileProvider.resetFields();
     final OrderProvider1 = Provider.of<OrderProvider>(context, listen: false);
     OrderProvider1.clearOrders();
     final orderDetailsProvider =
-    Provider.of<OrderDetailsProvider>(context, listen: false);
+        Provider.of<OrderDetailsProvider>(context, listen: false);
     orderDetailsProvider.clear();
     final editProductProvider =
-    Provider.of<EditProductProvider>(context, listen: false);
+        Provider.of<EditProductProvider>(context, listen: false);
     editProductProvider.clear();
     final deliveryModel =
-    Provider.of<DeliveryModelOrange>(context, listen: false);
+        Provider.of<DeliveryModelOrange>(context, listen: false);
     deliveryModel.clear();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
-          (Route<dynamic> route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -946,28 +947,28 @@ class _HomeWidgetState extends State<HomeWidget>
       },
       onEdit: vehicleData != null
           ? () async {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const VehicleSelectionPage(),
-          ),
-        );
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VehicleSelectionPage(),
+                ),
+              );
 
-        if (result != null && result is Map<String, dynamic>) {
-          setState(() {
-            vehicleData = Map<String, String>.from(result);
-            selectedVehicleBrand = vehicleData!['brand'];
-            selectedVehicleModel = vehicleData!['model'];
-            selectedVehicleYear = vehicleData!['year'];
-            selectedVehicleFuelType = vehicleData!['fuelType'];
-            selectedVehicleEngineSize = vehicleData!['engineSize'];
-            selectedVehicleChassisNumber = vehicleData!['chassisNumber'];
-          });
+              if (result != null && result is Map<String, dynamic>) {
+                setState(() {
+                  vehicleData = Map<String, String>.from(result);
+                  selectedVehicleBrand = vehicleData!['brand'];
+                  selectedVehicleModel = vehicleData!['model'];
+                  selectedVehicleYear = vehicleData!['year'];
+                  selectedVehicleFuelType = vehicleData!['fuelType'];
+                  selectedVehicleEngineSize = vehicleData!['engineSize'];
+                  selectedVehicleChassisNumber = vehicleData!['chassisNumber'];
+                });
 
-          // 👈 احفظ البيانات المعدلة (ستستبدل القديمة)
-          _saveVehicleDataToLocal();
-        }
-      }
+                // 👈 احفظ البيانات المعدلة (ستستبدل القديمة)
+                _saveVehicleDataToLocal();
+              }
+            }
           : null,
     );
   }
@@ -1000,65 +1001,65 @@ class _HomeWidgetState extends State<HomeWidget>
         onPressed: isLoading22
             ? null
             : () async {
-          setState(() {
-            isLoading22 = true;
-          });
+                setState(() {
+                  isLoading22 = true;
+                });
 
-          List<String> enteredParts = [
-            part_1.text,
-            part_2.text,
-            part_3.text,
-            ...parts.map((p) => p.part?.text ?? '')
-          ];
+                List<String> enteredParts = [
+                  part_1.text,
+                  part_2.text,
+                  part_3.text,
+                  ...parts.map((p) => p.part?.text ?? '')
+                ];
 
-          bool allValid = enteredParts
-              .every((p) => p.isEmpty || partsAutocomplete.contains(p));
+                bool allValid = enteredParts
+                    .every((p) => p.isEmpty || partsAutocomplete.contains(p));
 
-          bool hasCarInfo = selectedVehicleBrand != null &&
-              selectedVehicleModel != null &&
-              selectedVehicleYear != null;
+                bool hasCarInfo = selectedVehicleBrand != null &&
+                    selectedVehicleModel != null &&
+                    selectedVehicleYear != null;
 
-          if (hasCarInfo && part_1.text.isNotEmpty && allValid) {
-            await onSave(
-              '', // carid ما بنستخدمه الآن
-              part_1.text,
-              part_2.text,
-              part_3.text,
-              user.user_id,
-            );
-            widget.run(true);
-          } else {
-            showConfirmationDialog(
-              context: context,
-              message: !hasCarInfo
-                  ? "الرجاء اختيار معلومات المركبة قبل إرسال الطلب"
-                  : allValid
-                  ? "الرجاء إدخال القطعة الأولى"
-                  : "تأكد أن جميع أسماء القطع مأخوذة من القائمة التنبؤية",
-              confirmText: "حسناً",
-              onConfirm: () {},
-              cancelText: '',
-            );
-          }
+                if (hasCarInfo && part_1.text.isNotEmpty && allValid) {
+                  await onSave(
+                    '', // carid ما بنستخدمه الآن
+                    part_1.text,
+                    part_2.text,
+                    part_3.text,
+                    user.user_id,
+                  );
+                  // ✅ تم إزالة widget.run(true) - الـ navigation الآن داخل الـ modal
+                } else {
+                  showConfirmationDialog(
+                    context: context,
+                    message: !hasCarInfo
+                        ? "الرجاء اختيار معلومات المركبة قبل إرسال الطلب"
+                        : allValid
+                            ? "الرجاء إدخال القطعة الأولى"
+                            : "تأكد أن جميع أسماء القطع مأخوذة من القائمة التنبؤية",
+                    confirmText: "حسناً",
+                    onConfirm: () {},
+                    cancelText: '',
+                  );
+                }
 
-          setState(() {
-            isLoading22 = false;
-          });
-        },
+                setState(() {
+                  isLoading22 = false;
+                });
+              },
         height: 50,
         minWidth: size.width * 0.9,
         color: const Color.fromRGBO(195, 29, 29, 1),
         child: isLoading22
             ? SizedBox(
-          height: 24,
-          width: 24,
-          child: RotatingImagePage(),
-        )
+                height: 24,
+                width: 24,
+                child: RotatingImagePage(),
+              )
             : CustomText(
-          text: "إرسال",
-          color: white,
-          size: 16,
-        ),
+                text: "إرسال",
+                color: white,
+                size: 16,
+              ),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -1095,7 +1096,7 @@ class _HomeWidgetState extends State<HomeWidget>
 
   void onDelete(TextEditingController _controller) {
     final find = parts.firstWhere(
-          (it) => it.part!.text == _controller.text,
+      (it) => it.part!.text == _controller.text,
       orElse: () => null!,
     );
     parts.removeAt(parts.indexOf(find));
@@ -1106,6 +1107,9 @@ class _HomeWidgetState extends State<HomeWidget>
       String carid, String p1, String p2, String p3, String user_id) async {
     List<Map<String, String>> itemsList = [];
     final size = MediaQuery.of(context).size;
+    
+    // ✅ حفظ الـ context قبل الـ async operations
+    final savedContext = context;
 
     if (p1.isNotEmpty) itemsList.add({"name": p1});
     if (p2.isNotEmpty) itemsList.add({"name": p2});
@@ -1123,8 +1127,8 @@ class _HomeWidgetState extends State<HomeWidget>
       "year": selectedVehicleYear ?? "N/A",
       "fuelType": selectedVehicleFuelType != null
           ? (selectedVehicleFuelType! == "Gasoline"
-          ? "Gasoline"
-          : selectedVehicleFuelType!.toLowerCase())
+              ? "Gasoline"
+              : selectedVehicleFuelType!.toLowerCase())
           : "N/A",
       "engineSize": selectedVehicleEngineSize ?? "N/A",
       "chassisNumber": selectedVehicleChassisNumber ?? "N/A",
@@ -1137,8 +1141,8 @@ class _HomeWidgetState extends State<HomeWidget>
     String? a = filter == null
         ? city
         : filter == true
-        ? city
-        : "Jordan";
+            ? city
+            : "Jordan";
 
     final order = {
       "car_info": carInfo,
@@ -1164,98 +1168,189 @@ class _HomeWidgetState extends State<HomeWidget>
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        
+        print('📦 Response Data: $responseData'); // Debug
+        print('✅ Status: ${responseData['status']}'); // Debug
+        print('🆔 Order ID: ${responseData['order_id']}'); // Debug
 
-        if (responseData['success'] == true) {}
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        int? isOrderAllowed = prefs.getInt('isOrderAllowed');
-        if (isOrderAllowed == 1) {
-          await prefs.setInt('isOrderAllowed', 0);
-        }
-        await _checkForNotifications();
-        await _fetchData();
-        await _loadOrderAllowed();
+        // ✅ التحقق من status بدلاً من success
+        if (responseData['status'] == 'success') {
+          // ✅ احصل على order_id من الـ response
+          final String? orderId = responseData['order_id']?.toString();
+          
+          print('🎯 Final Order ID: $orderId'); // Debug
+          
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          int? isOrderAllowed = prefs.getInt('isOrderAllowed');
+          if (isOrderAllowed == 1) {
+            await prefs.setInt('isOrderAllowed', 0);
+          }
+          await _checkForNotifications();
+          await _fetchData();
+          await _loadOrderAllowed();
 
-        await http.post(
-          Uri.parse('https://jordancarpart.com/Api/check_and_log_action.php'),
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
-            'user_id': user_id,
-          }),
-        );
+          await http.post(
+            Uri.parse('https://jordancarpart.com/Api/check_and_log_action.php'),
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode({
+              'user_id': user_id,
+            }),
+          );
 
-        setState(() {
-          isLoading = true;
-          errorMessage = null;
-        });
-        showModalBottomSheet(
-          isDismissible: false,
-          enableDrag: false,
-          context: context,
-          builder: (context) {
-            return WillPopScope(
-              onWillPop: () async => false,
-              child: Container(
-                height: size.height * 0.5,
-                width: size.width,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
-                ),
+          print('🚀 About to show modal...'); // Debug
+          
+          if (!savedContext.mounted) {
+            print('❌ Context not mounted!');
+            return;
+          }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showModalBottomSheet(
+              isDismissible: false,
+              enableDrag: false,
+              context: savedContext,
+              builder: (context) {
+                return WillPopScope(
+                onWillPop: () async => false,
                 child: Container(
+                  height: size.height * 0.5,
+                  width: size.width,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(1),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
+                    color: Colors.black.withOpacity(0.25),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: size.height * 0.03),
+                        Center(
+                          child: Image.asset(
+                            "assets/images/done-icon 1.png",
+                            height: size.height * 0.15,
+                            width: size.width * 0.3,
+                          ),
+                        ),
+                        SizedBox(height: size.height * 0.04),
+                        CustomText(
+                          text: "تم ارسال طلبك بنجاح",
+                          size: size.width * 0.06,
+                        ),
+                        SizedBox(height: size.height * 0.02),
+                        CustomText(
+                          text: "...جارِ العمل على طلبك",
+                          size: size.width * 0.055,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: size.height * 0.01),
+                        CustomText(
+                          text: "يمكنك إضافة صورة إن وجد",
+                          size: size.width * 0.04,
+                          color: Colors.grey,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: size.height * 0.04),
+                        MaterialButton(
+                          onPressed: () async {
+                            Navigator.pop(context); // إغلاق الـ modal باستخدام context الـ modal
+
+                            // ✅ إذا كان عندنا order_id، اجلب البيانات وافتح صفحة التفاصيل
+                            if (orderId != null && orderId.isNotEmpty) {
+                              try {
+                                // جلب حالة الطلب
+                                final stateResponse = await http.get(Uri.parse(
+                                    'https://jordancarpart.com/Api/checkOrderInDatabase.php?order_id=$orderId'));
+                                
+                                if (stateResponse.statusCode == 200) {
+                                  final stateData = json.decode(stateResponse.body);
+                                  
+                                  if (stateData['summary']?['order_state'] != 1) {
+                                    // ✅ استخدام savedContext
+                                    if (savedContext.mounted) {
+                                      ScaffoldMessenger.of(savedContext).showSnackBar(
+                                        SnackBar(
+                                          content: Center(
+                                            child: CustomText(
+                                              text: 'الطلب تم تسعيره بالفعل',
+                                              color: white,
+                                            ),
+                                          ),
+                                          backgroundColor: red,
+                                        ),
+                                      );
+                                    }
+                                    return;
+                                  }
+                                }
+                                
+                                // جلب تفاصيل الطلب
+                                final response = await http.get(Uri.parse(
+                                    'https://jordancarpart.com/Api/getItemsFromOrders.php?flag=1&order_id=$orderId'));
+                                
+                                if (response.statusCode == 200) {
+                                  final data = json.decode(response.body);
+                                  if (data['order_items'] != null) {
+                                    // ✅ استخدام savedContext للانتقال
+                                    if (savedContext.mounted) {
+                                      Navigator.push(
+                                        savedContext,
+                                        MaterialPageRoute(
+                                          builder: (context) => OrderDetailsPage(
+                                            items: data['order_items'],
+                                            order_id: orderId,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+                              } catch (e) {
+                                // ✅ استخدام savedContext
+                                if (savedContext.mounted) {
+                                  ScaffoldMessenger.of(savedContext).showSnackBar(
+                                    SnackBar(
+                                      content: CustomText(
+                                        text: 'فشل في جلب تفاصيل الطلب.',
+                                        color: white,
+                                      ),
+                                      backgroundColor: red,
+                                    ),
+                                  );
+                                }
+                              }
+                            } else {
+                              // إذا ما في order_id، روح لصفحة الطلبات
+                              widget.run(true);
+                            }
+                          },
+                          height: size.height * 0.06,
+                          minWidth: size.width * 0.7,
+                          color: const Color.fromRGBO(195, 29, 29, 1),
+                          child: CustomText(
+                            text: "عرض الطلب",
+                            color: white,
+                            size: size.width * 0.05,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      SizedBox(height: size.height * 0.03),
-                      Center(
-                        child: Image.asset(
-                          "assets/images/done-icon 1.png",
-                          height: size.height * 0.15,
-                          width: size.width * 0.3,
-                        ),
-                      ),
-                      SizedBox(height: size.height * 0.04),
-                      CustomText(
-                        text: "تم ارسال طلبك بنجاح",
-                        size: size.width * 0.06,
-                      ),
-                      SizedBox(height: size.height * 0.02),
-                      CustomText(
-                        text: "...جارِ العمل على طلبك",
-                        size: size.width * 0.055,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: size.height * 0.04),
-                      MaterialButton(
-                        onPressed: () {
-                          Navigator.pop(context); // إغلاق الـ modal
-                          widget.run(true); // الانتقال لصفحة الطلبات
-                        },
-                        height: size.height * 0.06,
-                        minWidth: size.width * 0.7,
-                        color: const Color.fromRGBO(195, 29, 29, 1),
-                        child: CustomText(
-                          text: "رجوع",
-                          color: white,
-                          size: size.width * 0.05,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            );
-          },
-        );
+              );
+            },
+          );
+          }); // Close addPostFrameCallback
+        }
       } else {
         showConfirmationDialog(
           context: context,
@@ -1293,19 +1388,19 @@ Future<void> logout(BuildContext context) async {
   final OrderProvider1 = Provider.of<OrderProvider>(context, listen: false);
   OrderProvider1.clearOrders();
   final orderDetailsProvider =
-  Provider.of<OrderDetailsProvider>(context, listen: false);
+      Provider.of<OrderDetailsProvider>(context, listen: false);
   orderDetailsProvider.clear();
   final editProductProvider =
-  Provider.of<EditProductProvider>(context, listen: false);
+      Provider.of<EditProductProvider>(context, listen: false);
   editProductProvider.clear();
   final deliveryModel =
-  Provider.of<DeliveryModelOrange>(context, listen: false);
+      Provider.of<DeliveryModelOrange>(context, listen: false);
   deliveryModel.clear();
 
   Navigator.pushAndRemoveUntil(
     context,
     MaterialPageRoute(builder: (context) => const LoginPage()),
-        (Route<dynamic> route) => false,
+    (Route<dynamic> route) => false,
   );
 }
 
@@ -1409,11 +1504,11 @@ class _PartsFieldWidgetState extends State<PartsFieldWidget> {
             });
           },
           fieldViewBuilder: (
-              BuildContext context,
-              TextEditingController textEditingController,
-              FocusNode _,
-              VoidCallback onFieldSubmitted,
-              ) {
+            BuildContext context,
+            TextEditingController textEditingController,
+            FocusNode _,
+            VoidCallback onFieldSubmitted,
+          ) {
             textEditingController.text = widget.controller.text;
             textEditingController.selection = TextSelection.fromPosition(
               TextPosition(offset: textEditingController.text.length),
