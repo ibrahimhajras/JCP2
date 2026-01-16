@@ -89,14 +89,19 @@ class MyApp extends StatelessWidget {
         title: 'Car Parts',
 
         builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaleFactor: 1.0,
-              boldText: false,
-              accessibleNavigation: false,
-              disableAnimations: false,
+          return GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaleFactor: 1.0,
+                boldText: false,
+                accessibleNavigation: false,
+                disableAnimations: false,
+              ),
+              child: child!,
             ),
-            child: child!,
           );
         },
 
