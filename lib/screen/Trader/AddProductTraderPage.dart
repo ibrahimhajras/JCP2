@@ -27,6 +27,8 @@ import 'package:http/http.dart' as http;
 import '../../widget/Inallpage/showConfirmationDialog.dart'
     show showConfirmationDialog;
 import '../../widget/update.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
+import '../../widget/KeyboardActionsUtil.dart';
 
 class ArabicAssetPickerTextDelegate extends AssetPickerTextDelegate {
   const ArabicAssetPickerTextDelegate();
@@ -303,6 +305,13 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
       List.generate(5, (_) => TextEditingController());
+
+  // Focus Nodes
+  final List<FocusNode> _warrantyFocusNodes =
+      List.generate(5, (_) => FocusNode());
+  final List<FocusNode> _markFocusNodes = List.generate(5, (_) => FocusNode());
+  final List<FocusNode> _noteFocusNodes = List.generate(5, (_) => FocusNode());
+
   List<int?> selectedNumbers = List.filled(5, null);
 
   final List<bool> checkboxStates = List.generate(5, (_) => false);
@@ -310,6 +319,14 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   final List<bool> isFirstClick = List.generate(5, (_) => true);
 
   bool isLoading = false;
+
+  @override
+  void dispose() {
+    for (var node in _warrantyFocusNodes) node.dispose();
+    for (var node in _markFocusNodes) node.dispose();
+    for (var node in _noteFocusNodes) node.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -323,28 +340,36 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: white,
-        body: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: _buildHeader(size),
-              ),
-              Positioned(
-                top: size.height * 0.2,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: buildForm(size, user.user_id),
+        body: KeyboardActions(
+          config: KeyboardActionsUtil.buildConfig(context, [
+            ..._warrantyFocusNodes,
+            ..._markFocusNodes,
+            ..._noteFocusNodes,
+          ]),
+          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: _buildHeader(size),
                 ),
-              ),
-              if (isLoading) _buildLoadingOverlay(),
-            ],
+                Positioned(
+                  top: size.height * 0.2,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: buildForm(size, user.user_id),
+                  ),
+                ),
+                if (isLoading) _buildLoadingOverlay(),
+              ],
+            ),
           ),
         ),
       ),
@@ -442,10 +467,12 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 width: sizeFactor * 50,
                 height: sizeFactor * 50,
                 decoration: BoxDecoration(
-                  color: checkboxStates[index] ? Colors.white : Colors.grey[100],
+                  color:
+                      checkboxStates[index] ? Colors.white : Colors.grey[100],
                   borderRadius: BorderRadius.circular(sizeFactor * 10),
                   border: Border.all(
-                    color: checkboxStates[index] ? Colors.grey : Colors.grey[50]!,
+                    color:
+                        checkboxStates[index] ? Colors.grey : Colors.grey[50]!,
                     width: 1,
                   ),
                 ),
@@ -638,14 +665,14 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
         traderCheck != null && traderCheck.isYearRangeRequired;
 
     // ✅ تحديد قيم السنوات النهائية
-    String finalToYear = titles[4];  // "إلى"
-    String finalFromYear = titles[5];  // "من"
+    String finalToYear = titles[4]; // "إلى"
+    String finalFromYear = titles[5]; // "من"
 
     // إذا كانت السنوات مخفية، استخدم سنة السيارة من الاختيار
     if (isYearRangeHidden && titles[2].isNotEmpty && titles[2] != "المركبة") {
       // استخراج السنة من اسم السيارة إذا كانت موجودة
       // أو استخدام قيمة افتراضية
-      finalToYear = titles[2];  // يمكن تعديلها حسب البنية
+      finalToYear = titles[2]; // يمكن تعديلها حسب البنية
       finalFromYear = titles[2];
     }
 
@@ -657,8 +684,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       'Category': titles[1],
       'fromYear': titles[2],
       'toYear': selectedEngineSizes,
-      'fuelType': finalToYear,  // ✅ استخدام القيمة النهائية
-      'engineSize': finalFromYear,  // ✅ استخدام القيمة النهائية
+      'fuelType': finalToYear, // ✅ استخدام القيمة النهائية
+      'engineSize': finalFromYear, // ✅ استخدام القيمة النهائية
       'checkboxData': [],
       'token': token,
       'is_for_all_cars':
@@ -820,9 +847,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                         horizontal: sizeFactor * 8,
                       ),
                       decoration: BoxDecoration(
-                        color: !isForAllCars
-                            ? red.withValues(alpha: 0.1)
-                            : Colors.white,
+                        color:
+                            !isForAllCars ? red.withOpacity(0.1) : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
                           width: !isForAllCars ? 2 : 1,
@@ -870,7 +896,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withValues(alpha: 0.1)
+                            ? green.withOpacity(0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -1229,6 +1255,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       CustomText(text: "الكفالة", size: sizeFactor * 10),
                       TextFormField(
                         controller: warrantyControllers[index],
+                        focusNode: _warrantyFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         keyboardType: TextInputType.number,
@@ -1269,6 +1296,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       TextFormField(
                         controller: markControllers[index],
+                        focusNode: _markFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         decoration: InputDecoration(
@@ -1332,6 +1360,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               ),
               child: TextFormField(
                 controller: noteControllers[index],
+                focusNode: _noteFocusNodes[index],
                 maxLines: 3,
                 maxLength: 50,
                 textDirection: TextDirection.rtl,
@@ -1374,7 +1403,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                           children: images.asMap().entries.map((entry) {
                             int imgIndex = entry.key;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: Stack(
                                 children: [
                                   ClipRRect(
@@ -1391,7 +1421,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                                     right: 0,
                                     child: GestureDetector(
                                       onTap: () {
-                                        imageProvider.removeImage(index, imgIndex);
+                                        imageProvider.removeImage(
+                                            index, imgIndex);
                                         completeField(index);
                                       },
                                       child: Container(
@@ -1432,7 +1463,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                             ),
                             const SizedBox(width: 10),
                             CustomText(
-                              text: "إضافة (${images.length}/${ImageProviderNotifier.maxImagesPerIndex})",
+                              text:
+                                  "إضافة (${images.length}/${ImageProviderNotifier.maxImagesPerIndex})",
                               color: red,
                               size: 14,
                             ),
@@ -1465,7 +1497,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
     if (!status.isGranted) return;
 
-    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
+    final imageProvider =
+        Provider.of<ImageProviderNotifier>(context, listen: false);
     if (!imageProvider.canAddMore(index)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1489,7 +1522,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   Future<void> _pickMultipleImages(int index) async {
     // AssetPicker handles permissions automatically
 
-    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
+    final imageProvider =
+        Provider.of<ImageProviderNotifier>(context, listen: false);
     final remaining = imageProvider.getRemainingSlots(index);
     if (remaining <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1581,8 +1615,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     return selectedSizes.join(", ");
   }
 
-  Widget buildDropdownRow(List<List<String>> options, List<int> selectedIndices,
-      double sizeFactor,
+  Widget buildDropdownRow(
+      List<List<String>> options, List<int> selectedIndices, double sizeFactor,
       {bool hideEngineSize = false, bool hideYearRange = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -1682,8 +1716,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       elevation: 1,
                       color: Colors.white,
                       child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -1719,7 +1753,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
           // ✅ إخفاء dropdown السنوات إذا كان hideYearRange == true
           String currentValue = titles[selectedIndices[index]];
-          if (hideYearRange && (currentValue == "من" || currentValue == "إلى")) {
+          if (hideYearRange &&
+              (currentValue == "من" || currentValue == "إلى")) {
             return const SizedBox.shrink();
           }
 
@@ -2299,5 +2334,4 @@ class _MultiSelectDropdownState extends State<MultiSelectDropdown> {
       ),
     );
   }
-
 }

@@ -10,6 +10,8 @@ import '../../provider/ProfileProvider.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 import '../../widget/RotatingImagePage.dart';
+import '../../widget/KeyboardActionsUtil.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:image/image.dart' as img;
@@ -30,6 +32,16 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
   void initState() {
     super.initState();
     _fetchImageRequests();
+  }
+
+  @override
+  void dispose() {
+    for (var request in imageRequests) {
+      if (request['brand_focus'] != null) {
+        (request['brand_focus'] as FocusNode).dispose();
+      }
+    }
+    super.dispose();
   }
 
   Future<void> _fetchImageRequests() async {
@@ -53,11 +65,12 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
           setState(() {
             imageRequests =
                 List<Map<String, dynamic>>.from(data['requests'] ?? []);
-            
+
             for (var request in imageRequests) {
               request['selected_images'] = <File>[];
               request['brand_controller'] = TextEditingController(
                   text: request['mark']?.toString() ?? '');
+              request['brand_focus'] = FocusNode();
             }
             isLoading = false;
           });
@@ -181,7 +194,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -321,13 +333,23 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                         : RefreshIndicator(
                             onRefresh: _fetchImageRequests,
                             color: green,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: imageRequests.length,
-                              itemBuilder: (context, index) {
-                                final request = imageRequests[index];
-                                return _buildRequestCard(request);
-                              },
+                            child: KeyboardActions(
+                              config: KeyboardActionsUtil.buildConfig(
+                                context,
+                                imageRequests
+                                    .map((r) => r['brand_focus'] as FocusNode)
+                                    .toList(),
+                              ),
+                              tapOutsideBehavior:
+                                  TapOutsideBehavior.opaqueDismiss,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(16),
+                                itemCount: imageRequests.length,
+                                itemBuilder: (context, index) {
+                                  final request = imageRequests[index];
+                                  return _buildRequestCard(request);
+                                },
+                              ),
                             ),
                           ),
           ),
@@ -337,7 +359,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
   }
 
   Widget _buildRequestCard(Map<String, dynamic> request) {
-    
     if (request['selected_images'] == null) {
       request['selected_images'] = <File>[];
     }
@@ -350,6 +371,11 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
       request['brand_controller'] = brandController;
     }
 
+    if (request['brand_focus'] == null) {
+      request['brand_focus'] = FocusNode();
+    }
+    FocusNode brandFocus = request['brand_focus'] as FocusNode;
+
     String carInfo = [
       request['car_category'],
       request['car_model'],
@@ -358,7 +384,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
         .where((e) => e != null && e.toString().trim().isNotEmpty && e != "N/A")
         .join(' ');
 
-    
     String productType = request['product_type'] ?? '';
     String productTypeLabel = '';
     if (productType == 'agency' || productType.contains('شركة')) {
@@ -379,7 +404,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
     String displayName = productTypeLabel.isNotEmpty
         ? '$productName $productTypeLabel'
         : productName;
-
 
     List<File> images = request['selected_images'];
     bool hasImages = images.isNotEmpty;
@@ -402,18 +426,15 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  
                   GestureDetector(
                     onTap: () {
                       _showEditDialog(request);
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      
                       child: Image.asset(
                         "assets/images/05.png",
                         width: 24,
@@ -455,7 +476,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -480,12 +500,12 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
 
                             bool success =
                                 await _updateProduct(request, mark, images);
-                            
+
                             // Close loading dialog
                             if (context.mounted) {
                               Navigator.pop(context);
                             }
-                            
+
                             if (success) {
                               _fetchImageRequests();
                             }
@@ -493,7 +513,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: hasImages ? green : Colors.grey,
-                      
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -507,19 +526,18 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                       weight: FontWeight.bold,
                     ),
                   ),
-                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       StatefulBuilder(builder: (context, setStateInterface) {
-                        
                         return GestureDetector(
                           onTap: () async {
                             if (images.length >= 4) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: const Center(child: Text("الحد الأقصى 4 صور")),
+                                      content: const Center(
+                                          child: Text("الحد الأقصى 4 صور")),
                                       backgroundColor: red));
                               return;
                             }
@@ -530,14 +548,12 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                               ? SizedBox(
                                   width: 50,
                                   height: 50,
-                                  
                                   child: Stack(
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
                                         child: Image.file(
                                           images.last,
-                                          
                                           width: 50,
                                           height: 50,
                                           fit: BoxFit.cover,
@@ -576,35 +592,42 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                           brandController?.addListener(() {
                             setStateBrand(() {});
                           });
-                          
-                          bool hasText = brandController?.text.isNotEmpty ?? false;
-                          
+
+                          bool hasText =
+                              brandController?.text.isNotEmpty ?? false;
+
                           return Container(
                             height: 40,
                             width: 150,
                             child: TextField(
                               controller: brandController,
+                              focusNode: brandFocus,
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 hintText: "العلامة التجارية",
-                                hintStyle:
-                                    const TextStyle(fontSize: 12, color: Colors.grey),
+                                hintStyle: const TextStyle(
+                                    fontSize: 12, color: Colors.grey),
                                 contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 0),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.grey.shade400)),
+                                    borderSide: BorderSide(
+                                        color: Colors.grey.shade400)),
                                 enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                        color: hasText ? green : Colors.grey.shade400)),
+                                        color: hasText
+                                            ? green
+                                            : Colors.grey.shade400)),
                                 focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: BorderSide(
-                                        color: hasText ? green : Colors.grey.shade400)),
+                                        color: hasText
+                                            ? green
+                                            : Colors.grey.shade400)),
                               ),
-                              style: const TextStyle(fontSize: 14, fontFamily: 'Tajawal'),
+                              style: const TextStyle(
+                                  fontSize: 14, fontFamily: 'Tajawal'),
                               onChanged: (val) {
                                 request['local_mark'] = val;
                               },
@@ -626,8 +649,8 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
   void _showEditDialog(Map<String, dynamic> request) {
     TextEditingController priceController =
         TextEditingController(text: request['price']?.toString() ?? '');
-    TextEditingController noteController = TextEditingController(
-        text: request['note']?.toString() ?? '');
+    TextEditingController noteController =
+        TextEditingController(text: request['note']?.toString() ?? '');
 
     showDialog(
         context: context,
@@ -651,7 +674,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                 children: [
                   CustomText(text: "تعديل", weight: FontWeight.bold, size: 18),
                   const SizedBox(height: 20),
-                  
                   TextField(
                     controller: priceController,
                     textAlign: TextAlign.center,
@@ -664,7 +686,8 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(color: Colors.grey),
@@ -675,12 +698,12 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.green, width: 2),
+                        borderSide:
+                            const BorderSide(color: Colors.green, width: 2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-
                   TextField(
                     controller: noteController,
                     textAlign: TextAlign.center,
@@ -693,7 +716,8 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(color: Colors.grey),
@@ -704,12 +728,12 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.green, width: 2),
+                        borderSide:
+                            const BorderSide(color: Colors.green, width: 2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -720,8 +744,8 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: red,
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 12),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),
@@ -740,7 +764,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
 
   Future<void> _showMultiImagePicker(BuildContext context,
       Map<String, dynamic> request, StateSetter setStateInterface) async {
-    
     List<File> currentImages = request['selected_images'] ?? [];
     int remaining = 4 - currentImages.length;
     if (remaining <= 0) return;

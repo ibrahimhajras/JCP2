@@ -18,7 +18,9 @@ import '../../style/custom_text.dart';
 import '../../widget/Inallpage/CustomButton.dart';
 import '../../widget/RotatingImagePage.dart' show RotatingImagePage;
 import '../../widget/FullScreenImageViewer.dart';
+import '../../widget/KeyboardActionsUtil.dart';
 import 'AddProductTraderPage.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ArabicAssetPickerTextDelegate extends AssetPickerTextDelegate {
   const ArabicAssetPickerTextDelegate();
@@ -134,11 +136,26 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
       List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
       List.generate(5, (_) => TextEditingController());
+
+  // Focus Nodes
+  final List<FocusNode> _warrantyFocusNodes =
+      List.generate(5, (_) => FocusNode());
+  final List<FocusNode> _markFocusNodes = List.generate(5, (_) => FocusNode());
+  final List<FocusNode> _noteFocusNodes = List.generate(5, (_) => FocusNode());
+
   List<int?> selectedNumbers = List.filled(5, null);
   final picker = ImagePicker();
   final List<bool> checkboxStates = List.generate(5, (_) => false);
   final List<bool> checkboxCompleted = List.generate(5, (_) => false);
   final List<bool> isFirstClick = List.generate(5, (_) => true);
+
+  @override
+  void dispose() {
+    for (var node in _warrantyFocusNodes) node.dispose();
+    for (var node in _markFocusNodes) node.dispose();
+    for (var node in _noteFocusNodes) node.dispose();
+    super.dispose();
+  }
 
   Widget buildCheckboxRow(String label, int index, double sizeFactor) {
     return Padding(
@@ -169,47 +186,57 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: SingleChildScrollView(
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.9,
-                            ),
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 7,
-                                color: words,
+                        child: KeyboardActions(
+                          config: KeyboardActionsUtil.buildConfig(context, [
+                            _warrantyFocusNodes[index],
+                            _markFocusNodes[index],
+                            _noteFocusNodes[index],
+                          ]),
+                          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+                          child: SingleChildScrollView(
+                            child: Container(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.9,
                               ),
-                              borderRadius: BorderRadius.circular(10),
-                              color: const Color.fromRGBO(255, 255, 255, 1),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                buildFields(index, sizeFactor),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: CustomText(
-                                      text: "تم",
-                                      color: Colors.white,
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: red,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 7,
+                                  color: words,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                color: const Color.fromRGBO(255, 255, 255, 1),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  buildFields(index, sizeFactor),
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: CustomText(
+                                        text: "تم",
+                                        color: Colors.white,
                                       ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: red,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -231,10 +258,12 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                 width: sizeFactor * 50,
                 height: sizeFactor * 50,
                 decoration: BoxDecoration(
-                  color: checkboxStates[index] ? Colors.white : Colors.grey[100],
+                  color:
+                      checkboxStates[index] ? Colors.white : Colors.grey[100],
                   borderRadius: BorderRadius.circular(sizeFactor * 10),
                   border: Border.all(
-                    color: checkboxStates[index] ? Colors.grey : Colors.grey[50]!,
+                    color:
+                        checkboxStates[index] ? Colors.grey : Colors.grey[50]!,
                     width: 1,
                   ),
                 ),
@@ -248,7 +277,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                           : amountControllers[index].text,
                       dropdownColor: Colors.white,
                       isExpanded: true,
-                      icon: const SizedBox(), 
+                      icon: const SizedBox(),
                       alignment: Alignment.center,
                       items: [
                         // خيار "متوفر" بقيمة 1000
@@ -417,6 +446,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       CustomText(text: "الكفالة", size: sizeFactor * 10),
                       TextFormField(
                         controller: warrantyControllers[index],
+                        focusNode: _warrantyFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         keyboardType: TextInputType.number,
@@ -457,6 +487,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       TextFormField(
                         controller: markControllers[index],
+                        focusNode: _markFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         decoration: InputDecoration(
@@ -520,17 +551,20 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
               ),
               child: TextFormField(
                 controller: noteControllers[index],
+                focusNode: _noteFocusNodes[index],
                 maxLines: 3,
                 maxLength: 50,
                 textDirection: TextDirection.rtl,
                 textAlign: TextAlign.right,
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
-                onChanged: (_) => completeField(index), // ✅ تحديث الحالة عند الكتابة
+                onChanged: (_) =>
+                    completeField(index), // ✅ تحديث الحالة عند الكتابة
                 decoration: InputDecoration(
                   hintText: "إضافة ملاحظة",
                   border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                   hintStyle: TextStyle(
                     fontSize: sizeFactor * 12,
                     color: Colors.grey,
@@ -558,7 +592,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                           children: images.asMap().entries.map((entry) {
                             int imgIndex = entry.key;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
                               child: Stack(
                                 children: [
                                   ClipRRect(
@@ -575,7 +610,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                                     right: 0,
                                     child: GestureDetector(
                                       onTap: () {
-                                        imageProvider.removeImage(index, imgIndex);
+                                        imageProvider.removeImage(
+                                            index, imgIndex);
                                         completeField(index);
                                       },
                                       child: Container(
@@ -616,7 +652,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                             ),
                             const SizedBox(width: 10),
                             CustomText(
-                              text: "إضافة (${images.length}/${ImageProviderNotifier.maxImagesPerIndex})",
+                              text:
+                                  "إضافة (${images.length}/${ImageProviderNotifier.maxImagesPerIndex})",
                               color: red,
                               size: 14,
                             ),
@@ -692,7 +729,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
 
     if (!status.isGranted) return;
 
-    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
+    final imageProvider =
+        Provider.of<ImageProviderNotifier>(context, listen: false);
     if (!imageProvider.canAddMore(index)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -716,7 +754,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
   Future<void> _pickMultipleImages(int index) async {
     // AssetPicker handles permissions internally
 
-    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
+    final imageProvider =
+        Provider.of<ImageProviderNotifier>(context, listen: false);
     final remaining = imageProvider.getRemainingSlots(index);
     if (remaining <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -799,10 +838,12 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
     Future.delayed(Duration.zero, () async {
       if (mounted) {
         // تصفير الصور القديمة عند فتح الصفحة
-        Provider.of<ImageProviderNotifier>(context, listen: false).resetImages();
+        Provider.of<ImageProviderNotifier>(context, listen: false)
+            .resetImages();
 
         // تفعيل checkboxes بناءً على صلاحيات التاجر
-        final traderProvider = Provider.of<ProfileTraderProvider>(context, listen: false);
+        final traderProvider =
+            Provider.of<ProfileTraderProvider>(context, listen: false);
         final trader = traderProvider.trader;
         for (int i = 0; i < 5; i++) {
           if (_hasPermission(trader, i)) {
@@ -950,7 +991,6 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-
             Row(
               children: [
                 Expanded(
@@ -966,9 +1006,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         horizontal: sizeFactor * 8,
                       ),
                       decoration: BoxDecoration(
-                        color: !isForAllCars
-                            ? red.withValues(alpha: 0.1)
-                            : Colors.white,
+                        color:
+                            !isForAllCars ? red.withOpacity(0.1) : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
                           width: !isForAllCars ? 2 : 1,
@@ -1016,7 +1055,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withValues(alpha: 0.1)
+                            ? green.withOpacity(0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -1065,8 +1104,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         Provider.of<ProfileTraderProvider>(context, listen: false).trader;
     final hideEngineSize =
         traderData != null && traderData.isEngineSizeRequired;
-    final hideYearRange =
-        traderData != null && traderData.isYearRangeRequired;
+    final hideYearRange = traderData != null && traderData.isYearRangeRequired;
 
     // ✅ إخفاء الـ Row بالكامل إذا كانت كل العناصر مخفية
     if (hideEngineSize && hideYearRange) {
@@ -1316,10 +1354,10 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
     double sizeFactor = size.width * 0.0025;
     final trader = Provider.of<ProfileTraderProvider>(context).trader;
 
-    return  GestureDetector(
-    onTap: () {
-      FocusScope.of(context).unfocus();
-    },
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
       child: Scaffold(
         backgroundColor: Colors.white,
         body: Stack(
@@ -1374,7 +1412,9 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                                   child: Container(
                                     alignment: Alignment.center,
                                     child: CustomText(
-                                        text: "السعر", color: Colors.black, size: 16),
+                                        text: "السعر",
+                                        color: Colors.black,
+                                        size: 16),
                                   ),
                                 ),
                                 Expanded(
@@ -1395,10 +1435,12 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
-                            children: List.generate(checkboxLabels.length, (index) {
+                            children:
+                                List.generate(checkboxLabels.length, (index) {
                               final label = checkboxLabels[index];
                               if (_hasPermission(trader, index)) {
-                                return buildCheckboxRow(label, index, sizeFactor);
+                                return buildCheckboxRow(
+                                    label, index, sizeFactor);
                               }
                               return const SizedBox.shrink();
                             }),
@@ -1425,7 +1467,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                               if (!isEngineSizeHidden &&
                                   selectedEngineSizes.isEmpty) {
                                 allFieldsValid = false;
-                                errorMessage = "يرجى اختيار ح.المحرك قبل الإضافة.";
+                                errorMessage =
+                                    "يرجى اختيار ح.المحرك قبل الإضافة.";
                               }
 
                               if (allFieldsValid) {
@@ -1457,7 +1500,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                 color: Colors.black45,
                 dismissible: false,
               ),
-             if (isLoading)
+            if (isLoading)
               Center(
                 child: RotatingImagePage(),
               ),
@@ -1537,8 +1580,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
     // التحقق من أن حجم المحرك ضمن القائمة المختارة (فقط إذا كان الـ dropdown ظاهر)
     final traderForEngineCheck =
         Provider.of<ProfileTraderProvider>(context, listen: false).trader;
-    final isEngineSizeHiddenForSubmit =
-        traderForEngineCheck != null && traderForEngineCheck.isEngineSizeRequired;
+    final isEngineSizeHiddenForSubmit = traderForEngineCheck != null &&
+        traderForEngineCheck.isEngineSizeRequired;
 
     if (!isEngineSizeHiddenForSubmit) {
       String? carEngineSize = widget.part['engine_size']?.toString().trim();
@@ -1552,8 +1595,7 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: CustomText(
-              text:
-                  "حجم محرك السيارة ($carEngineSize) ليس ضمن الأحجام المحددة",
+              text: "حجم محرك السيارة ($carEngineSize) ليس ضمن الأحجام المحددة",
               color: Colors.white,
             ),
             backgroundColor: red,
@@ -1574,8 +1616,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
       'Category': widget.part['car_category'],
       'fromYear': widget.part['car_name'],
       'toYear': selectedEngineSizes,
-      'fuelType': finalToYear,  // ✅ استخدام القيمة النهائية
-      'engineSize': finalFromYear,  // ✅ استخدام القيمة النهائية
+      'fuelType': finalToYear, // ✅ استخدام القيمة النهائية
+      'engineSize': finalFromYear, // ✅ استخدام القيمة النهائية
       'checkboxData': [],
       'token': token,
       'is_for_all_cars': isChassisRequired ? (isForAllCars ? 1 : 0) : null,
@@ -1609,7 +1651,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
         }
 
         // ✅ التحقق من الصورة والعلامة التجارية بشكل منفصل
-        final trader = Provider.of<ProfileTraderProvider>(context, listen: false).trader;
+        final trader =
+            Provider.of<ProfileTraderProvider>(context, listen: false).trader;
         if (trader != null) {
           // التحقق من الصورة إذا كانت مطلوبة - الآن نتحقق من وجود صورة واحدة على الأقل
           if (trader.isImageRequired && imageProvider.imageFiles[i].isEmpty) {
@@ -1627,7 +1670,8 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
           }
 
           // التحقق من العلامة التجارية إذا كانت مطلوبة
-          if (trader.isBrandRequired && markControllers[i].text.trim().isEmpty) {
+          if (trader.isBrandRequired &&
+              markControllers[i].text.trim().isEmpty) {
             setState(() {
               isLoading = false;
             });

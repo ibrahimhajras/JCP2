@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:jcp/widget/KeyboardActionsUtil.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:jcp/helper/snack_bar.dart';
 import 'package:jcp/screen/home/homeuser.dart';
 import 'package:jcp/widget/Inallpage/CustomHeader.dart';
@@ -24,6 +26,7 @@ class TraderPage extends StatefulWidget {
 class _TraderPageState extends State<TraderPage> {
   TextEditingController name = TextEditingController();
   TextEditingController phoneCon = TextEditingController();
+  final FocusNode phoneFocus = FocusNode();
 
   Map<String, bool> selectedTradeFields = {
     "ياباني": false,
@@ -88,14 +91,11 @@ class _TraderPageState extends State<TraderPage> {
       'productTypes': y.keys.toList(),
     };
 
-    
-
     if (formData['name'] == null ||
         formData['phone'] == null ||
         formData['city'] == null ||
         formData['offerPrice'] == null ||
         formData['businessSize'] == null) {
-      
       return;
     }
 
@@ -114,14 +114,8 @@ class _TraderPageState extends State<TraderPage> {
       );
 
       if (response.statusCode == 200) {
-
-        
-      } else {
-        
-      }
-    } catch (e) {
-      
-    }
+      } else {}
+    } catch (e) {}
   }
 
   @override
@@ -130,93 +124,101 @@ class _TraderPageState extends State<TraderPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                height: size.height * 0.20,
-                width: size.width,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [primary1, primary2, primary3]),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomText(
-                        text: "انضم كتاجر",
-                        color: Colors.white,
-                        size: size.width * 0.06,
-                      ),
-                      SizedBox(width: size.width * 0.2),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 15),
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: Icon(Icons.arrow_forward_ios_rounded, color: white),
+      body: KeyboardActions(
+        config: KeyboardActionsUtil.buildConfig(context, [phoneFocus]),
+        tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  height: size.height * 0.20,
+                  width: size.width,
+                  decoration: BoxDecoration(
+                    gradient:
+                        LinearGradient(colors: [primary1, primary2, primary3]),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        CustomText(
+                          text: "انضم كتاجر",
+                          color: Colors.white,
+                          size: size.width * 0.06,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: size.width * 0.2),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 15),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.arrow_forward_ios_rounded,
+                                color: white),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 5),
-                      buildNameField(),
-                      buildPhoneField(),
-                      buildDropdownField("المحافظة", list, title, (val) {
-                        setState(() {
-                          title = val!;
-                        });
-                      }),
-                      buildDropdownField(
-                          "استعداد لتقديم افضل سعر في المملكة ؟", list1, title1,
-                          (val) {
-                        setState(() {
-                          title1 = val!;
-                        });
-                      }),
-                      buildDropdownField(
-                          "حجم تجارتك ومستودعك بالسوق ؟", list2, title2, (val) {
-                        setState(() {
-                          title2 = val!;
-                        });
-                      }),
-                      buildCheckboxSection(),
-                      if (selectedTradeFields["أخرى"] == true)
-                        buildOtherField(),
-                      SizedBox(height: 15),
-                      CustomButton(
-                        height: 50,
-                        minWidth: size.width * 0.9,
-                        text: "تقديم الطلب",
-                        onPressed: () async {
-                          if (validateFields()) {
-                            await sendDataToApi();
-                            showModalBottomSheet(
-                              builder: (context) {
-                                return _buildSuccessBottomSheet(context);
-                              },
-                              context: context,
-                            );
-                          }
-                        },
-                      ),
-                      SizedBox(height: 45),
-                    ],
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 5),
+                        buildNameField(),
+                        buildPhoneField(),
+                        buildDropdownField("المحافظة", list, title, (val) {
+                          setState(() {
+                            title = val!;
+                          });
+                        }),
+                        buildDropdownField(
+                            "استعداد لتقديم افضل سعر في المملكة ؟",
+                            list1,
+                            title1, (val) {
+                          setState(() {
+                            title1 = val!;
+                          });
+                        }),
+                        buildDropdownField(
+                            "حجم تجارتك ومستودعك بالسوق ؟", list2, title2,
+                            (val) {
+                          setState(() {
+                            title2 = val!;
+                          });
+                        }),
+                        buildCheckboxSection(),
+                        if (selectedTradeFields["أخرى"] == true)
+                          buildOtherField(),
+                        SizedBox(height: 15),
+                        CustomButton(
+                          height: 50,
+                          minWidth: size.width * 0.9,
+                          text: "تقديم الطلب",
+                          onPressed: () async {
+                            if (validateFields()) {
+                              await sendDataToApi();
+                              showModalBottomSheet(
+                                builder: (context) {
+                                  return _buildSuccessBottomSheet(context);
+                                },
+                                context: context,
+                              );
+                            }
+                          },
+                        ),
+                        SizedBox(height: 45),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          if (isLoading) _buildLoadingOverlay(),
-        ],
+              ],
+            ),
+            if (isLoading) _buildLoadingOverlay(),
+          ],
+        ),
       ),
     );
   }
@@ -476,8 +478,7 @@ class _TraderPageState extends State<TraderPage> {
               color: Color.fromRGBO(195, 29, 29, 1),
               child: CustomText(
                 text: "رجوع",
-                color:
-                    Colors.white,
+                color: Colors.white,
                 size: size.width * 0.045,
               ),
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
@@ -515,16 +516,14 @@ class _TraderPageState extends State<TraderPage> {
               textAlign: TextAlign.end,
               controller: name,
               decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: nameHint, // عرض الـ hint هنا
-                contentPadding: EdgeInsets.symmetric(horizontal: 6.5)
-              ),
+                  border: InputBorder.none,
+                  hintText: nameHint, // عرض الـ hint هنا
+                  contentPadding: EdgeInsets.symmetric(horizontal: 6.5)),
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
                 fontSize: 16,
                 fontFamily: "Tajawal",
-
               ),
               onTap: () {
                 setState(() {
@@ -564,6 +563,7 @@ class _TraderPageState extends State<TraderPage> {
             ),
             color: grey,
             child: IntlPhoneField(
+              focusNode: phoneFocus,
               onTap: () {
                 setState(() {
                   phoneHint = "";
@@ -628,8 +628,8 @@ class _TraderPageState extends State<TraderPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             color: grey,
-            child: DropdownButtonFormField<String>(              dropdownColor: Colors.white,
-
+            child: DropdownButtonFormField<String>(
+              dropdownColor: Colors.white,
               padding: EdgeInsets.only(right: 5),
               alignment: Alignment.center,
               decoration: InputDecoration(
