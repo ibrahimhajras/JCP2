@@ -944,9 +944,15 @@ class _TraderOrderDetailsPageState extends State<TraderOrderDetailsPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildImageRow(
+                                (item['product_details']['img'] != null &&
+                                    item['product_details']['img'].toString().trim().isNotEmpty)
+                                    ? _buildImageRow(
                                   "",
                                   'http://jordancarpart.com/${item['product_details']['img']}',
+                                )
+                                    : const Text(
+                                  "لا توجد صورة",
+                                  style: TextStyle(fontSize: 16),
                                 ),
                               ],
                             ),

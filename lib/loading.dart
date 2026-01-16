@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,6 +22,7 @@ import 'package:http/http.dart' as http;
 import 'package:jcp/screen/Drawer/Notification.dart';
 import 'package:jcp/screen/Trader/homeTrader.dart';
 import 'package:jcp/screen/Drawer/ContactPage.dart';
+import 'package:jcp/screen/Trader/ImageRequestsPage.dart';
 import 'dart:convert';
 
 class LoadingPage extends StatefulWidget {
@@ -59,24 +60,24 @@ class _LoadingPageState extends State<LoadingPage>
 
     _connectivitySubscription =
         Connectivity().onConnectivityChanged.listen((result) {
-      bool hasNet = false;
-      if (result is List) {
-        hasNet = result.any((item) => item != ConnectivityResult.none);
-      } else if (result is ConnectivityResult) {
-        hasNet = result != ConnectivityResult.none;
-      }
+          bool hasNet = false;
+          if (result is List) {
+            hasNet = result.any((item) => item != ConnectivityResult.none);
+          } else if (result is ConnectivityResult) {
+            hasNet = result != ConnectivityResult.none;
+          }
 
-      if (hasNet && !_hasInternet) {
-        setState(() {
-          _hasInternet = true;
+          if (hasNet && !_hasInternet) {
+            setState(() {
+              _hasInternet = true;
+            });
+            checkUserPreferences(context);
+          } else if (!hasNet && _hasInternet) {
+            setState(() {
+              _hasInternet = false;
+            });
+          }
         });
-        checkUserPreferences(context);
-      } else if (!hasNet && _hasInternet) {
-        setState(() {
-          _hasInternet = false;
-        });
-      }
-    });
 
     _timer = Timer(const Duration(milliseconds: 2500), () {
       checkUserPreferences(context);
@@ -85,9 +86,8 @@ class _LoadingPageState extends State<LoadingPage>
 
   Future<void> _initFirebaseSafely() async {
     try {
-      // Firebase.initializeApp() is already called in main.dart
+      await Firebase.initializeApp();
       await FirebaseMessaging.instance.subscribeToTopic("all");
-      await FirebaseMessaging.instance.subscribeToTopic("all2");
       _firebaseReady = true;
       _initializeNotifications(context);
     } catch (e) {
@@ -135,12 +135,12 @@ class _LoadingPageState extends State<LoadingPage>
     try {
       final url = Uri.parse(
         'https://jordancarpart.com/Api/trader/getTraderInfo2.php'
-        '?user_id=$userId&phone=$userPhone',
+            '?user_id=$userId&phone=$userPhone',
       );
 
       final response = await http.get(url).timeout(
-            const Duration(seconds: 15),
-          );
+        const Duration(seconds: 15),
+      );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -150,7 +150,6 @@ class _LoadingPageState extends State<LoadingPage>
             data['data'].isNotEmpty) {
           final user = data['data'][0];
 
-          // ❌ التاجر موقوف
           if (user['store_is_active'].toString() != "1") {
             return null;
           }
@@ -162,7 +161,6 @@ class _LoadingPageState extends State<LoadingPage>
             phone: user['user_phone'] ?? '',
             full_address: user['store_full_address'] ?? '',
 
-            // ✅ الحقول المحذوفة من API → Lists فاضية
             master: [],
             parts_type: [],
             activity_type: [],
@@ -184,6 +182,7 @@ class _LoadingPageState extends State<LoadingPage>
             isImageRequired: user['store_is_image_required'] == "1",
             isBrandRequired: user['store_is_brand_required'] == "1",
             isEngineSizeRequired: user['store_is_engine_size_required'] == "1",
+            isYearRangeRequired: user['store_is_year_range_required'] == "1",
           );
         }
       }
@@ -221,7 +220,6 @@ class _LoadingPageState extends State<LoadingPage>
           );
         }
       } else if (type == 'invitation' || type == 'pending_parts') {
-        // الذهاب لصفحة التاجر الرئيسية ثم فتح PendingPartsPage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const TraderInfoPage()),
@@ -233,11 +231,9 @@ class _LoadingPageState extends State<LoadingPage>
           );
         }
       } else if (type == 'trader_orders') {
-        // الذهاب لصفحة التاجر مع فتح تاب الطلبات (index 2)
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => const TraderInfoPage(initialTab: 2)),
+          MaterialPageRoute(builder: (context) => const TraderInfoPage(initialTab: 2)),
         );
       } else if (type == 'contact_us') {
         Navigator.pushReplacement(
@@ -261,6 +257,30 @@ class _LoadingPageState extends State<LoadingPage>
         );
       } else if (type == 'see_photo' && orderId != null) {
         await _notificationService.handleSeePhoto(orderId!);
+      } else if (type == 'image_request') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage(page: 1)),
+        );
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (navigatorKey.currentState != null) {
+          navigatorKey.currentState!.push(
+            MaterialPageRoute(builder: (context) => const ImageRequestsPage()),
+          );
+        }
+      } else if (type == 'image_request_completed' && orderId != null) {
+        _notificationService.navigateToOrderDetails(orderId!);
+      } else if (type == 'part_image_uploaded') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage(page: 1)),
+        );
+        await Future.delayed(const Duration(milliseconds: 300));
+        if (navigatorKey.currentState != null) {
+          navigatorKey.currentState!.push(
+            MaterialPageRoute(builder: (context) => const PendingPartsPage()),
+          );
+        }
       } else if (type == 'notifications') {
         Navigator.pushReplacement(
           context,
@@ -297,7 +317,7 @@ class _LoadingPageState extends State<LoadingPage>
       bool rememberMe = prefs.getBool('rememberMe') ?? false;
 
       RemoteMessage? initialMessage =
-          await FirebaseMessaging.instance.getInitialMessage();
+      await FirebaseMessaging.instance.getInitialMessage();
 
       if (rememberMe) {
         String userId = prefs.getString('userId') ?? '';
@@ -318,7 +338,7 @@ class _LoadingPageState extends State<LoadingPage>
               showCustomDialog(
                 context: context,
                 message:
-                    'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
+                'لقد تم إيقاف حسابك مؤقتًا، يرجى التواصل مع خدمة العملاء.',
                 confirmText: 'حسناً',
               );
             } else if (userType == 4) {
@@ -334,7 +354,7 @@ class _LoadingPageState extends State<LoadingPage>
                   ? DateTime.parse(createdAtString)
                   : DateTime.now();
               final profileProvider =
-                  Provider.of<ProfileProvider>(context, listen: false);
+              Provider.of<ProfileProvider>(context, listen: false);
               profileProvider.setuser_id(userId);
               profileProvider.setphone(phone);
               profileProvider.setpassword(password);
@@ -371,7 +391,7 @@ class _LoadingPageState extends State<LoadingPage>
                   ? DateTime.parse(createdAtString)
                   : DateTime.now();
               final profileProvider =
-                  Provider.of<ProfileProvider>(context, listen: false);
+              Provider.of<ProfileProvider>(context, listen: false);
               profileProvider.setuser_id(userId);
               profileProvider.setphone(phone);
               profileProvider.setpassword(password);

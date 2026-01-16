@@ -25,6 +25,7 @@ import 'package:http/http.dart' as http;
 import '../Drawer/PredictivePartsPage.dart';
 import '../Drawer/PricingRequestPage.dart';
 import '../home/homeuser.dart';
+import 'ImageRequestsPage.dart';
 
 class TraderInfoPage extends StatefulWidget {
   static bool isEnabled = false;
@@ -219,6 +220,16 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => PricingRequestPage()));
+                  },
+                ),
+                _buildDrawerButton(
+                  text: "إضافة قطعة",
+                  icon: "assets/images/addprodouct.png",
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddProductTraderPage()));
                   },
                 ),
                 _buildDrawerButton(
@@ -626,8 +637,18 @@ class _TraderInfoPageState extends State<TraderInfoPage> {
                   ),
                 ),
               ),
-              Image.asset(icon,
-                  height: MediaQuery.of(context).size.height * 0.03),
+              SizedBox(width: 10),
+              icon.endsWith('.svg')
+                  ? SvgPicture.asset(
+                icon,
+                height: MediaQuery.of(context).size.height * 0.035,
+                width: MediaQuery.of(context).size.height * 0.035,
+                fit: BoxFit.contain,
+              )
+                  : Image.asset(
+                icon,
+                height: MediaQuery.of(context).size.height * 0.03,
+              ),
             ],
           ),
         ),

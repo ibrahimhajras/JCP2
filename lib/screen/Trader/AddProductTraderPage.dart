@@ -631,6 +631,24 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
+    // التحقق من إعداد إخفاء السنوات
+    final traderCheck =
+        Provider.of<ProfileTraderProvider>(context, listen: false).trader;
+    final isYearRangeHidden =
+        traderCheck != null && traderCheck.isYearRangeRequired;
+
+    // ✅ تحديد قيم السنوات النهائية
+    String finalToYear = titles[4];  // "إلى"
+    String finalFromYear = titles[5];  // "من"
+
+    // إذا كانت السنوات مخفية، استخدم سنة السيارة من الاختيار
+    if (isYearRangeHidden && titles[2].isNotEmpty && titles[2] != "المركبة") {
+      // استخراج السنة من اسم السيارة إذا كانت موجودة
+      // أو استخدام قيمة افتراضية
+      finalToYear = titles[2];  // يمكن تعديلها حسب البنية
+      finalFromYear = titles[2];
+    }
+
     Map<String, dynamic> data = {
       'user_id': user_id,
       'time': DateTime.now().toString(),
@@ -639,8 +657,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       'Category': titles[1],
       'fromYear': titles[2],
       'toYear': selectedEngineSizes,
-      'fuelType': titles[4],
-      'engineSize': titles[5],
+      'fuelType': finalToYear,  // ✅ استخدام القيمة النهائية
+      'engineSize': finalFromYear,  // ✅ استخدام القيمة النهائية
       'checkboxData': [],
       'token': token,
       'is_for_all_cars':
@@ -803,7 +821,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: !isForAllCars
-                            ? red.withOpacity(0.1)
+                            ? red.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: !isForAllCars ? red : Colors.grey[400]!,
@@ -852,7 +870,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       decoration: BoxDecoration(
                         color: isForAllCars
-                            ? green.withOpacity(0.1)
+                            ? green.withValues(alpha: 0.1)
                             : Colors.white,
                         border: Border.all(
                           color: isForAllCars ? green : Colors.grey[400]!,
@@ -980,6 +998,13 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                         .trader;
                 final hideEngineSize =
                     traderData != null && traderData.isEngineSizeRequired;
+                final hideYearRange =
+                    traderData != null && traderData.isYearRangeRequired;
+
+                // ✅ إخفاء الـ Row بالكامل إذا كانت كل العناصر مخفية
+                if (hideEngineSize && hideYearRange) {
+                  return const SizedBox.shrink();
+                }
 
                 return buildDropdownRow(
                   [
@@ -994,6 +1019,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                   [3, 4, 5],
                   sizeFactor,
                   hideEngineSize: hideEngineSize,
+                  hideYearRange: hideYearRange,
                 );
               },
             ),
@@ -1460,57 +1486,8 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
     }
   }
 
-  Future<bool> _requestGalleryPermission() async {
-    if (Platform.isAndroid) {
-      // أندرويد 13+ (SDK 33) يستخدم READ_MEDIA_IMAGES
-      // أندرويد 12 وأقل يستخدم storage
-
-      // نحاول photos أولاً (أندرويد 13+)
-      var photosStatus = await Permission.photos.status;
-      if (photosStatus.isGranted) {
-        return true;
-      }
-
-      // نحاول storage (أندرويد 12 وأقل)
-      var storageStatus = await Permission.storage.status;
-      if (storageStatus.isGranted) {
-        return true;
-      }
-
-      // نطلب الصلاحيات
-      photosStatus = await Permission.photos.request();
-      if (photosStatus.isGranted) {
-        return true;
-      }
-
-      storageStatus = await Permission.storage.request();
-      if (storageStatus.isGranted) {
-        return true;
-      }
-
-      // إذا مرفوض بشكل نهائي
-      if (photosStatus.isPermanentlyDenied || storageStatus.isPermanentlyDenied) {
-        if (mounted) _showPermissionDialog(context);
-      }
-
-      return false;
-    } else {
-      // iOS
-      var status = await Permission.photos.request();
-      if (status.isPermanentlyDenied) {
-        if (mounted) _showPermissionDialog(context);
-        return false;
-      }
-      return status.isGranted;
-    }
-  }
-
   Future<void> _pickMultipleImages(int index) async {
-    // التحقق من صلاحية الصور/الاستوديو
-    bool hasPermission = await _requestGalleryPermission();
-    if (!hasPermission) {
-      return;
-    }
+    // AssetPicker handles permissions automatically
 
     final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     final remaining = imageProvider.getRemainingSlots(index);
@@ -1606,7 +1583,7 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
 
   Widget buildDropdownRow(List<List<String>> options, List<int> selectedIndices,
       double sizeFactor,
-      {bool hideEngineSize = false}) {
+      {bool hideEngineSize = false, bool hideYearRange = false}) {
     return Padding(
       padding: EdgeInsets.symmetric(
           horizontal: sizeFactor * 20, vertical: sizeFactor * 10),
@@ -1738,6 +1715,12 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                 );
               },
             );
+          }
+
+          // ✅ إخفاء dropdown السنوات إذا كان hideYearRange == true
+          String currentValue = titles[selectedIndices[index]];
+          if (hideYearRange && (currentValue == "من" || currentValue == "إلى")) {
+            return const SizedBox.shrink();
           }
 
           // باقي الـ dropdowns كما هي

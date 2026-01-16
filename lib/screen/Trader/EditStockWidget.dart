@@ -399,29 +399,24 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Column(
-        children: [
-          _buildHeader(size, user), // الهيدر
-          Expanded(
-            child: Column(
-              children: [
-                _buildDropdownRow(),
-                _buildSearchField(size),
-                EditStockTitleWidget(
-                  totalItems: _totalItems,
-                ),
-                Expanded(
-                  child: _buildProductList(size, user.user_id),
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        _buildHeader(size, user), // الهيدر
+        Expanded(
+          child: Column(
+            children: [
+              _buildDropdownRow(),
+              _buildSearchField(size),
+              EditStockTitleWidget(
+                totalItems: _totalItems,
+              ),
+              Expanded(
+                child: _buildProductList(size, user.user_id),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1352,39 +1347,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
                 }
                 if (!status.isGranted) return;
               } else {
-                // Gallery
-                if (Platform.isAndroid) {
-                  if (await Permission.photos.status.isDenied) {
-                    await Permission.photos.request();
-                  }
-                  var status = await Permission.storage.status;
-                  if (status.isDenied) {
-                    status = await Permission.storage.request();
-                  }
-
-                  var photosStatus = await Permission.photos.status;
-
-                  if (status.isPermanentlyDenied && photosStatus.isPermanentlyDenied) {
-                    _showPermissionDialog(context);
-                    return;
-                  }
-
-                  if (!status.isGranted && !photosStatus.isGranted) {
-                    if (await Permission.photos.request().isGranted) {
-                    } else if (await Permission.storage.request().isGranted) {
-                    } else {
-                      return;
-                    }
-                  }
-                } else {
-                  // iOS
-                  var status = await Permission.photos.request();
-                  if (status.isPermanentlyDenied) {
-                    _showPermissionDialog(context);
-                    return;
-                  }
-                  if (!status.isGranted) return;
-                }
+                // Gallery - AssetPicker handles permissions
               }
 
               if (_selectedImages.length >= 4) {
