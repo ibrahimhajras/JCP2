@@ -27,8 +27,6 @@ import 'package:http/http.dart' as http;
 import '../../widget/Inallpage/showConfirmationDialog.dart'
     show showConfirmationDialog;
 import '../../widget/update.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
-import '../../widget/KeyboardActionsUtil.dart';
 
 class ArabicAssetPickerTextDelegate extends AssetPickerTextDelegate {
   const ArabicAssetPickerTextDelegate();
@@ -305,13 +303,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
       List.generate(5, (_) => TextEditingController());
-
-  // Focus Nodes
-  final List<FocusNode> _warrantyFocusNodes =
-      List.generate(5, (_) => FocusNode());
-  final List<FocusNode> _markFocusNodes = List.generate(5, (_) => FocusNode());
-  final List<FocusNode> _noteFocusNodes = List.generate(5, (_) => FocusNode());
-
   List<int?> selectedNumbers = List.filled(5, null);
 
   final List<bool> checkboxStates = List.generate(5, (_) => false);
@@ -319,14 +310,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
   final List<bool> isFirstClick = List.generate(5, (_) => true);
 
   bool isLoading = false;
-
-  @override
-  void dispose() {
-    for (var node in _warrantyFocusNodes) node.dispose();
-    for (var node in _markFocusNodes) node.dispose();
-    for (var node in _noteFocusNodes) node.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -340,36 +323,28 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: white,
-        body: KeyboardActions(
-          config: KeyboardActionsUtil.buildConfig(context, [
-            ..._warrantyFocusNodes,
-            ..._markFocusNodes,
-            ..._noteFocusNodes,
-          ]),
-          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
-          child: Directionality(
-            textDirection: TextDirection.ltr,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: _buildHeader(size),
+        body: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: _buildHeader(size),
+              ),
+              Positioned(
+                top: size.height * 0.2,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: buildForm(size, user.user_id),
                 ),
-                Positioned(
-                  top: size.height * 0.2,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: buildForm(size, user.user_id),
-                  ),
-                ),
-                if (isLoading) _buildLoadingOverlay(),
-              ],
-            ),
+              ),
+              if (isLoading) _buildLoadingOverlay(),
+            ],
           ),
         ),
       ),
@@ -1255,7 +1230,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       CustomText(text: "الكفالة", size: sizeFactor * 10),
                       TextFormField(
                         controller: warrantyControllers[index],
-                        focusNode: _warrantyFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         keyboardType: TextInputType.number,
@@ -1296,7 +1270,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
                       ),
                       TextFormField(
                         controller: markControllers[index],
-                        focusNode: _markFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         decoration: InputDecoration(
@@ -1360,7 +1333,6 @@ class _AddProductTraderPageState extends State<AddProductTraderPage> {
               ),
               child: TextFormField(
                 controller: noteControllers[index],
-                focusNode: _noteFocusNodes[index],
                 maxLines: 3,
                 maxLength: 50,
                 textDirection: TextDirection.rtl,

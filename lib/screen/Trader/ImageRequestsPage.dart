@@ -10,8 +10,6 @@ import '../../provider/ProfileProvider.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
 import '../../widget/RotatingImagePage.dart';
-import '../../widget/KeyboardActionsUtil.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:image/image.dart' as img;
@@ -32,16 +30,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
   void initState() {
     super.initState();
     _fetchImageRequests();
-  }
-
-  @override
-  void dispose() {
-    for (var request in imageRequests) {
-      if (request['brand_focus'] != null) {
-        (request['brand_focus'] as FocusNode).dispose();
-      }
-    }
-    super.dispose();
   }
 
   Future<void> _fetchImageRequests() async {
@@ -70,7 +58,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
               request['selected_images'] = <File>[];
               request['brand_controller'] = TextEditingController(
                   text: request['mark']?.toString() ?? '');
-              request['brand_focus'] = FocusNode();
             }
             isLoading = false;
           });
@@ -333,23 +320,13 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                         : RefreshIndicator(
                             onRefresh: _fetchImageRequests,
                             color: green,
-                            child: KeyboardActions(
-                              config: KeyboardActionsUtil.buildConfig(
-                                context,
-                                imageRequests
-                                    .map((r) => r['brand_focus'] as FocusNode)
-                                    .toList(),
-                              ),
-                              tapOutsideBehavior:
-                                  TapOutsideBehavior.opaqueDismiss,
-                              child: ListView.builder(
-                                padding: const EdgeInsets.all(16),
-                                itemCount: imageRequests.length,
-                                itemBuilder: (context, index) {
-                                  final request = imageRequests[index];
-                                  return _buildRequestCard(request);
-                                },
-                              ),
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: imageRequests.length,
+                              itemBuilder: (context, index) {
+                                final request = imageRequests[index];
+                                return _buildRequestCard(request);
+                              },
                             ),
                           ),
           ),
@@ -370,11 +347,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
           TextEditingController(text: request['mark']?.toString() ?? '');
       request['brand_controller'] = brandController;
     }
-
-    if (request['brand_focus'] == null) {
-      request['brand_focus'] = FocusNode();
-    }
-    FocusNode brandFocus = request['brand_focus'] as FocusNode;
 
     String carInfo = [
       request['car_category'],
@@ -601,7 +573,6 @@ class _ImageRequestsPageState extends State<ImageRequestsPage> {
                             width: 150,
                             child: TextField(
                               controller: brandController,
-                              focusNode: brandFocus,
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
                                 hintText: "العلامة التجارية",

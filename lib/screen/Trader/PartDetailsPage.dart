@@ -18,9 +18,7 @@ import '../../style/custom_text.dart';
 import '../../widget/Inallpage/CustomButton.dart';
 import '../../widget/RotatingImagePage.dart' show RotatingImagePage;
 import '../../widget/FullScreenImageViewer.dart';
-import '../../widget/KeyboardActionsUtil.dart';
 import 'AddProductTraderPage.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ArabicAssetPickerTextDelegate extends AssetPickerTextDelegate {
   const ArabicAssetPickerTextDelegate();
@@ -136,26 +134,11 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
       List.generate(5, (_) => TextEditingController());
   final List<TextEditingController> noteControllers =
       List.generate(5, (_) => TextEditingController());
-
-  // Focus Nodes
-  final List<FocusNode> _warrantyFocusNodes =
-      List.generate(5, (_) => FocusNode());
-  final List<FocusNode> _markFocusNodes = List.generate(5, (_) => FocusNode());
-  final List<FocusNode> _noteFocusNodes = List.generate(5, (_) => FocusNode());
-
   List<int?> selectedNumbers = List.filled(5, null);
   final picker = ImagePicker();
   final List<bool> checkboxStates = List.generate(5, (_) => false);
   final List<bool> checkboxCompleted = List.generate(5, (_) => false);
   final List<bool> isFirstClick = List.generate(5, (_) => true);
-
-  @override
-  void dispose() {
-    for (var node in _warrantyFocusNodes) node.dispose();
-    for (var node in _markFocusNodes) node.dispose();
-    for (var node in _noteFocusNodes) node.dispose();
-    super.dispose();
-  }
 
   Widget buildCheckboxRow(String label, int index, double sizeFactor) {
     return Padding(
@@ -186,57 +169,47 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: KeyboardActions(
-                          config: KeyboardActionsUtil.buildConfig(context, [
-                            _warrantyFocusNodes[index],
-                            _markFocusNodes[index],
-                            _noteFocusNodes[index],
-                          ]),
-                          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
-                          child: SingleChildScrollView(
-                            child: Container(
-                              constraints: BoxConstraints(
-                                maxWidth:
-                                    MediaQuery.of(context).size.width * 0.9,
+                        child: SingleChildScrollView(
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.9,
+                            ),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 7,
+                                color: words,
                               ),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 7,
-                                  color: words,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                                color: const Color.fromRGBO(255, 255, 255, 1),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  buildFields(index, sizeFactor),
-                                  Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: CustomText(
-                                        text: "تم",
-                                        color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color.fromRGBO(255, 255, 255, 1),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                buildFields(index, sizeFactor),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: CustomText(
+                                      text: "تم",
+                                      color: Colors.white,
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: red,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 8,
-                                        ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -446,7 +419,6 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       CustomText(text: "الكفالة", size: sizeFactor * 10),
                       TextFormField(
                         controller: warrantyControllers[index],
-                        focusNode: _warrantyFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         keyboardType: TextInputType.number,
@@ -487,7 +459,6 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
                       ),
                       TextFormField(
                         controller: markControllers[index],
-                        focusNode: _markFocusNodes[index],
                         textDirection: TextDirection.rtl,
                         textAlign: TextAlign.right,
                         decoration: InputDecoration(
@@ -551,7 +522,6 @@ class _PartDetailsPageState extends State<PartDetailsPage> {
               ),
               child: TextFormField(
                 controller: noteControllers[index],
-                focusNode: _noteFocusNodes[index],
                 maxLines: 3,
                 maxLength: 50,
                 textDirection: TextDirection.rtl,

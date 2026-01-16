@@ -19,8 +19,6 @@ import 'package:image/image.dart' as img;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import '../../style/colors.dart';
 import '../../style/custom_text.dart';
-import 'package:jcp/widget/KeyboardActionsUtil.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 
 class EditStockWidget extends StatefulWidget {
   const EditStockWidget({super.key});
@@ -406,29 +404,24 @@ class _EditStockWidgetState extends State<EditStockWidget> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = Provider.of<ProfileProvider>(context);
-
-    return KeyboardActions(
-      config: KeyboardActionsUtil.buildConfig(context, [searchFocus]),
-      tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
-      child: Column(
-        children: [
-          _buildHeader(size, user), // الهيدر
-          Expanded(
-            child: Column(
-              children: [
-                _buildDropdownRow(),
-                _buildSearchField(size),
-                EditStockTitleWidget(
-                  totalItems: _totalItems,
-                ),
-                Expanded(
-                  child: _buildProductList(size, user.user_id),
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        _buildHeader(size, user), // الهيدر
+        Expanded(
+          child: Column(
+            children: [
+              _buildDropdownRow(),
+              _buildSearchField(size),
+              EditStockTitleWidget(
+                totalItems: _totalItems,
+              ),
+              Expanded(
+                child: _buildProductList(size, user.user_id),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -669,8 +662,7 @@ class _EditStockWidgetState extends State<EditStockWidget> {
           Expanded(
             flex: 4,
             child: Center(
-              child: RawAutocomplete<String>(
-                focusNode: searchFocus,
+              child: Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {
                   if (textEditingValue.text.isEmpty) {
                     return const Iterable<String>.empty();

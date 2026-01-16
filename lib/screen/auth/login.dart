@@ -4,9 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:jcp/widget/Inallpage/showConfirmationDialog.dart';
-import 'package:jcp/widget/KeyboardActionsUtil.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -38,8 +36,6 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController phone = TextEditingController();
   TextEditingController password = TextEditingController();
 
-  final FocusNode phoneFocus = FocusNode();
-
   @override
   void initState() {
     super.initState();
@@ -55,7 +51,6 @@ class _LoginPageState extends State<LoginPage> {
       password.text = prefs.getString('password') ?? '';
     });
   }
-
   Future<void> saveUserPreferences(
       String userId,
       String name,
@@ -83,46 +78,40 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+    return GestureDetector(onTap:(){FocusScope.of(context).unfocus();},
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBarWidget(title: "تسجيل الدخول", color: white),
         backgroundColor: white,
-        body: KeyboardActions(
-          config: KeyboardActionsUtil.buildConfig(context, [phoneFocus]),
-          tapOutsideBehavior: TapOutsideBehavior.opaqueDismiss,
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Container(
-                  width: size.width,
-                  child: Column(
-                    children: [
-                      _buildLogo(size),
-                      const SizedBox(height: 15),
-                      _buildPhoneInput(),
-                      _buildPasswordInput(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildRememberMeCheckbox(),
-                          _buildForgotPasswordLink(),
-                        ],
-                      ),
-                      const SizedBox(height: 25),
-                      _buildLoginButton(size),
-                      const SizedBox(height: 10),
-                      _buildRegisterLink(),
-                    ],
-                  ),
+        body: Stack(
+          children: [
+            SingleChildScrollView
+              (
+              child: Container(
+                width: size.width,
+                child: Column(
+                  children: [
+                    _buildLogo(size),
+                    const SizedBox(height: 15),
+                    _buildPhoneInput(),
+                    _buildPasswordInput(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildRememberMeCheckbox(),
+                        _buildForgotPasswordLink(),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+                    _buildLoginButton(size),
+                    const SizedBox(height: 10),
+                    _buildRegisterLink(),
+                  ],
                 ),
               ),
-              if (isLoading) _buildLoadingOverlay(),
-            ],
-          ),
+            ),
+            if (isLoading) _buildLoadingOverlay(),
+          ],
         ),
       ),
     );
@@ -209,7 +198,6 @@ class _LoginPageState extends State<LoginPage> {
                   x = x.replaceFirst("0", "");
                 }
               },
-              focusNode: phoneFocus,
             ),
           ),
         ),
@@ -475,7 +463,7 @@ class _LoginPageState extends State<LoginPage> {
           await FirebaseMessaging.instance.subscribeToTopic("Driver");
 
           final profileProvider =
-              Provider.of<ProfileProvider>(context, listen: false);
+          Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
           profileProvider.setphone(user.phone);
           profileProvider.setname(user.name);
@@ -499,6 +487,7 @@ class _LoginPageState extends State<LoginPage> {
           if (rememberMe == true) {
             messaging = FirebaseMessaging.instance;
             messaging.getToken().then((token) async {
+
               updateFCMToken(profileProvider.getuser_id(), token.toString());
             });
           }
@@ -526,7 +515,7 @@ class _LoginPageState extends State<LoginPage> {
           );
         } else if (user.type == "1" || user.type == "2") {
           final profileProvider =
-              Provider.of<ProfileProvider>(context, listen: false);
+          Provider.of<ProfileProvider>(context, listen: false);
           profileProvider.setuser_id(user.userId);
           profileProvider.setphone(user.phone);
           profileProvider.setname(user.name);
@@ -550,6 +539,7 @@ class _LoginPageState extends State<LoginPage> {
           if (rememberMe == true) {
             messaging = FirebaseMessaging.instance;
             messaging.getToken().then((token) {
+
               updateFCMToken(profileProvider.getuser_id(), token.toString());
             });
           }
@@ -583,6 +573,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
+
       showConfirmationDialog(
         context: context,
         message: 'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى',
@@ -597,10 +588,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void subscribeToTopic() {
-    FirebaseMessaging.instance
-        .subscribeToTopic("all")
-        .then((_) {})
-        .catchError((e) {});
+    FirebaseMessaging.instance.subscribeToTopic("all").then((_) {
+    }).catchError((e) {
+    });
   }
 
   void updateFCMToken(String userId, String fcmToken) async {
@@ -617,6 +607,9 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (response.statusCode == 200) {
-    } else {}
+
+    } else {
+
+    }
   }
 }
