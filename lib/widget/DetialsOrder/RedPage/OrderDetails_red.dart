@@ -122,21 +122,25 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
     // التحقق من صلاحية الكاميرا
     var status = await Permission.camera.status;
+    
     if (status.isDenied) {
       status = await Permission.camera.request();
     }
 
     if (status.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Center(child: Text("يرجى تفعيل صلاحية الكاميرا من الإعدادات")),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Center(child: Text("يرجى تفعيل صلاحية الكاميرا من الإعدادات")),
+            backgroundColor: Colors.red,
+          ),
+        );
+        openAppSettings();
+      }
       return;
     }
 
-    if (!status.isGranted) return;
+    if (!status.isGranted && !status.isLimited) return;
 
     final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     int currentCount = imageProvider.getImageCount(itemIndex);
