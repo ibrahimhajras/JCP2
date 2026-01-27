@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:jcp/style/custom_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:jcp/widget/RotatingImagePage.dart';
 import 'package:jcp/widget/FullScreenImageViewer.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -62,28 +64,142 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       return;
     }
 
-    // AssetPicker handles permissions internally
+    final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
+    int currentCount = imageProvider.getImageCount(itemIndex);
+    int remaining = 4 - currentCount;
+
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Center(child: Text('الحد الأقصى 4 صور'))),
+      );
+      return;
+    }
+
+    try {
+      // Use ImagePicker - automatically uses Photo Picker on Android 13+
+      final ImagePicker picker = ImagePicker();
+      final List<XFile> images = await picker.pickMultiImage(imageQuality: 100);
+
+      if (images.isNotEmpty) {
+        List<File> files = [];
+        int toAdd = images.length > remaining ? remaining : images.length;
+
+        for (int i = 0; i < toAdd; i++) {
+          files.add(File(images[i].path));
+        }
+
+        if (files.isNotEmpty) {
+          imageProvider.addImages(itemIndex, files);
+
+          if (images.length > remaining) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Center(child: Text("تم إضافة $remaining صور فقط (الحد الأقصى)")),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print("ImagePicker error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Center(child: Text("حدث خطأ أثناء اختيار الصور")),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _pickImageFromCamera(int itemIndex, int itemId) async {
+    if (itemIndex >= 5) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Center(child: Text('عذرا، لا يمكن إضافة صور لأكثر من 5 عناصر حاليا'))),
+      );
+      return;
+    }
+
+    // التحقق من صلاحية الكاميرا
+    var status = await Permission.camera.status;
+    if (status.isDenied) {
+      status = await Permission.camera.request();
+    }
+
+    if (status.isPermanentlyDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Center(child: Text("يرجى تفعيل صلاحية الكاميرا من الإعدادات")),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!status.isGranted) return;
 
     final imageProvider = Provider.of<ImageProviderNotifier>(context, listen: false);
     int currentCount = imageProvider.getImageCount(itemIndex);
 
-    final List<AssetEntity>? result = await AssetPicker.pickAssets(
-      context,
-      pickerConfig: AssetPickerConfig(
-        maxAssets: 4 - currentCount,
-        requestType: RequestType.image,
-        themeColor: Colors.green,
-      ),
-    );
-
-    if (result != null) {
-      List<File> files = [];
-      for (var asset in result) {
-        File? file = await asset.file;
-        if (file != null) files.add(file);
-      }
-      imageProvider.addImages(itemIndex, files);
+    if (currentCount >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Center(child: Text('الحد الأقصى 4 صور'))),
+      );
+      return;
     }
+
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      if (image != null) {
+        imageProvider.addImage(itemIndex, File(image.path));
+      }
+    } catch (e) {
+      print("Camera picker error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Center(child: Text("حدث خطأ أثناء التقاط الصورة")),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showImagePickerDialog(int itemIndex, int itemId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text("اختر الصور", style: TextStyle(fontFamily: 'Tajawal')),
+          content: const Text("من الكاميرا أو المعرض", style: TextStyle(fontFamily: 'Tajawal')),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _pickImageFromCamera(itemIndex, itemId);
+              },
+              child: Icon(
+                Icons.photo_camera,
+                size: 30,
+                color: button,
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _pickImages(itemIndex, itemId);
+              },
+              child: Icon(
+                Icons.photo_library,
+                size: 30,
+                color: button,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _saveImages() async {
@@ -122,30 +238,30 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Center(
-        child: CustomText(
-          text: 'تم حفظ الصور بنجاح',
-          color: Colors.white,
-          textAlign: TextAlign.center,
+        content: Center(
+          child: CustomText(
+            text: 'تم حفظ الصور بنجاح',
+            color: Colors.white,
+            textAlign: TextAlign.center,
+          ),
         ),
-      ),
-      backgroundColor: red,
-    ));
+        backgroundColor: red,
+      ));
       imageProvider.resetImages();
 
       // Refresh logic could be added here if needed
       await _fetchOrderItems();
 
     } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: CustomText(
-        text: 'حدث خطأ أثناء الحفظ',
-        color: Colors.white,
-        textAlign: TextAlign.center,
-      ),
-      backgroundColor: red,
-    ));
-  } finally {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: CustomText(
+          text: 'حدث خطأ أثناء الحفظ',
+          color: Colors.white,
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: red,
+      ));
+    } finally {
       setState(() {
         _isUploading = false;
       });
@@ -252,7 +368,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 25),
                       child: Column(
                         children: _items.map(
-                          (e) {
+                              (e) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 5),
                               child: Column(
@@ -266,7 +382,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                       builder: (context, imageProvider, _) {
                                         int idx = _items.indexOf(e);
                                         bool hasServerImages = (e['images'] !=
-                                                null &&
+                                            null &&
                                             (e['images'] as List).isNotEmpty);
                                         return TextFormField(
                                           readOnly: true,
@@ -277,65 +393,65 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                           decoration: InputDecoration(
                                             prefixIcon: (hasServerImages)
                                                 ? GestureDetector(
-                                                    onTap: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) =>
-                                                            FullScreenImageViewer(
-                                                                imageUrl:
-                                                                    e['images']
-                                                                            [0]
-                                                                        .toString()),
-                                                      );
-                                                    },
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(100),
-                                                        child: Image.network(
-                                                          e['images'][0]
-                                                              .toString(),
-                                                          width: 40,
-                                                          height: 40,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (context,
-                                                                  error,
-                                                                  stackTrace) =>
-                                                              const Icon(Icons.error),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                : GestureDetector(
-                                                    onTap: () => _pickImages(
-                                                        _items.indexOf(e),
-                                                        e['id']),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              12.0),
-                                                      child: SvgPicture.asset(
-                                                        "assets/svg/addphoto.svg",
-                                                        width: 28,
-                                                        height: 28,
-                                                        colorFilter:
-                                                            ColorFilter.mode(
-                                                                words,
-                                                                BlendMode.srcIn),
-                                                      ),
-                                                    ),
+                                              onTap: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      FullScreenImageViewer(
+                                                          imageUrl:
+                                                          e['images']
+                                                          [0]
+                                                              .toString()),
+                                                );
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                const EdgeInsets.all(
+                                                    8.0),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                  BorderRadius
+                                                      .circular(100),
+                                                  child: Image.network(
+                                                    e['images'][0]
+                                                        .toString(),
+                                                    width: 40,
+                                                    height: 40,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error,
+                                                        stackTrace) =>
+                                                    const Icon(Icons.error),
                                                   ),
+                                                ),
+                                              ),
+                                            )
+                                                : GestureDetector(
+                                              onTap: () => _showImagePickerDialog(
+                                                  _items.indexOf(e),
+                                                  e['id']),
+                                              child: Padding(
+                                                padding:
+                                                const EdgeInsets.all(
+                                                    12.0),
+                                                child: SvgPicture.asset(
+                                                  "assets/svg/addphoto.svg",
+                                                  width: 28,
+                                                  height: 28,
+                                                  colorFilter:
+                                                  ColorFilter.mode(
+                                                      words,
+                                                      BlendMode.srcIn),
+                                                ),
+                                              ),
+                                            ),
                                             enabledBorder: OutlineInputBorder(
                                               borderSide: BorderSide(
                                                 color: grey,
                                                 width: 2,
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                              BorderRadius.circular(10.0),
                                             ),
                                             focusedBorder: OutlineInputBorder(
                                               borderSide: BorderSide(
@@ -343,11 +459,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                                 width: 2,
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                              BorderRadius.circular(10.0),
                                             ),
                                             border: OutlineInputBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(10),
+                                              BorderRadius.circular(10),
                                             ),
                                             fillColor: const Color.fromRGBO(
                                                 246, 246, 246, 1),
@@ -372,23 +488,23 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                   // Display Images
                                   Consumer<ImageProviderNotifier>(
                                       builder: (context, imageProvider, _) {
-                                    int idx = _items.indexOf(e);
-                                    List<File> localFiles = (idx < 5)
-                                        ? imageProvider.imageFiles[idx]
-                                        : [];
+                                        int idx = _items.indexOf(e);
+                                        List<File> localFiles = (idx < 5)
+                                            ? imageProvider.imageFiles[idx]
+                                            : [];
 
-                                    // Only show local files here as requested
-                                    if (localFiles.isNotEmpty) {
-                                      return Container(
-                                        height: 80,
-                                        padding:
+                                        // Only show local files here as requested
+                                        if (localFiles.isNotEmpty) {
+                                          return Container(
+                                            height: 80,
+                                            padding:
                                             const EdgeInsets.symmetric(vertical: 5),
-                                        child: ListView(
-                                          scrollDirection: Axis.horizontal,
-                                          reverse: true, // RTL
-                                          children: [
-                                            // New Images (Local)
-                                            ...localFiles.map((file) => Padding(
+                                            child: ListView(
+                                              scrollDirection: Axis.horizontal,
+                                              reverse: true, // RTL
+                                              children: [
+                                                // New Images (Local)
+                                                ...localFiles.map((file) => Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(
                                                       horizontal: 4.0),
@@ -401,13 +517,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                                             builder: (context) =>
                                                                 FullScreenImageViewer(
                                                                     imageFile:
-                                                                        file),
+                                                                    file),
                                                           );
                                                         },
                                                         child: ClipRRect(
                                                           borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
+                                                          BorderRadius
+                                                              .circular(8),
                                                           child: Image.file(
                                                               file,
                                                               width: 70,
@@ -423,23 +539,23 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                                             if (idx < 5) {
                                                               imageProvider
                                                                   .removeImage(
-                                                                      idx,
-                                                                      localFiles
-                                                                          .indexOf(
-                                                                              file));
+                                                                  idx,
+                                                                  localFiles
+                                                                      .indexOf(
+                                                                      file));
                                                             }
                                                           },
                                                           child: Container(
                                                             decoration:
-                                                                const BoxDecoration(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    shape: BoxShape
-                                                                        .circle),
+                                                            const BoxDecoration(
+                                                                color: Colors
+                                                                    .white,
+                                                                shape: BoxShape
+                                                                    .circle),
                                                             child: const Icon(
                                                                 Icons.close,
                                                                 color:
-                                                                    Colors.red,
+                                                                Colors.red,
                                                                 size: 20),
                                                           ),
                                                         ),
@@ -447,13 +563,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                                     ],
                                                   ),
                                                 )),
-                                          ],
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox();
-                                    }
-                                  })
+                                              ],
+                                            ),
+                                          );
+                                        } else {
+                                          return const SizedBox();
+                                        }
+                                      })
                                 ],
                               ),
                             );
